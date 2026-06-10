@@ -5,9 +5,10 @@ import { AuthModule } from './auth/auth.module'
 import { OrganizationsModule } from './organizations/organizations.module'
 import { ClientsModule } from './clients/clients.module'
 import { ProjectsModule } from './projects/projects.module'
+import { UsersModule } from './users/users.module'
 
 @Module({
-  imports: [DatabaseModule, AuthModule, OrganizationsModule, ClientsModule, ProjectsModule],
+  imports: [DatabaseModule, AuthModule, OrganizationsModule, ClientsModule, ProjectsModule, UsersModule],
   controllers: [AppController],
 })
 export class AppModule {}
