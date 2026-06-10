@@ -22,4 +22,5 @@ export interface JwtPayload {
   email: string
   role: Role
   organizationId?: string
+  clientId?: string
 }
