@@ -8,11 +8,11 @@ import {
 import {
   DynamoDBDocumentClient,
   PutCommand,
-  GetCommand,
   UpdateCommand,
   QueryCommand,
   DeleteCommand,
 } from '@aws-sdk/lib-dynamodb'
+
 import { v4 as uuidv4 } from 'uuid'
 import { DYNAMO_CLIENT } from '../database/database.module'
 import { CreateClientDto, UpdateClientDto, InviteClientDto, ClientStatus } from './dto/client.dto'
@@ -138,8 +138,24 @@ export class ClientsService {
       }),
     )
 
-    // TODO: send email via SES/Resend with portal URL
-    const portalUrl = `${process.env.WEB_URL ?? 'http://localhost:3000'}/portal/accept?token=${inviteToken}`
+    // TOKEN lookup item — allows portal to resolve client by token directly
+    await this.db.send(
+      new PutCommand({
+        TableName: TABLE,
+        Item: {
+          PK: `TOKEN#${inviteToken}`,
+          SK: `TOKEN#${inviteToken}`,
+          type: 'TOKEN',
+          clientId: id,
+          organizationId: client.organizationId as string,
+          email: dto.email,
+          name: dto.name,
+          createdAt: now,
+        },
+      }),
+    )
+
+    const portalUrl = `${process.env.WEB_URL ?? 'http://localhost:3000'}/portal/${inviteToken}`
 
     return { inviteToken, portalUrl, email: dto.email }
   }

@@ -189,7 +189,7 @@ export default function ProjectDetailPage() {
                         <span className="text-[11px] text-ink-muted">Open for: <span className="font-semibold text-danger">{b.openFor}</span></span>
                       </div>
                     </div>
-                    <button className="flex-shrink-0 bg-surface-higher border border-line hover:border-line-dim text-ink-dim text-xs font-medium px-3 py-1.5 rounded-md transition-colors whitespace-nowrap">
+                    <button className="shrink-0 bg-surface-higher border border-line hover:border-line-dim text-ink-dim text-xs font-medium px-3 py-1.5 rounded-md transition-colors whitespace-nowrap">
                       Mark as Resolved
                     </button>
                   </div>
