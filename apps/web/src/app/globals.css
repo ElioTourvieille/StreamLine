@@ -41,3 +41,24 @@ body {
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #2D2D3D; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #4a4455; }
+
+/* Markdown proposal preview */
+.prose-proposal { color: #ccc3d8; font-size: 0.875rem; line-height: 1.75; max-width: 780px; }
+.prose-proposal h1 { color: #F1F5F9; font-size: 1.375rem; font-weight: 700; margin: 0 0 1rem; border-bottom: 1px solid #2D2D3D; padding-bottom: 0.75rem; }
+.prose-proposal h2 { color: #F1F5F9; font-size: 1.05rem; font-weight: 600; margin: 2rem 0 0.5rem; }
+.prose-proposal h3 { color: #d2bbff; font-size: 0.875rem; font-weight: 600; margin: 1.25rem 0 0.375rem; }
+.prose-proposal p { margin: 0 0 0.75rem; }
+.prose-proposal ul, .prose-proposal ol { margin: 0 0 0.75rem 1.25rem; }
+.prose-proposal li { margin-bottom: 0.25rem; }
+.prose-proposal strong { color: #F1F5F9; font-weight: 600; }
+.prose-proposal em { color: #d2bbff; }
+.prose-proposal code { background: #1A1A24; border: 1px solid #2D2D3D; border-radius: 4px; padding: 0.1em 0.35em; font-size: 0.8em; color: #d2bbff; }
+.prose-proposal pre { background: #1A1A24; border: 1px solid #2D2D3D; border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 0 0 0.75rem; }
+.prose-proposal pre code { background: none; border: none; padding: 0; }
+.prose-proposal blockquote { border-left: 3px solid #7c3aed; padding-left: 1rem; color: #958da1; margin: 0 0 0.75rem; }
+.prose-proposal table { width: 100%; border-collapse: collapse; margin: 0 0 0.75rem; font-size: 0.8125rem; }
+.prose-proposal th { background: #1A1A24; color: #F1F5F9; font-weight: 600; text-align: left; padding: 0.5rem 0.75rem; border: 1px solid #2D2D3D; }
+.prose-proposal td { padding: 0.5rem 0.75rem; border: 1px solid #2D2D3D; }
+.prose-proposal tr:nth-child(even) td { background: #1A1A2420; }
+.prose-proposal a { color: #7c3aed; text-decoration: underline; }
+.prose-proposal hr { border: none; border-top: 1px solid #2D2D3D; margin: 1.5rem 0; }

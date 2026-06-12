@@ -4,13 +4,14 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
   LayoutDashboard, FolderOpen, Users, FileText,
-  Mail, Settings, LogOut, Compass,
+  Mail, Settings, LogOut, Compass, Sparkles,
 } from 'lucide-react'
 
 const NAV = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { href: '/projects', icon: FolderOpen, label: 'Projects' },
   { href: '/clients', icon: Users, label: 'Clients' },
+  { href: '/ai-generator', icon: Sparkles, label: 'AI Proposals' },
   { href: '/documents', icon: FileText, label: 'Documents' },
   { href: '/messages', icon: Mail, label: 'Messages' },
   { href: '/settings', icon: Settings, label: 'Settings' },
@@ -26,11 +27,11 @@ export default function Sidebar() {
   }
 
   return (
-    <aside className="w-[220px] h-screen bg-surface-dim border-r border-line flex flex-col flex-shrink-0">
+    <aside className="w-[220px] h-screen bg-surface-dim border-r border-line flex flex-col shrink-0">
       {/* Logo */}
       <div className="px-4 py-5 border-b border-line">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-violet flex items-center justify-center flex-shrink-0">
+          <div className="w-8 h-8 rounded-lg bg-violet flex items-center justify-center shrink-0">
             <Compass className="w-4 h-4 text-white" />
           </div>
           <div>
@@ -42,7 +43,7 @@ export default function Sidebar() {
       </div>
 
       {/* Nav */}
-      <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
+      <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto shrink-0 ">
         {NAV.map(({ href, icon: Icon, label }) => {
           const active = pathname === href || pathname.startsWith(href + '/')
           return (
@@ -56,7 +57,7 @@ export default function Sidebar() {
                   : 'text-ink-muted hover:bg-surface-high hover:text-ink border-l-2 border-transparent',
               ].join(' ')}
             >
-              <Icon className="w-4 h-4 flex-shrink-0" />
+              <Icon className="w-4 h-4 shrink-0" />
               {label}
             </Link>
           )
@@ -66,7 +67,7 @@ export default function Sidebar() {
       {/* User */}
       <div className="px-4 py-4 border-t border-line">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-violet/20 border border-violet/40 flex items-center justify-center text-xs font-semibold text-violet-glow flex-shrink-0">
+          <div className="w-8 h-8 rounded-full bg-violet/20 border border-violet/40 flex items-center justify-center text-xs font-semibold text-violet-glow shrink-0">
             ER
           </div>
           <div className="flex-1 min-w-0">
