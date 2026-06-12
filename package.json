@@ -12,7 +12,9 @@
     "dev:api": "pnpm --filter api dev",
     "build": "pnpm --filter web build && pnpm --filter api build",
     "lint": "pnpm --parallel --filter web --filter api lint",
-    "typecheck": "pnpm --parallel --filter web --filter api typecheck"
+    "typecheck": "pnpm --parallel --filter web --filter api typecheck",
+    "db:setup": "node scripts/setup-dynamo.mjs",
+    "db:setup:local": "DYNAMODB_ENDPOINT=http://localhost:8000 node scripts/setup-dynamo.mjs"
   },
   "devDependencies": {
     "typescript": "^5.5.4"

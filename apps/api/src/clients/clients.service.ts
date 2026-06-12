@@ -139,6 +139,8 @@ export class ClientsService {
     )
 
     // TOKEN lookup item — allows portal to resolve client by token directly
+    // ttl = 90 days from now (Unix seconds) — DynamoDB auto-deletes expired tokens
+    const ttl = Math.floor(Date.now() / 1000) + 90 * 24 * 60 * 60
     await this.db.send(
       new PutCommand({
         TableName: TABLE,
@@ -151,6 +153,7 @@ export class ClientsService {
           email: dto.email,
           name: dto.name,
           createdAt: now,
+          ttl,
         },
       }),
     )
