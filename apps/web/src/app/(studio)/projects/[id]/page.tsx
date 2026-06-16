@@ -1,131 +1,216 @@
-import Link from 'next/link'
-import { ArrowLeft, CheckCircle2, Circle, AlertCircle, FileText, MessageSquare } from 'lucide-react'
+'use client'
 
-const PROJECT = {
-  id: 'demo-0',
-  name: 'E-Commerce Replatforming',
-  client: 'Acme Corp',
-  status: 'On Track',
-  phase: 'Development',
-  description: 'Full-scale migration of legacy Magento 2 storefront to a headless Shopify Plus architecture with customized Hydrogen frontend components. Focus on improving LCP by 40% and reducing checkout friction.',
-  timeline: 'Oct 12 — Mar 24',
-  manager: 'Sarah Jenkins',
-  budget: '$145,000',
-  lastSync: '2 hours ago',
-  health: 75,
-  milestones: [
-    { label: 'Discovery', done: true },
-    { label: 'Strategy', done: true },
-    { label: 'UX/UI', done: true },
-    { label: 'Development', done: false, active: true },
-    { label: 'QA', done: false },
-    { label: 'Launch', done: false },
-  ],
-  blockers: [
-    {
-      title: 'API Authentication Mismatch',
-      description: 'The production API keys for Shopify are not synchronizing with the dev environment secrets. Blocking cart persistence.',
-      raisedBy: 'Marcus L.',
-      openFor: '3 days',
-      priority: 'High Priority',
-    },
-  ],
-  validations: [
-    { title: 'Checkout Flow UX', status: 'Approved', date: 'Oct 24, 2023' },
-    { title: 'Category Landing Pages', status: 'Pending', date: 'Oct 22, 2023' },
-    { title: 'Stripe Integration Keys', status: 'Approved', date: 'Oct 20, 2023' },
-    { title: 'Brand Palette Assets', status: 'Changes Requested', date: 'Oct 18, 2023' },
-    { title: 'Site Navigation Map', status: 'Approved', date: 'Oct 15, 2023' },
-  ],
-  team: [
-    { name: 'Sarah Jenkins', role: 'Project Manager', initials: 'SJ' },
-    { name: 'Marcus Lane', role: 'Fullstack Lead', initials: 'ML' },
-    { name: 'Elise Voss', role: 'UI/UX Designer', initials: 'EV' },
-  ],
-  stats: { validations: '8/12', docs: '5/7', chat: 23 },
-}
+import { useState, useCallback } from 'react'
+import Link from 'next/link'
+import { useParams } from 'next/navigation'
+import { motion, AnimatePresence } from 'framer-motion'
+import {
+  ArrowLeft, CheckCircle2, Circle, AlertCircle, FileText,
+  MessageSquare, Loader2, Plus, X, Users,
+} from 'lucide-react'
+import { api, type Deliverable } from '@/lib/api'
+import { useApiData } from '@/lib/hooks'
+
+// ─── Types ────────────────────────────────────────────────────────────────────
 
 const VALIDATION_STYLES: Record<string, string> = {
-  'Approved': 'bg-success/15 text-success',
-  'Pending': 'bg-warning/15 text-warning',
-  'Changes Requested': 'bg-danger/15 text-danger',
+  APPROVED:          'bg-success/15 text-success',
+  PENDING:           'bg-warning/15 text-warning',
+  CHANGES_REQUESTED: 'bg-danger/15 text-danger',
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  'On Track': 'bg-success/15 text-success',
-  'At Risk': 'bg-warning/15 text-warning',
-  'Overdue': 'bg-danger/15 text-danger',
+  ON_TRACK:   'bg-success/15 text-success',
+  AT_RISK:    'bg-warning/15 text-warning',
+  OVERDUE:    'bg-danger/15 text-danger',
+  IN_PROGRESS:'bg-violet/15 text-violet-glow',
+  COMPLETED:  'bg-info/15 text-info',
 }
 
-export default function ProjectDetailPage() {
-  const p = PROJECT
+const DELIVERABLE_TYPES = ['DESIGN_APPROVAL', 'DOCUMENT', 'ASSET', 'PROTOTYPE', 'VIDEO', 'OTHER']
+
+// ─── New Deliverable Modal ────────────────────────────────────────────────────
+
+function NewDeliverableModal({
+  projectId,
+  onClose,
+  onSave,
+}: {
+  projectId: string
+  onClose: () => void
+  onSave: (d: Deliverable) => void
+}) {
+  const [form, setForm] = useState({ title: '', type: 'DESIGN_APPROVAL', description: '', previewUrl: '', deadline: '' })
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
+    e.preventDefault()
+    setLoading(true)
+    setError('')
+    try {
+      const d = await api.deliverables.create({
+        projectId,
+        title: form.title,
+        type: form.type,
+        description: form.description || undefined,
+        previewUrl: form.previewUrl || undefined,
+        deadline: form.deadline || undefined,
+      })
+      onSave(d)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error creating deliverable')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
-    <div className="p-8 max-w-[1400px] mx-auto">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center z-50 p-0 sm:p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 40, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 20 }}
+        transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+        className="bg-surface border border-line rounded-t-2xl sm:rounded-xl w-full sm:max-w-md"
+      >
+        <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-line">
+          <h2 className="text-base font-semibold text-ink">Request Validation</h2>
+          <button onClick={onClose} className="text-ink-muted hover:text-ink p-1"><X className="w-5 h-5" /></button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-ink-dim mb-1.5 uppercase tracking-wide">Title <span className="text-danger">*</span></label>
+            <input type="text" required placeholder="Homepage Hero Section" value={form.title}
+              onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
+              className="w-full bg-bg border border-line rounded-lg px-3 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-violet transition-colors" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-ink-dim mb-1.5 uppercase tracking-wide">Type</label>
+            <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
+              className="w-full bg-bg border border-line rounded-lg px-3 py-2.5 text-sm text-ink focus:outline-none focus:border-violet transition-colors appearance-none cursor-pointer">
+              {DELIVERABLE_TYPES.map(t => <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-ink-dim mb-1.5 uppercase tracking-wide">Description</label>
+            <textarea rows={3} placeholder="Describe what the client needs to validate…" value={form.description}
+              onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
+              className="w-full bg-bg border border-line rounded-lg px-3 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-violet transition-colors resize-none" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-ink-dim mb-1.5 uppercase tracking-wide">Preview URL</label>
+            <input type="url" placeholder="https://figma.com/..." value={form.previewUrl}
+              onChange={e => setForm(f => ({ ...f, previewUrl: e.target.value }))}
+              className="w-full bg-bg border border-line rounded-lg px-3 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-violet transition-colors" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-ink-dim mb-1.5 uppercase tracking-wide">Deadline</label>
+            <input type="date" value={form.deadline}
+              onChange={e => setForm(f => ({ ...f, deadline: e.target.value }))}
+              className="w-full bg-bg border border-line rounded-lg px-3 py-2.5 text-sm text-ink focus:outline-none focus:border-violet transition-colors [scheme:dark]" />
+          </div>
+          {error && <p className="text-danger text-sm">{error}</p>}
+          <div className="flex gap-3 pt-1">
+            <button type="button" onClick={onClose}
+              className="flex-1 bg-surface-high border border-line text-ink-dim text-sm font-medium py-2.5 rounded-lg transition-colors">Cancel</button>
+            <button type="submit" disabled={loading}
+              className="flex-1 bg-violet hover:bg-violet-hover text-white text-sm font-semibold py-2.5 rounded-lg flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-60">
+              {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}Send Request
+            </button>
+          </div>
+        </form>
+      </motion.div>
+    </motion.div>
+  )
+}
+
+// ─── Project Detail Page ──────────────────────────────────────────────────────
+
+export default function ProjectDetailPage() {
+  const { id } = useParams<{ id: string }>()
+  const [showModal, setShowModal]             = useState(false)
+  const [localDeliverables, setLocalDeliverables] = useState<Deliverable[] | null>(null)
+
+  const fetchProject     = useCallback(() => api.projects.get(id), [id])
+  const fetchDeliverables= useCallback(() => api.deliverables.list(id), [id])
+
+  const { data: project,      loading: loadingProject } = useApiData(fetchProject)
+  const { data: apiDeliverables, loading: loadingDels } = useApiData(fetchDeliverables)
+
+  const deliverables = localDeliverables ?? apiDeliverables ?? []
+
+  const pending  = deliverables.filter(d => d.status === 'PENDING').length
+  const approved = deliverables.filter(d => d.status === 'APPROVED').length
+
+  const milestones = project?.milestones ?? []
+  const doneCount  = milestones.filter(m => m.status === 'DONE').length
+  const progress   = milestones.length > 0 ? Math.round(doneCount / milestones.length * 100) : 0
+
+  if (loadingProject) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <Loader2 className="w-6 h-6 animate-spin text-ink-muted" />
+      </div>
+    )
+  }
+
+  if (!project) {
+    return (
+      <div className="p-8 text-center">
+        <p className="text-ink-muted">Project not found.</p>
+        <Link href="/projects" className="text-violet-glow text-sm mt-2 inline-block">← Back to Projects</Link>
+      </div>
+    )
+  }
+
+  return (
+    <div className="p-6 sm:p-8 max-w-[1400px] mx-auto">
+      <AnimatePresence>
+        {showModal && (
+          <NewDeliverableModal
+            projectId={id}
+            onClose={() => setShowModal(false)}
+            onSave={d => { setLocalDeliverables(prev => [...(prev ?? deliverables), d]); setShowModal(false) }}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Header */}
-      <div className="flex items-center gap-3 mb-1">
-        <Link href="/dashboard" className="text-ink-muted hover:text-ink transition-colors">
+      <div className="flex flex-wrap items-center gap-3 mb-1">
+        <Link href="/projects" className="text-ink-muted hover:text-ink transition-colors">
           <ArrowLeft className="w-5 h-5" />
         </Link>
-        <h1 className="text-2xl font-semibold text-ink tracking-tight">{p.name}</h1>
-        <span className="px-2.5 py-1 bg-surface-high border border-line rounded-full text-xs font-medium text-ink-dim">
-          {p.client}
-        </span>
-        <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${STATUS_STYLES[p.status]}`}>
+        <h1 className="text-xl sm:text-2xl font-semibold text-ink tracking-tight">{project.name}</h1>
+        <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${STATUS_STYLES[project.status] ?? 'bg-white/5 text-ink-muted'}`}>
           <span className="w-1.5 h-1.5 rounded-full bg-current" />
-          {p.status}
-        </span>
-        <span className="px-2.5 py-1 bg-surface-high border border-line rounded-full text-xs font-medium text-ink-dim">
-          {p.phase}
+          {project.status.replace(/_/g, ' ')}
         </span>
         <div className="ml-auto">
-          <button className="bg-violet hover:bg-violet-hover text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors active:scale-[0.98]">
-            Request Validation
+          <button onClick={() => setShowModal(true)}
+            className="flex items-center gap-2 bg-violet hover:bg-violet-hover text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors active:scale-[0.98]">
+            <Plus className="w-4 h-4" /><span className="hidden sm:inline">Request Validation</span><span className="sm:hidden">New</span>
           </button>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex gap-6 border-b border-line mb-6 mt-4">
-        {['Overview', 'Validations', 'Documents', 'Timeline', 'Messages', 'Settings'].map((tab, i) => (
-          <button key={tab}
-            className={`pb-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
-              i === 0
-                ? 'text-ink border-violet'
-                : 'text-ink-muted border-transparent hover:text-ink'
-            }`}>
-            {tab}
-          </button>
-        ))}
-      </div>
-
-      <div className="grid grid-cols-[1fr_300px] gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-5 sm:gap-6 mt-6">
         {/* Left column */}
         <div className="space-y-5">
           {/* Scope card */}
-          <div className="bg-surface border border-line rounded-lg p-6">
-            <div className="flex items-start justify-between mb-4">
-              <h2 className="text-base font-semibold text-ink">Project Scope</h2>
-              <div className="flex -space-x-2">
-                {p.team.map((m) => (
-                  <div key={m.name}
-                    className="w-7 h-7 rounded-full bg-violet/20 border-2 border-surface flex items-center justify-center text-[10px] font-bold text-violet-glow"
-                    title={m.name}>
-                    {m.initials}
-                  </div>
-                ))}
-                <div className="w-7 h-7 rounded-full bg-surface-higher border-2 border-surface flex items-center justify-center text-[10px] font-bold text-ink-muted">
-                  +4
-                </div>
-              </div>
-            </div>
-            <p className="text-sm text-ink-dim leading-relaxed mb-5">{p.description}</p>
-            <div className="grid grid-cols-4 gap-4 pt-4 border-t border-line">
+          <div className="bg-surface border border-line rounded-lg p-5 sm:p-6">
+            <h2 className="text-base font-semibold text-ink mb-3">Project Scope</h2>
+            {project.description
+              ? <p className="text-sm text-ink-dim leading-relaxed mb-5">{project.description}</p>
+              : <p className="text-sm text-ink-faint mb-5">No description provided.</p>
+            }
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-line">
               {[
-                { label: 'Timeline', value: p.timeline },
-                { label: 'Project Manager', value: p.manager },
-                { label: 'Total Budget', value: p.budget },
-                { label: 'Last Sync', value: p.lastSync },
+                { label: 'Start', value: project.startDate ? new Date(project.startDate).toLocaleDateString() : '—' },
+                { label: 'End',   value: project.endDate   ? new Date(project.endDate).toLocaleDateString()   : '—' },
+                { label: 'Approvals', value: `${approved}/${deliverables.length}` },
+                { label: 'Health',    value: `${progress}%` },
               ].map(({ label, value }) => (
                 <div key={label}>
                   <p className="text-[11px] text-ink-muted uppercase tracking-wide mb-1">{label}</p>
@@ -136,123 +221,89 @@ export default function ProjectDetailPage() {
           </div>
 
           {/* Milestone timeline */}
-          <div className="bg-surface border border-line rounded-lg p-6">
-            <p className="text-[11px] font-semibold text-ink-muted uppercase tracking-widest mb-5">Milestone Timeline</p>
-            <div className="relative flex items-center justify-between">
-              {/* Track line */}
-              <div className="absolute top-4 left-4 right-4 h-0.5 bg-line" />
-              <div className="absolute top-4 left-4 h-0.5 bg-violet" style={{ width: '50%' }} />
-
-              {p.milestones.map((m) => (
-                <div key={m.label} className="flex flex-col items-center gap-2 relative z-10">
-                  <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
-                    m.done
-                      ? 'bg-success border-success'
-                      : m.active
-                        ? 'bg-surface border-violet ring-4 ring-violet/20'
+          {milestones.length > 0 && (
+            <div className="bg-surface border border-line rounded-lg p-5 sm:p-6">
+              <p className="text-[11px] font-semibold text-ink-muted uppercase tracking-widest mb-5">Milestone Timeline</p>
+              <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+                <div className="relative flex items-start justify-between min-w-[480px] sm:min-w-0">
+                  <div className="absolute top-4 left-4 right-4 h-0.5 bg-line" />
+                  <div className="absolute top-4 left-4 h-0.5 bg-violet" style={{ width: `${progress}%` }} />
+                  {milestones.map(m => (
+                    <div key={m.id} className="flex flex-col items-center gap-2 relative z-10">
+                      <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
+                        m.status === 'DONE'        ? 'bg-success border-success'
+                        : m.status === 'IN_PROGRESS' ? 'bg-surface border-violet ring-4 ring-violet/20'
+                        : m.status === 'BLOCKED'     ? 'bg-surface border-danger'
                         : 'bg-surface border-line'
-                  }`}>
-                    {m.done
-                      ? <CheckCircle2 className="w-4 h-4 text-white" />
-                      : m.active
-                        ? <Circle className="w-3 h-3 text-violet fill-violet" />
-                        : <Circle className="w-3 h-3 text-line" />}
-                  </div>
-                  <span className={`text-xs font-medium ${m.active ? 'text-ink' : m.done ? 'text-success' : 'text-ink-muted'}`}>
-                    {m.label}
-                  </span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Blockers */}
-          {p.blockers.length > 0 && (
-            <div className="bg-surface border border-line rounded-lg p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 text-danger" />
-                  <h2 className="text-base font-semibold text-danger">Active Blockers</h2>
-                </div>
-                <span className="bg-danger/15 text-danger text-[11px] font-bold px-2.5 py-0.5 rounded-full">
-                  High Priority
-                </span>
-              </div>
-              {p.blockers.map((b, i) => (
-                <div key={i} className="bg-surface-high border border-line rounded-lg p-4">
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="text-sm font-semibold text-ink mb-1">{b.title}</p>
-                      <p className="text-sm text-ink-dim leading-relaxed">{b.description}</p>
-                      <div className="flex items-center gap-3 mt-2">
-                        <span className="text-[11px] text-ink-muted">Raised by: <span className="font-semibold text-ink-dim">{b.raisedBy}</span></span>
-                        <span className="text-[11px] text-ink-muted">Open for: <span className="font-semibold text-danger">{b.openFor}</span></span>
+                      }`}>
+                        {m.status === 'DONE'
+                          ? <CheckCircle2 className="w-4 h-4 text-white" />
+                          : m.status === 'IN_PROGRESS'
+                            ? <Circle className="w-3 h-3 text-violet fill-violet" />
+                            : <Circle className="w-3 h-3 text-line" />}
+                      </div>
+                      <div className="text-center">
+                        <p className={`text-xs font-medium whitespace-nowrap ${
+                          m.status === 'IN_PROGRESS' ? 'text-ink'
+                          : m.status === 'DONE'      ? 'text-success'
+                          : 'text-ink-muted'
+                        }`}>{m.title}</p>
+                        {m.dueDate && <p className="text-[10px] text-ink-faint whitespace-nowrap">{new Date(m.dueDate).toLocaleDateString()}</p>}
                       </div>
                     </div>
-                    <button className="shrink-0 bg-surface-higher border border-line hover:border-line-dim text-ink-dim text-xs font-medium px-3 py-1.5 rounded-md transition-colors whitespace-nowrap">
-                      Mark as Resolved
-                    </button>
-                  </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
           )}
 
-          {/* Validations */}
+          {/* Deliverables */}
           <div className="bg-surface border border-line rounded-lg overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-line">
-              <h2 className="text-base font-semibold text-ink">Recent Validations</h2>
-              <button className="text-sm text-ink-muted hover:text-ink transition-colors">View All</button>
+            <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-line">
+              <h2 className="text-base font-semibold text-ink">Validations</h2>
+              <span className="text-xs text-ink-muted">{pending} pending</span>
             </div>
-            <table className="w-full">
-              <tbody>
-                {p.validations.map((v, i) => (
-                  <tr key={v.title}
-                    className={`h-12 border-b border-line hover:bg-surface-high transition-colors cursor-pointer ${i === p.validations.length - 1 ? 'border-b-0' : ''}`}>
-                    <td className="px-6 text-sm font-medium text-ink">{v.title}</td>
-                    <td className="px-6">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${VALIDATION_STYLES[v.status] ?? 'bg-white/5 text-ink-muted'}`}>
-                        {v.status}
-                      </span>
-                    </td>
-                    <td className="px-6 text-sm text-ink-muted text-right">{v.date}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+
+            {loadingDels ? (
+              <div className="flex items-center justify-center py-10">
+                <Loader2 className="w-5 h-5 animate-spin text-ink-muted" />
+              </div>
+            ) : deliverables.length === 0 ? (
+              <div className="py-10 text-center">
+                <FileText className="w-7 h-7 text-ink-faint mx-auto mb-2" />
+                <p className="text-sm text-ink-muted">No validations yet.</p>
+                <button onClick={() => setShowModal(true)}
+                  className="text-sm text-violet-glow hover:underline mt-1">Request your first validation →</button>
+              </div>
+            ) : (
+              <table className="w-full">
+                <tbody>
+                  {deliverables.map((d, i) => (
+                    <motion.tr key={d.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }}
+                      className={`h-12 border-b border-line hover:bg-surface-high transition-colors ${i === deliverables.length - 1 ? 'border-b-0' : ''}`}>
+                      <td className="px-5 sm:px-6 text-sm font-medium text-ink">{d.title}</td>
+                      <td className="px-5 sm:px-6 hidden sm:table-cell">
+                        <span className="text-xs text-ink-muted">{d.type.replace(/_/g, ' ')}</span>
+                      </td>
+                      <td className="px-5 sm:px-6">
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${VALIDATION_STYLES[d.status] ?? 'bg-white/5 text-ink-muted'}`}>
+                          {d.status.replace(/_/g, ' ')}
+                        </span>
+                      </td>
+                      <td className="px-5 sm:px-6 text-sm text-ink-muted text-right hidden sm:table-cell">
+                        {d.deadline ? new Date(d.deadline).toLocaleDateString() : '—'}
+                      </td>
+                    </motion.tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
           </div>
         </div>
 
         {/* Right column */}
         <div className="space-y-5">
-          {/* Client actions */}
-          <div className="bg-surface border border-line rounded-lg p-5">
-            <div className="flex items-center gap-2 mb-4">
-              <AlertCircle className="w-4 h-4 text-warning" />
-              <h2 className="text-sm font-semibold text-ink">Client Actions</h2>
-            </div>
-            <div className="space-y-3">
-              {[
-                { title: 'DNS Records Setup', cat: 'Technical', due: 'Oct 20', status: 'Overdue' },
-                { title: 'Legal Terms Approval', cat: 'Legal', due: 'Oct 28', status: 'Due in 2d' },
-              ].map((a) => (
-                <div key={a.title} className="bg-surface-high border border-line rounded-lg p-3.5">
-                  <div className="flex items-start justify-between mb-1">
-                    <p className="text-sm font-medium text-ink">{a.title}</p>
-                    <span className={`text-[11px] font-semibold ${a.status === 'Overdue' ? 'text-danger' : 'text-warning'}`}>
-                      {a.status}
-                    </span>
-                  </div>
-                  <p className="text-[11px] text-ink-muted mb-3">{a.cat} / {a.due}</p>
-                  <button className="w-full bg-surface-higher hover:bg-line border border-line text-ink-dim text-xs font-medium py-1.5 rounded-md transition-colors">
-                    Send Reminder
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Project health */}
+          {/* Stats */}
           <div className="bg-surface border border-line rounded-lg p-5">
             <h2 className="text-sm font-semibold text-ink mb-4">Project Health</h2>
             <div className="flex items-center justify-center mb-4">
@@ -260,20 +311,20 @@ export default function ProjectDetailPage() {
                 <svg className="w-24 h-24 -rotate-90" viewBox="0 0 96 96">
                   <circle cx="48" cy="48" r="38" fill="none" stroke="#2D2D3D" strokeWidth="8" />
                   <circle cx="48" cy="48" r="38" fill="none" stroke="#7c3aed" strokeWidth="8"
-                    strokeDasharray={`${2 * Math.PI * 38 * p.health / 100} ${2 * Math.PI * 38 * (1 - p.health / 100)}`}
+                    strokeDasharray={`${2 * Math.PI * 38 * progress / 100} ${2 * Math.PI * 38 * (1 - progress / 100)}`}
                     strokeLinecap="round" />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-xl font-bold text-ink">{p.health}%</span>
-                  <span className="text-[10px] text-ink-muted">On Track</span>
+                  <span className="text-xl font-bold text-ink">{progress}%</span>
+                  <span className="text-[10px] text-ink-muted">Complete</span>
                 </div>
               </div>
             </div>
             <div className="grid grid-cols-3 gap-3 pt-4 border-t border-line">
               {[
-                { icon: CheckCircle2, label: 'Valids', value: p.stats.validations },
-                { icon: FileText, label: 'Docs', value: p.stats.docs },
-                { icon: MessageSquare, label: 'Chat', value: p.stats.chat },
+                { icon: CheckCircle2, label: 'Approved', value: approved },
+                { icon: AlertCircle,  label: 'Pending',  value: pending  },
+                { icon: FileText,     label: 'Total',    value: deliverables.length },
               ].map(({ label, value }) => (
                 <div key={label} className="text-center">
                   <p className="text-base font-bold text-ink">{value}</p>
@@ -283,41 +334,22 @@ export default function ProjectDetailPage() {
             </div>
           </div>
 
-          {/* Team */}
+          {/* Team (members from project if available) */}
           <div className="bg-surface border border-line rounded-lg p-5">
-            <h2 className="text-sm font-semibold text-ink mb-4">Assigned Team</h2>
+            <h2 className="text-sm font-semibold text-ink mb-4">Project Info</h2>
             <div className="space-y-3">
-              {p.team.map((m) => (
-                <div key={m.name} className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-violet/20 border border-violet/30 flex items-center justify-center text-xs font-bold text-violet-glow">
-                    {m.initials}
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-ink">{m.name}</p>
-                    <p className="text-[11px] text-ink-muted">{m.role}</p>
-                  </div>
-                </div>
-              ))}
+              <div className="flex items-center gap-2.5">
+                <Users className="w-4 h-4 text-ink-faint shrink-0" />
+                <span className="text-sm text-ink-muted">Client ID: <span className="text-ink font-medium">{project.clientId.slice(0, 8)}…</span></span>
+              </div>
+              <div className="flex items-center gap-2.5">
+                <MessageSquare className="w-4 h-4 text-ink-faint shrink-0" />
+                <span className="text-sm text-ink-muted">{deliverables.length} validation{deliverables.length !== 1 ? 's' : ''}</span>
+              </div>
             </div>
-            <button className="mt-4 w-full bg-surface-high hover:bg-surface-higher border border-line text-ink-dim text-xs font-medium py-2 rounded-md transition-colors">
-              <Users className="w-3.5 h-3.5 inline mr-1.5" />
-              Manage Access
-            </button>
           </div>
         </div>
       </div>
     </div>
-  )
-}
-
-function Users(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
-      stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
-      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-      <circle cx="9" cy="7" r="4" />
-      <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
-      <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-    </svg>
   )
 }

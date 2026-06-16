@@ -10,6 +10,7 @@ export class RegisterDto {
   @IsString() @MinLength(8) password!: string
   @IsString() @MinLength(2) name!: string
   @IsEnum(Role) @IsOptional() role?: Role
+  @IsString() @IsOptional() organizationName?: string
 }
 
 export class LoginDto {
