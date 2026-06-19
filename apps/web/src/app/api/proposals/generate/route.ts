@@ -24,32 +24,32 @@ function buildPrompt(brief: ProposalBrief): string {
 **Key deliverables:** ${brief.deliverables.join(', ')}
 **Technical requirements / stack:** ${brief.requirements}
 
-Write a complete, polished proposal in French (the agency is French). Structure it with these sections:
+Write a complete, polished proposal in English. Structure it with these sections:
 
-# Proposition Commerciale — ${brief.clientName}
+# Project Proposal — ${brief.clientName}
 
-## Résumé exécutif
+## Executive Summary
 Brief paragraph presenting the project and our understanding of the need.
 
-## Périmètre du projet
+## Project Scope
 Detailed scope covering what's included, with sub-sections per deliverable.
 
-## Approche technique
+## Technical Approach
 Technologies, architecture choices, and methodology.
 
-## Planning prévisionnel
+## Project Timeline
 Phase breakdown with milestones and estimated durations.
 
 ## Budget
 Itemized cost breakdown matching the ${brief.budgetRange} range, then a total.
 
-## Conditions commerciales
+## Commercial Terms
 Payment schedule, change-request policy, warranty, and support.
 
-## Prochaines étapes
+## Next Steps
 Clear call to action: what happens after approval.
 
-Use professional but warm French. Be specific and concrete. No filler text.`
+Use professional but warm English. Be specific and concrete. No filler text.`
 }
 
 export async function POST(req: NextRequest) {
