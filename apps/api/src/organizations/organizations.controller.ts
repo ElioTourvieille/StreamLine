@@ -38,6 +38,13 @@ export class OrganizationsController {
     return this.orgsService.getActivity(id)
   }
 
+  @Get(':id/messages')
+  @Roles(Role.STUDIO)
+  getOrgMessages(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    if (user.organizationId !== id) throw new ForbiddenException()
+    return this.orgsService.getOrgMessages(id)
+  }
+
   @Patch(':id')
   @Roles(Role.STUDIO)
   update(

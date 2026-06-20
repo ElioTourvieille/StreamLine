@@ -4,6 +4,7 @@ import {
 } from '@nestjs/common'
 import { ProjectsService } from './projects.service'
 import { CreateProjectDto, UpdateProjectDto, UpdateMilestoneDto, MilestoneDto } from './dto/project.dto'
+import { CreateMessageDto } from './dto/message.dto'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { RolesGuard } from '../auth/guards/roles.guard'
 import { Roles } from '../auth/decorators/roles.decorator'
@@ -69,5 +70,21 @@ export class ProjectsController {
     @CurrentUser() user: JwtPayload,
   ) {
     return this.projectsService.updateMilestone(id, milestoneId, dto, user)
+  }
+
+  @Get(':id/messages')
+  @Roles(Role.STUDIO)
+  getMessages(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.projectsService.getMessages(id, user)
+  }
+
+  @Post(':id/messages')
+  @Roles(Role.STUDIO)
+  createMessage(
+    @Param('id') id: string,
+    @Body() dto: CreateMessageDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.projectsService.createMessage(id, dto, user)
   }
 }

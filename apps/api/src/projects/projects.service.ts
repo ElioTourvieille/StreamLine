@@ -22,6 +22,7 @@ import {
   ProjectStatus,
   MilestoneStatus,
 } from './dto/project.dto'
+import { CreateMessageDto } from './dto/message.dto'
 import { JwtPayload, Role } from '../auth/dto/auth.dto'
 
 const TABLE = process.env.DYNAMO_TABLE ?? 'streamline'
@@ -209,6 +210,44 @@ export class ProjectsService {
     )
     const item = result.Items?.[0]
     if (!item) throw new NotFoundException('Project not found')
+    return item
+  }
+
+  async getMessages(projectId: string, user: JwtPayload) {
+    const project = await this.getProjectById(projectId)
+    this.assertAccess(project, user)
+
+    const result = await this.db.send(
+      new QueryCommand({
+        TableName: TABLE,
+        KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
+        ExpressionAttributeValues: { ':pk': `PROJECT#${projectId}`, ':sk': 'MSG#' },
+        ScanIndexForward: true,
+      }),
+    )
+    return result.Items ?? []
+  }
+
+  async createMessage(projectId: string, dto: CreateMessageDto, user: JwtPayload) {
+    const project = await this.getProjectById(projectId)
+    this.assertAccess(project, user)
+
+    const id = uuidv4()
+    const now = new Date().toISOString()
+
+    const item = {
+      PK: `PROJECT#${projectId}`,
+      SK: `MSG#${now}#${id}`,
+      id,
+      projectId,
+      organizationId: project.organizationId,
+      authorId: user.sub,
+      authorName: dto.authorName ?? user.email,
+      text: dto.text,
+      createdAt: now,
+    }
+
+    await this.db.send(new PutCommand({ TableName: TABLE, Item: item }))
     return item
   }
 

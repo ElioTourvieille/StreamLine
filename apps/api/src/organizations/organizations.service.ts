@@ -206,6 +206,46 @@ export class OrganizationsService {
       .slice(0, 10)
   }
 
+  async getOrgMessages(orgId: string) {
+    const projRes = await this.db.send(
+      new QueryCommand({
+        TableName: TABLE,
+        KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
+        ExpressionAttributeValues: { ':pk': `ORG#${orgId}`, ':sk': 'PROJECT#' },
+      }),
+    )
+    const projects = projRes.Items ?? []
+
+    const results = await Promise.all(
+      projects.map(async p => {
+        const msgRes = await this.db.send(
+          new QueryCommand({
+            TableName: TABLE,
+            KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
+            ExpressionAttributeValues: { ':pk': `PROJECT#${p.id}`, ':sk': 'MSG#' },
+            ScanIndexForward: false,
+            Limit: 1,
+          }),
+        )
+        return {
+          projectId: String(p.id),
+          projectName: String(p.name),
+          clientId: p.clientId ? String(p.clientId) : undefined,
+          lastMessage: msgRes.Items?.[0] ?? null,
+        }
+      }),
+    )
+
+    return results.sort((a, b) => {
+      if (a.lastMessage && b.lastMessage) {
+        return String(b.lastMessage.createdAt).localeCompare(String(a.lastMessage.createdAt))
+      }
+      if (a.lastMessage) return -1
+      if (b.lastMessage) return 1
+      return 0
+    })
+  }
+
   private async findBySlug(slug: string) {
     const result = await this.db.send(
       new QueryCommand({

@@ -1,5 +1,28 @@
 # PROGRESS.md — StreamLine
 
+## Session 6 — 20 juin 2026
+
+**Fait :**
+- `/messages` complètement implémentée : layout 2 colonnes, bulles de messages, polling 5s
+- Backend : `GET /api/projects/:id/messages`, `POST /api/projects/:id/messages`, `GET /api/organizations/:id/messages`
+- DynamoDB pattern : `PROJECT#{id}` | `MSG#{iso}#{uuid}` — ordre chronologique naturel
+- `api.ts` : types `Message`, `ProjectThread` + `api.messages.listByProject/send` + `api.organizations.messages()`
+- Messages propres (auteur = user connecté) affichés à droite en violet, autres à gauche
+- Polling `setInterval(5000)` avec `clearInterval` au changement de projet
+- Auto-scroll to bottom après send/load
+- Empty state dans la liste et dans la conversation
+- TypeScript 0 erreur web + api
+
+**Bloquants :**
+- Aucun
+
+**Prochaine étape :**
+1. Mobile responsive check complet
+2. README + architecture diagram pour la soumission Devpost
+3. Vidéo démo prep + soumission Devpost
+
+---
+
 ## Session 5 — 20 juin 2026
 
 **Fait :**

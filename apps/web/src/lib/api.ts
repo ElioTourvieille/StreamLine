@@ -83,6 +83,14 @@ export type PortalContext = {
 
 export type InviteResponse = { inviteToken: string; portalUrl: string; email: string }
 
+export type Message = {
+  id: string; projectId: string; authorId: string; authorName: string; text: string; createdAt: string
+}
+
+export type ProjectThread = {
+  projectId: string; projectName: string; clientId?: string; lastMessage: Message | null
+}
+
 // ── API ───────────────────────────────────────────────────────────────────────
 
 export const api = {
@@ -141,5 +149,12 @@ export const api = {
       apiFetch<Organization>(`/organizations/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
     stats: (id: string) => apiFetch<OrgStats>(`/organizations/${id}/stats`),
     activity: (id: string) => apiFetch<ActivityEvent[]>(`/organizations/${id}/activity`),
+    messages: (id: string) => apiFetch<ProjectThread[]>(`/organizations/${id}/messages`),
+  },
+
+  messages: {
+    listByProject: (projectId: string) => apiFetch<Message[]>(`/projects/${projectId}/messages`),
+    send: (projectId: string, data: { text: string; authorName?: string }) =>
+      apiFetch<Message>(`/projects/${projectId}/messages`, { method: 'POST', body: JSON.stringify(data) }),
   },
 }
