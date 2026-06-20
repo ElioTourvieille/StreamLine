@@ -2,10 +2,12 @@
 
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import {
   LayoutDashboard, FolderOpen, Users, FileText,
   Mail, Settings, LogOut, Compass, Sparkles,
 } from 'lucide-react'
+import { api } from '@/lib/api'
 
 const NAV = [
   { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -17,14 +19,40 @@ const NAV = [
   { href: '/settings', icon: Settings, label: 'Settings' },
 ]
 
+function getInitials(name: string) {
+  return name.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase()
+}
+
 export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
+  const [userInfo, setUserInfo] = useState<{ name: string; orgName: string } | null>(null)
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const user = await api.users.me()
+        let orgName = ''
+        if (user.organizationId) {
+          const org = await api.organizations.get(user.organizationId)
+          orgName = org.name
+        }
+        setUserInfo({ name: user.name, orgName })
+      } catch {
+        // Silent fail — sidebar still works without user info
+      }
+    }
+    load()
+  }, [])
 
   function handleLogout() {
     localStorage.removeItem('sl_token')
     router.push('/login')
   }
+
+  const displayName = userInfo?.name ?? '—'
+  const displayOrg = userInfo?.orgName ?? '—'
+  const initials = userInfo ? getInitials(userInfo.name) : '?'
 
   return (
     <aside className="w-[220px] h-screen bg-surface-dim border-r border-line flex flex-col shrink-0">
@@ -68,11 +96,11 @@ export default function Sidebar() {
       <div className="px-4 py-4 border-t border-line">
         <div className="flex items-center gap-2.5">
           <div className="w-8 h-8 rounded-full bg-violet/20 border border-violet/40 flex items-center justify-center text-xs font-semibold text-violet-glow shrink-0">
-            ER
+            {initials}
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-ink text-sm font-medium truncate">Elio Rossi</div>
-            <div className="text-ink-muted text-[11px] truncate">Origin Studio</div>
+            <div className="text-ink text-sm font-medium truncate">{displayName}</div>
+            <div className="text-ink-muted text-[11px] truncate">{displayOrg}</div>
           </div>
           <button
             onClick={handleLogout}

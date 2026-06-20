@@ -27,6 +27,15 @@ export async function apiFetch<T = unknown>(path: string, opts?: RequestInit): P
 export type AuthUser = { id: string; name: string; email: string; role: string }
 export type AuthResponse = { accessToken: string; user: AuthUser }
 
+export type UserProfile = {
+  id: string; name: string; email: string; role: string
+  organizationId?: string; avatarUrl?: string; jobTitle?: string
+}
+
+export type Organization = {
+  id: string; name: string; slug: string; primaryColor?: string; logoUrl?: string
+}
+
 export type Client = {
   id: string; name: string; contactEmail: string
   company?: string; phone?: string; status: 'ACTIVE' | 'ARCHIVED'
@@ -35,7 +44,7 @@ export type Client = {
 
 export type Milestone = {
   id: string; title: string; dueDate?: string
-  status: 'PENDING' | 'IN_PROGRESS' | 'DONE' | 'BLOCKED'
+  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED'
 }
 
 export type Project = {
@@ -103,5 +112,15 @@ export const api = {
     get: (token: string) => apiFetch<PortalContext>(`/portal/${token}`),
     validate: (token: string, id: string, data: { action: string; comment?: string }) =>
       apiFetch(`/portal/${token}/deliverables/${id}/validate`, { method: 'POST', body: JSON.stringify(data) }),
+  },
+
+  users: {
+    me: () => apiFetch<UserProfile>('/users/me'),
+    update: (data: Partial<Pick<UserProfile, 'name' | 'avatarUrl' | 'jobTitle'>>) =>
+      apiFetch<UserProfile>('/users/me', { method: 'PATCH', body: JSON.stringify(data) }),
+  },
+
+  organizations: {
+    get: (id: string) => apiFetch<Organization>(`/organizations/${id}`),
   },
 }

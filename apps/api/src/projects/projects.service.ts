@@ -150,7 +150,7 @@ export class ProjectsService {
     )
   }
 
-  async addMilestone(id: string, dto: { title: string; dueDate: string }, user: JwtPayload) {
+  async addMilestone(id: string, dto: { title: string; dueDate?: string }, user: JwtPayload) {
     const project = await this.getProjectById(id)
     this.assertStudioAccess(project, user)
 

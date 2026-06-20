@@ -145,7 +145,7 @@ export default function ProjectDetailPage() {
   const approved = deliverables.filter(d => d.status === 'APPROVED').length
 
   const milestones = project?.milestones ?? []
-  const doneCount  = milestones.filter(m => m.status === 'DONE').length
+  const doneCount  = milestones.filter(m => m.status === 'COMPLETED').length
   const progress   = milestones.length > 0 ? Math.round(doneCount / milestones.length * 100) : 0
 
   if (loadingProject) {
@@ -231,12 +231,11 @@ export default function ProjectDetailPage() {
                   {milestones.map(m => (
                     <div key={m.id} className="flex flex-col items-center gap-2 relative z-10">
                       <div className={`w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all ${
-                        m.status === 'DONE'        ? 'bg-success border-success'
+                        m.status === 'COMPLETED'     ? 'bg-success border-success'
                         : m.status === 'IN_PROGRESS' ? 'bg-surface border-violet ring-4 ring-violet/20'
-                        : m.status === 'BLOCKED'     ? 'bg-surface border-danger'
                         : 'bg-surface border-line'
                       }`}>
-                        {m.status === 'DONE'
+                        {m.status === 'COMPLETED'
                           ? <CheckCircle2 className="w-4 h-4 text-white" />
                           : m.status === 'IN_PROGRESS'
                             ? <Circle className="w-3 h-3 text-violet fill-violet" />
@@ -245,7 +244,7 @@ export default function ProjectDetailPage() {
                       <div className="text-center">
                         <p className={`text-xs font-medium whitespace-nowrap ${
                           m.status === 'IN_PROGRESS' ? 'text-ink'
-                          : m.status === 'DONE'      ? 'text-success'
+                          : m.status === 'COMPLETED' ? 'text-success'
                           : 'text-ink-muted'
                         }`}>{m.title}</p>
                         {m.dueDate && <p className="text-[10px] text-ink-faint whitespace-nowrap">{new Date(m.dueDate).toLocaleDateString()}</p>}

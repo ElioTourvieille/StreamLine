@@ -1,5 +1,29 @@
 # PROGRESS.md — StreamLine
 
+## Session 3 — 20 juin 2026
+
+**Fait :**
+- Milestone fix validé : `POST /api/projects` avec milestones sans `dueDate` → 200 ✅ (3 milestones créés)
+- `projects.service.ts` : `addMilestone` typé `dueDate?: string` (cohérent avec DTO)
+- Dashboard `/dashboard` wirée à l'API réelle : stats (activeProjects, pendingValidations, changesRequested, completed), projets récents avec noms clients réels, activity feed depuis deliverables APPROVED/CHANGES_REQUESTED
+- Sidebar : user info chargée via `api.users.me()` + `api.organizations.get(orgId)` — plus hardcodé
+- Pages stubs créées : `/documents`, `/messages`, `/settings` (settings fonctionnel : update nom profil)
+- `api.ts` : ajout `UserProfile`, `Organization`, `api.users.me()`, `api.organizations.get()`, correction type `Milestone.status` (`DONE`→`COMPLETED`)
+- TypeScript 0 erreur web + api après tous les changements
+
+**Bloquants :**
+- Aucun bloquant connu. `ANTHROPIC_API_KEY` remplie par l'utilisateur.
+
+**Prochaine étape :**
+1. Tester le streaming AI Generator bout-en-bout dans le browser
+2. Polish : empty states, animations manquantes sur settings/documents/messages
+3. Mobile responsive check complet
+4. README + architecture diagram pour la soumission Devpost
+5. Vidéo démo prep + soumission Devpost
+
+---
+
+
 > Journal d'avancement par session. Lu par Claude Code au début de chaque session.  
 > Format : ajouter en haut, ne jamais supprimer les entrées précédentes.
 

@@ -20,7 +20,7 @@ export enum MilestoneStatus {
 
 export class MilestoneDto {
   @IsString() @IsNotEmpty() title!: string
-  @IsDateString() dueDate!: string
+  @IsDateString() @IsOptional() dueDate?: string
   @IsEnum(MilestoneStatus) @IsOptional() status?: MilestoneStatus
 }
 
