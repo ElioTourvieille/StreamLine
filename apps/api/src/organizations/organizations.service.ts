@@ -97,6 +97,111 @@ export class OrganizationsService {
     return { ...org, ...dto, updatedAt: now }
   }
 
+  async getStats(orgId: string) {
+    const [projRes, clientRes] = await Promise.all([
+      this.db.send(new QueryCommand({
+        TableName: TABLE,
+        KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
+        ExpressionAttributeValues: { ':pk': `ORG#${orgId}`, ':sk': 'PROJECT#' },
+      })),
+      this.db.send(new QueryCommand({
+        TableName: TABLE,
+        KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
+        ExpressionAttributeValues: { ':pk': `ORG#${orgId}`, ':sk': 'CLIENT#' },
+      })),
+    ])
+
+    const projects = projRes.Items ?? []
+    const clients  = clientRes.Items ?? []
+
+    const activeProjects = projects.filter(
+      p => p.status !== 'COMPLETED' && p.status !== 'ARCHIVED',
+    ).length
+
+    const completedMilestones = projects.reduce((sum, p) => {
+      const ms = (p.milestones ?? []) as Array<{ status: string }>
+      return sum + ms.filter(m => m.status === 'COMPLETED').length
+    }, 0)
+
+    // Count PENDING deliverables across up to 10 projects
+    const delivBatches = await Promise.all(
+      projects.slice(0, 10).map(p =>
+        this.db.send(new QueryCommand({
+          TableName: TABLE,
+          KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
+          ExpressionAttributeValues: { ':pk': `PROJECT#${p.id}`, ':sk': 'DELIVERABLE#' },
+        })).then(r => r.Items ?? []),
+      ),
+    )
+    const pendingValidations = delivBatches.flat().filter(d => d.status === 'PENDING').length
+
+    return { activeProjects, totalClients: clients.length, pendingValidations, completedMilestones }
+  }
+
+  async getActivity(orgId: string) {
+    const [projRes, clientRes] = await Promise.all([
+      this.db.send(new QueryCommand({
+        TableName: TABLE,
+        KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
+        ExpressionAttributeValues: { ':pk': `ORG#${orgId}`, ':sk': 'PROJECT#' },
+      })),
+      this.db.send(new QueryCommand({
+        TableName: TABLE,
+        KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
+        ExpressionAttributeValues: { ':pk': `ORG#${orgId}`, ':sk': 'CLIENT#' },
+      })),
+    ])
+
+    const projects = projRes.Items ?? []
+    const clients  = clientRes.Items ?? []
+
+    // Deliverables for the 5 most recently created projects
+    const recentProjects = [...projects]
+      .sort((a, b) => String(b.createdAt ?? '').localeCompare(String(a.createdAt ?? '')))
+      .slice(0, 5)
+
+    const delivBatches = await Promise.all(
+      recentProjects.map(p =>
+        this.db.send(new QueryCommand({
+          TableName: TABLE,
+          KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
+          ExpressionAttributeValues: { ':pk': `PROJECT#${p.id}`, ':sk': 'DELIVERABLE#' },
+        })).then(r => r.Items ?? []),
+      ),
+    )
+    const deliverables = delivBatches.flat()
+
+    type Event = { type: string; title: string; actor?: string; timestamp: string }
+    const events: Event[] = []
+
+    for (const p of projects) {
+      if (p.createdAt) {
+        events.push({ type: 'project_created', title: `Project "${p.name}" created`, timestamp: String(p.createdAt) })
+      }
+    }
+    for (const c of clients) {
+      if (c.createdAt) {
+        events.push({ type: 'client_added', title: `Client "${c.company || c.name}" added`, timestamp: String(c.createdAt) })
+      }
+    }
+    for (const d of deliverables) {
+      if (d.status === 'APPROVED' || d.status === 'CHANGES_REQUESTED') {
+        events.push({
+          type: d.status === 'APPROVED' ? 'deliverable_approved' : 'deliverable_changes',
+          title: d.status === 'APPROVED'
+            ? `"${d.title}" approved`
+            : `Changes requested on "${d.title}"`,
+          actor: d.reviewedBy ? String(d.reviewedBy) : undefined,
+          timestamp: String(d.updatedAt ?? d.createdAt ?? ''),
+        })
+      }
+    }
+
+    return events
+      .sort((a, b) => b.timestamp.localeCompare(a.timestamp))
+      .slice(0, 10)
+  }
+
   private async findBySlug(slug: string) {
     const result = await this.db.send(
       new QueryCommand({

@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Patch, Body, Param, UseGuards } from '@nestjs/common'
+import { Controller, Post, Get, Patch, Body, Param, UseGuards, ForbiddenException } from '@nestjs/common'
 import { OrganizationsService } from './organizations.service'
 import { CreateOrganizationDto, UpdateOrganizationDto } from './dto/organization.dto'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
@@ -22,6 +22,20 @@ export class OrganizationsController {
   @Roles(Role.STUDIO)
   findOne(@Param('id') id: string) {
     return this.orgsService.findById(id)
+  }
+
+  @Get(':id/stats')
+  @Roles(Role.STUDIO)
+  getStats(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    if (user.organizationId !== id) throw new ForbiddenException()
+    return this.orgsService.getStats(id)
+  }
+
+  @Get(':id/activity')
+  @Roles(Role.STUDIO)
+  getActivity(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    if (user.organizationId !== id) throw new ForbiddenException()
+    return this.orgsService.getActivity(id)
   }
 
   @Patch(':id')

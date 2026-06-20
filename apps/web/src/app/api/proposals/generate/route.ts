@@ -62,7 +62,8 @@ export async function POST(req: NextRequest) {
   const stream = anthropic.messages.stream({
     model: 'claude-opus-4-8',
     max_tokens: 8192,
-    thinking: { type: 'enabled', budget_tokens: 8000 },
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    thinking: { type: 'adaptive' } as any,
     messages: [{ role: 'user', content: buildPrompt(brief) }],
   })
 

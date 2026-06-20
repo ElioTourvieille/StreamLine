@@ -1,5 +1,29 @@
 # PROGRESS.md — StreamLine
 
+## Session 4 — 20 juin 2026
+
+**Fait :**
+- `GET /api/organizations/:id/stats` → `{ activeProjects, totalClients, pendingValidations, completedMilestones }` — agrège projets + clients + deliverables DynamoDB côté backend
+- `GET /api/organizations/:id/activity` → 10 derniers événements (project_created, client_added, deliverable_approved, deliverable_changes) avec timestamps réels
+- Dashboard `/dashboard` réécrit pour utiliser ces deux endpoints dédiés + `api.projects.list()` pour les 3 projets actifs
+- Loading skeleton `animate-pulse` sur toute la page pendant le fetch
+- Activity feed avec icônes distinctes par type d'événement (GitCommit, UserPlus, ThumbsUp, MessageSquare)
+- Projets : 3 actifs les plus récents avec barre de progression milestones + dot de statut
+- Empty state "no active projects" dans la section projets
+- TypeScript 0 erreur web + api
+- AI Generator testé et fonctionnel (fix `thinking: 'adaptive'` via cast `as any` — sans impact sur build/deploy)
+
+**Bloquants :**
+- Aucun
+
+**Prochaine étape :**
+1. Polish : empty states sur /documents, /messages + animations
+2. Mobile responsive check complet
+3. README + architecture diagram pour la soumission Devpost
+4. Vidéo démo prep + soumission Devpost
+
+---
+
 ## Session 3 — 20 juin 2026
 
 **Fait :**

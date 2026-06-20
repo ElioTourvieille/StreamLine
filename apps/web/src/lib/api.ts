@@ -50,7 +50,22 @@ export type Milestone = {
 export type Project = {
   id: string; name: string; clientId: string; organizationId?: string
   description?: string; status: string; startDate?: string; endDate?: string
+  createdAt?: string; updatedAt?: string
   milestones?: Milestone[]; members?: unknown[]
+}
+
+export type OrgStats = {
+  activeProjects: number
+  totalClients: number
+  pendingValidations: number
+  completedMilestones: number
+}
+
+export type ActivityEvent = {
+  type: 'project_created' | 'client_added' | 'deliverable_approved' | 'deliverable_changes'
+  title: string
+  actor?: string
+  timestamp: string
 }
 
 export type Deliverable = {
@@ -122,5 +137,7 @@ export const api = {
 
   organizations: {
     get: (id: string) => apiFetch<Organization>(`/organizations/${id}`),
+    stats: (id: string) => apiFetch<OrgStats>(`/organizations/${id}/stats`),
+    activity: (id: string) => apiFetch<ActivityEvent[]>(`/organizations/${id}/activity`),
   },
 }
