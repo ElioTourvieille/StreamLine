@@ -74,10 +74,13 @@ export class OrganizationsService {
 
     const updates: string[] = []
     const values: Record<string, unknown> = {}
+    const names: Record<string, string> = {}
 
-    if (dto.name !== undefined) { updates.push('name = :name'); values[':name'] = dto.name }
+    // `name` is a DynamoDB reserved word — must alias it
+    if (dto.name !== undefined) { updates.push('#n = :name'); values[':name'] = dto.name; names['#n'] = 'name' }
     if (dto.primaryColor !== undefined) { updates.push('primaryColor = :color'); values[':color'] = dto.primaryColor }
     if (dto.logoUrl !== undefined) { updates.push('logoUrl = :logo'); values[':logo'] = dto.logoUrl }
+    if (dto.website !== undefined) { updates.push('website = :website'); values[':website'] = dto.website }
 
     if (updates.length === 0) return org
 
@@ -91,6 +94,7 @@ export class OrganizationsService {
         Key: { PK: `ORG#${id}`, SK: `ORG#${id}` },
         UpdateExpression: `SET ${updates.join(', ')}`,
         ExpressionAttributeValues: values,
+        ExpressionAttributeNames: Object.keys(names).length ? names : undefined,
       }),
     )
 

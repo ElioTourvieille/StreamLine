@@ -1,4 +1,4 @@
-import { IsString, IsNotEmpty, IsOptional, IsHexColor, Matches } from 'class-validator'
+import { IsString, IsNotEmpty, IsOptional, IsHexColor, IsUrl, Matches } from 'class-validator'
 
 export class CreateOrganizationDto {
   @IsString() @IsNotEmpty() name!: string
@@ -9,10 +9,12 @@ export class CreateOrganizationDto {
 
   @IsHexColor() @IsOptional() primaryColor?: string
   @IsString() @IsOptional() logoUrl?: string
+  @IsUrl() @IsOptional() website?: string
 }
 
 export class UpdateOrganizationDto {
   @IsString() @IsOptional() name?: string
   @IsHexColor() @IsOptional() primaryColor?: string
   @IsString() @IsOptional() logoUrl?: string
+  @IsUrl() @IsOptional() website?: string
 }

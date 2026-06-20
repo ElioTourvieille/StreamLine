@@ -1,5 +1,27 @@
 # PROGRESS.md — StreamLine
 
+## Session 5 — 20 juin 2026
+
+**Fait :**
+- `/settings` complètement réécrite : 3 sections opérationnelles
+  - **My Account** : Full Name éditable (PATCH /api/users/me), email read-only
+  - **Studio** : name, website, logoUrl éditables (PATCH /api/organizations/:id), slug read-only, preview logo inline
+  - **Danger Zone** : bouton Sign Out rouge avec dialog de confirmation inline
+- `UpdateOrganizationDto` + `CreateOrganizationDto` : ajout champ `website` (`@IsUrl() @IsOptional()`)
+- `api.ts` : `Organization` type enrichi (`website?`), ajout `api.organizations.update()`
+- **Bug critique corrigé** : `name` est un mot réservé DynamoDB → `PATCH /api/users/me` et `PATCH /api/organizations/:id` retournaient 500. Fix : `ExpressionAttributeNames: { '#n': 'name' }` dans `users.service.ts` et `organizations.service.ts`
+- TypeScript 0 erreur web + api
+
+**Bloquants :**
+- Aucun
+
+**Prochaine étape :**
+1. Mobile responsive check complet
+2. README + architecture diagram pour la soumission Devpost
+3. Vidéo démo prep + soumission Devpost
+
+---
+
 ## Session 4 — 20 juin 2026
 
 **Fait :**
@@ -15,6 +37,11 @@
 
 **Bloquants :**
 - Aucun
+
+**Vérifié (rien à faire) :**
+- Sidebar user info déjà wirée (`api.users.me()` + `api.organizations.get(orgId)`) — aucun hardcode restant
+- Logout déjà fonctionnel (`localStorage.removeItem('sl_token')` + redirect `/login`)
+- Initiales auto-générées depuis le nom réel
 
 **Prochaine étape :**
 1. Polish : empty states sur /documents, /messages + animations

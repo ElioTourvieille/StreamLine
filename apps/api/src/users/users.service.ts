@@ -35,8 +35,10 @@ export class UsersService {
   async updateProfile(userId: string, dto: UpdateProfileDto) {
     const updates: string[] = []
     const values: Record<string, unknown> = {}
+    const names: Record<string, string> = {}
 
-    if (dto.name !== undefined) { updates.push('name = :name'); values[':name'] = dto.name }
+    // `name` is a DynamoDB reserved word — must alias it
+    if (dto.name !== undefined) { updates.push('#n = :name'); values[':name'] = dto.name; names['#n'] = 'name' }
     if (dto.avatarUrl !== undefined) { updates.push('avatarUrl = :avatar'); values[':avatar'] = dto.avatarUrl }
     if (dto.jobTitle !== undefined) { updates.push('jobTitle = :job'); values[':job'] = dto.jobTitle }
 
@@ -52,6 +54,7 @@ export class UsersService {
         Key: { PK: `USER#${userId}`, SK: `USER#${userId}` },
         UpdateExpression: `SET ${updates.join(', ')}`,
         ExpressionAttributeValues: values,
+        ExpressionAttributeNames: Object.keys(names).length ? names : undefined,
         ConditionExpression: 'attribute_exists(PK)',
       }),
     )

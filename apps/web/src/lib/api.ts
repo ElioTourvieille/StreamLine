@@ -33,7 +33,7 @@ export type UserProfile = {
 }
 
 export type Organization = {
-  id: string; name: string; slug: string; primaryColor?: string; logoUrl?: string
+  id: string; name: string; slug: string; primaryColor?: string; logoUrl?: string; website?: string
 }
 
 export type Client = {
@@ -137,6 +137,8 @@ export const api = {
 
   organizations: {
     get: (id: string) => apiFetch<Organization>(`/organizations/${id}`),
+    update: (id: string, data: Partial<Pick<Organization, 'name' | 'logoUrl' | 'website' | 'primaryColor'>>) =>
+      apiFetch<Organization>(`/organizations/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
     stats: (id: string) => apiFetch<OrgStats>(`/organizations/${id}/stats`),
     activity: (id: string) => apiFetch<ActivityEvent[]>(`/organizations/${id}/activity`),
   },
