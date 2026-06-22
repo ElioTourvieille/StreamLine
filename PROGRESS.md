@@ -1,5 +1,31 @@
 # PROGRESS.md — StreamLine
 
+## Session 7 — 21 juin 2026
+
+**Fait :**
+- Centre de notifications complet end-to-end
+- **Backend** :
+  - `NotificationsService` : `createNotification`, `getNotifications`, `markAsRead` (DynamoDB injecté)
+  - DynamoDB pattern : `USER#{userId}` | `NOTIF#{iso}#{uuid}` — newest first via `ScanIndexForward: false`
+  - Fix reserved word : `id` aliasé `#id` dans `FilterExpression` de `markAsRead`
+  - `NotificationsController` : `GET /api/users/me/notifications`, `PATCH /api/users/me/notifications/:id/read`
+  - Trigger dans `deliverables.service.ts` : `createNotification` au validate (APPROVED → `deliverable_approved`, CHANGES_REQUESTED → `deliverable_changes`) — non-bloquant (`.catch(() => {})`)
+- **Frontend** :
+  - `api.ts` : type `Notification` + `api.notifications.list/markRead`
+  - Sidebar : icône Bell + badge violet (count non lues), polling 30s
+  - Page `/notifications` : tabs All/Validations/Documents/System, bordure gauche colorée par type, dot violet si non lu, "Mark all as read", click → markRead + redirect vers projet
+  - Empty state : "You're all caught up ✓"
+
+**Bloquants :**
+- Aucun
+
+**Prochaine étape :**
+1. Mobile responsive check complet
+2. README + architecture diagram pour la soumission Devpost
+3. Vidéo démo prep + soumission Devpost
+
+---
+
 ## Session 6 — 20 juin 2026
 
 **Fait :**

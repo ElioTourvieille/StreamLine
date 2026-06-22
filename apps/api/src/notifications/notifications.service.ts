@@ -1,10 +1,97 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable, Logger, Inject } from '@nestjs/common'
+import {
+  DynamoDBDocumentClient,
+  PutCommand,
+  UpdateCommand,
+  QueryCommand,
+} from '@aws-sdk/lib-dynamodb'
+import { v4 as uuidv4 } from 'uuid'
+import { DYNAMO_CLIENT } from '../database/database.module'
+
+const TABLE = process.env.DYNAMO_TABLE ?? 'streamline'
+
+export type NotifType = 'deliverable_approved' | 'deliverable_changes' | 'invite_accepted' | 'system'
+
+export interface NotifPayload {
+  type: NotifType
+  title: string
+  description?: string
+  projectId?: string
+}
 
 @Injectable()
 export class NotificationsService {
   private readonly log = new Logger(NotificationsService.name)
   // Resend is loaded lazily so the app starts without RESEND_API_KEY in dev
   private resend: import('resend').Resend | null = null
+
+  constructor(@Inject(DYNAMO_CLIENT) private readonly db: DynamoDBDocumentClient) {}
+
+  // ─── In-app notifications (DynamoDB) ─────────────────────────────────────
+
+  async createNotification(userId: string, payload: NotifPayload) {
+    const id = uuidv4()
+    const now = new Date().toISOString()
+
+    await this.db.send(
+      new PutCommand({
+        TableName: TABLE,
+        Item: {
+          PK: `USER#${userId}`,
+          SK: `NOTIF#${now}#${id}`,
+          id,
+          userId,
+          type: payload.type,
+          title: payload.title,
+          description: payload.description,
+          projectId: payload.projectId,
+          isRead: false,
+          createdAt: now,
+        },
+      }),
+    )
+    return id
+  }
+
+  async getNotifications(userId: string) {
+    const result = await this.db.send(
+      new QueryCommand({
+        TableName: TABLE,
+        KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
+        ExpressionAttributeValues: { ':pk': `USER#${userId}`, ':sk': 'NOTIF#' },
+        ScanIndexForward: false,
+        Limit: 50,
+      }),
+    )
+    return result.Items ?? []
+  }
+
+  async markAsRead(userId: string, notifId: string) {
+    // Query to find the item's full SK
+    const result = await this.db.send(
+      new QueryCommand({
+        TableName: TABLE,
+        KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
+        FilterExpression: '#id = :id',
+        ExpressionAttributeNames: { '#id': 'id' },
+        ExpressionAttributeValues: { ':pk': `USER#${userId}`, ':sk': 'NOTIF#', ':id': notifId },
+      }),
+    )
+    const item = result.Items?.[0]
+    if (!item) return null
+
+    await this.db.send(
+      new UpdateCommand({
+        TableName: TABLE,
+        Key: { PK: item.PK, SK: item.SK },
+        UpdateExpression: 'SET isRead = :t',
+        ExpressionAttributeValues: { ':t': true },
+      }),
+    )
+    return { ...item, isRead: true }
+  }
+
+  // ─── Email (Resend, lazy-loaded) ──────────────────────────────────────────
 
   private getClient() {
     if (!process.env.RESEND_API_KEY) return null

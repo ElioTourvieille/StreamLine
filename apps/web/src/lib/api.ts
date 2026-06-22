@@ -83,6 +83,16 @@ export type PortalContext = {
 
 export type InviteResponse = { inviteToken: string; portalUrl: string; email: string }
 
+export type Notification = {
+  id: string
+  type: 'deliverable_approved' | 'deliverable_changes' | 'invite_accepted' | 'system'
+  title: string
+  description?: string
+  projectId?: string
+  isRead: boolean
+  createdAt: string
+}
+
 export type Message = {
   id: string; projectId: string; authorId: string; authorName: string; text: string; createdAt: string
 }
@@ -156,5 +166,10 @@ export const api = {
     listByProject: (projectId: string) => apiFetch<Message[]>(`/projects/${projectId}/messages`),
     send: (projectId: string, data: { text: string; authorName?: string }) =>
       apiFetch<Message>(`/projects/${projectId}/messages`, { method: 'POST', body: JSON.stringify(data) }),
+  },
+
+  notifications: {
+    list: () => apiFetch<Notification[]>('/users/me/notifications'),
+    markRead: (id: string) => apiFetch<Notification>(`/users/me/notifications/${id}/read`, { method: 'PATCH' }),
   },
 }

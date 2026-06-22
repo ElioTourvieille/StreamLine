@@ -123,7 +123,21 @@ export class DeliverablesService {
       }),
     )
 
-    // Notify studio
+    // In-app notification for the studio user who created the deliverable
+    if (deliverable.createdBy) {
+      await this.notify.createNotification(String(deliverable.createdBy), {
+        type: dto.action === 'APPROVED' ? 'deliverable_approved' : 'deliverable_changes',
+        title: dto.action === 'APPROVED'
+          ? `"${deliverable.title as string}" approved`
+          : `Changes requested on "${deliverable.title as string}"`,
+        description: dto.comment
+          ? `"${dto.comment}" — by ${actor.name}`
+          : `Reviewed by ${actor.name}`,
+        projectId: String(deliverable.projectId),
+      }).catch(() => { /* non-blocking */ })
+    }
+
+    // Notify studio via email
     const dashboardUrl = `${process.env.WEB_URL ?? 'http://localhost:3000'}/projects/${deliverable.projectId}`
     await this.notify.sendValidationAction({
       to: process.env.STUDIO_NOTIFY_EMAIL ?? 'studio@example.com',

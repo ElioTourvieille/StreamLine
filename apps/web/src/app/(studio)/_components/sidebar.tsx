@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import {
   LayoutDashboard, FolderOpen, Users, FileText,
-  Mail, Settings, LogOut, Compass, Sparkles,
+  Mail, Settings, LogOut, Compass, Sparkles, Bell,
 } from 'lucide-react'
 import { api } from '@/lib/api'
 
@@ -16,6 +16,7 @@ const NAV = [
   { href: '/ai-generator', icon: Sparkles, label: 'AI Proposals' },
   { href: '/documents', icon: FileText, label: 'Documents' },
   { href: '/messages', icon: Mail, label: 'Messages' },
+  { href: '/notifications', icon: Bell, label: 'Notifications' },
   { href: '/settings', icon: Settings, label: 'Settings' },
 ]
 
@@ -27,6 +28,7 @@ export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const [userInfo, setUserInfo] = useState<{ name: string; orgName: string } | null>(null)
+  const [unreadCount, setUnreadCount] = useState(0)
 
   useEffect(() => {
     async function load() {
@@ -43,6 +45,20 @@ export default function Sidebar() {
       }
     }
     load()
+  }, [])
+
+  useEffect(() => {
+    async function fetchUnread() {
+      try {
+        const notifs = await api.notifications.list()
+        setUnreadCount(notifs.filter(n => !n.isRead).length)
+      } catch {
+        // Silent fail
+      }
+    }
+    fetchUnread()
+    const interval = setInterval(fetchUnread, 30000)
+    return () => clearInterval(interval)
   }, [])
 
   function handleLogout() {
@@ -74,6 +90,7 @@ export default function Sidebar() {
       <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto shrink-0 ">
         {NAV.map(({ href, icon: Icon, label }) => {
           const active = pathname === href || pathname.startsWith(href + '/')
+          const isNotif = href === '/notifications'
           return (
             <Link
               key={href}
@@ -85,7 +102,14 @@ export default function Sidebar() {
                   : 'text-ink-muted hover:bg-surface-high hover:text-ink border-l-2 border-transparent',
               ].join(' ')}
             >
-              <Icon className="w-4 h-4 shrink-0" />
+              <span className="relative shrink-0">
+                <Icon className="w-4 h-4" />
+                {isNotif && unreadCount > 0 && (
+                  <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-violet rounded-full flex items-center justify-center text-[9px] font-bold text-white leading-none">
+                    {unreadCount > 9 ? '9+' : unreadCount}
+                  </span>
+                )}
+              </span>
               {label}
             </Link>
           )
