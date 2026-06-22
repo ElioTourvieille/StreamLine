@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import { Compass, Loader2 } from 'lucide-react'
 import { api } from '@/lib/api'
 
@@ -32,7 +33,12 @@ export default function LoginPage() {
     <div className="min-h-screen bg-bg flex items-center justify-center p-4"
          style={{ background: 'radial-gradient(ellipse at 50% 0%, #2a1a4e 0%, #131317 60%)' }}>
       <div className="w-full max-w-sm">
-        <div className="bg-surface border border-line rounded-xl p-8">
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="bg-surface border border-line rounded-xl p-8"
+        >
           {/* Logo */}
           <div className="flex flex-col items-center mb-8">
             <div className="w-12 h-12 rounded-xl bg-violet flex items-center justify-center mb-4">
@@ -88,7 +94,7 @@ export default function LoginPage() {
             Don&apos;t have an account?{' '}
             <Link href="/register" className="text-violet-glow hover:underline">Create an account</Link>
           </p>
-        </div>
+        </motion.div>
       </div>
     </div>
   )

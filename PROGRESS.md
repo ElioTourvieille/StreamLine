@@ -1,5 +1,64 @@
 # PROGRESS.md — StreamLine
 
+## Session 12 — 22 juin 2026 (FINALE)
+
+**Fait :**
+- `docs/demo-script.md` généré : script minute-par-minute (0:00→3:00), checklist soumission H0 complète avec cases cochées pour les assets déjà faits
+- Screenshots DynamoDB confirmés par l'utilisateur : `docs/dynamo-screenshot.png` + `docs/dynamo-indexes.png` ✅
+- Favicon `apps/web/src/app/icon.svg` créé : fond violet #7C3AED + Compass Lucide blanc, auto-détecté par Next.js App Router
+- "Send to Client" button AI Generator : route `api/proposals/send` (Resend + marked → HTML stylisé), modal animé Framer Motion (idle/sending/sent/error), TypeScript 0 erreur
+
+**Bloquants :**
+- Email "Project Proposal" en statut "Sent" dans Resend (pas encore "Delivered") — probablement spam Gmail ou délai de livraison. Non bloquant pour la démo.
+
+**Prochaine étape — soumission avant 29 juin 17h00 PDT :**
+1. Enregistrer la vidéo démo (~3 min) en suivant `docs/demo-script.md`
+2. Uploader YouTube (Non listé) → copier le lien
+3. Remplir Devpost : titre + description (`docs/devpost-description.md`) + vidéo + screenshots + GitHub
+4. Récupérer Vercel Team ID (Settings → General) pour le formulaire H0
+5. Soumettre → **deadline 02h00 le 30 juin à Genève**
+
+---
+
+## Session 11 — 22 juin 2026
+
+**Fait :**
+- **"Send to Client" button** — bouton de l'AI Generator maintenant fonctionnel de bout en bout :
+  - `apps/web/src/app/api/proposals/send/route.ts` : POST handler `resend` + `marked` → email HTML stylisé (dark header, carte blanche, rendu markdown complet avec tables/blockquotes/code)
+  - Modal animé Framer Motion sur le bouton "Send to Client" : champ email, état sending/sent/error, success screen avec CheckCircle
+  - TypeScript 0 erreur web + api
+
+**Bloquants :**
+- ⚠️ Action manuelle : `RESEND_API_KEY` + `EMAIL_DOMAIN=origin-studio.ch` dans `apps/web/.env.local` pour que l'envoi fonctionne en prod (sans clé → 503)
+- ⚠️ Action manuelle : screenshot DynamoDB → `docs/dynamo-screenshot.png` (obligatoire H0)
+
+**Prochaine étape :**
+1. Vidéo démo + soumission Devpost avant le 29 juin 17h00 PDT
+2. Ajouter `RESEND_API_KEY` + `EMAIL_DOMAIN` dans Vercel env vars
+
+---
+
+## Session 10 — 22 juin 2026
+
+**Fait :**
+- **Fix email projectName** : `deliverables.service.ts` → `validate()` fetch le projet via GSI2 avant d'envoyer l'email → `projectName` contient maintenant le vrai nom (ex: "Refonte L'ARC") au lieu du UUID brut
+- **sendDeliverableReady câblé** : à la création d'un livrable, `notifyClientDeliverableReady()` (non-bloquant) fetch le projet → fetch le client → si `inviteToken` + `contactEmail` présents, envoie l'email au client avec le lien portail. Flux démo complet : studio crée livrable → client reçoit email → ouvre portail
+- **Landing page** `/` : remplace le `redirect('/dashboard')` par une vraie page marketing (nav, hero gradient violet, dashboard preview interactif, 3 feature cards, how-it-works, CTA final, footer)
+- **Login lien mort** corrigé : `href="#"` → `href="/register"` + texte "Create an account"
+- **Animations auth** : `motion.div` fade+slide-up (opacity 0→1, y 16→0, 400ms) sur les cards login et register
+- TypeScript `tsc --noEmit` web + api : 0 erreur
+
+**Bloquants :**
+- ⚠️ Action manuelle : screenshot DynamoDB → `docs/dynamo-screenshot.png` (obligatoire H0)
+- Resend nécessite `RESEND_API_KEY` + domaine vérifié pour emails réels en prod (sans clé → log console, non-bloquant)
+
+**Prochaine étape :**
+1. Smoke test complet du flux démo (register → client → projet → livrable → portail → approbation → notification)
+2. Screenshot DynamoDB → `docs/dynamo-screenshot.png`
+3. Vidéo démo + soumission Devpost avant le 29 juin 17h00 PDT
+
+---
+
 ## Session 9 — 22 juin 2026
 
 **Fait :**

@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Violet rounded background -->
+  <rect width="32" height="32" rx="7" fill="#7C3AED"/>
+  <!-- Compass: outer circle (Lucide 24px → 20px scaled, centered at 16,16) -->
+  <circle cx="16" cy="16" r="8.33" fill="none" stroke="white" stroke-width="1.67"/>
+  <!-- Compass: needle polygon (same scale/offset as circle) -->
+  <polygon
+    points="19.53,12.47 17.77,17.77 12.47,19.53 14.23,14.23"
+    fill="none"
+    stroke="white"
+    stroke-width="1.67"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

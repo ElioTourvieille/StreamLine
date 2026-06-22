@@ -3,7 +3,8 @@
 import { useState, useRef, KeyboardEvent } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
-import { Sparkles, X, Loader2, Download, Send } from 'lucide-react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Sparkles, X, Loader2, Download, Send, CheckCircle2, AlertCircle } from 'lucide-react'
 import type { ProposalBrief } from '@/app/api/proposals/generate/route'
 
 const PROJECT_TYPES = [
@@ -53,6 +54,11 @@ export default function AiGeneratorPage() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const textareaRef = useRef<HTMLTextAreaElement>(null)
+
+  const [showSendModal, setShowSendModal] = useState(false)
+  const [sendEmail, setSendEmail] = useState('')
+  const [sendStatus, setSendStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle')
+  const [sendError, setSendError] = useState('')
 
   function set<K extends keyof ProposalBrief>(key: K, value: ProposalBrief[K]) {
     setBrief(prev => ({ ...prev, [key]: value }))
@@ -112,6 +118,33 @@ export default function AiGeneratorPage() {
     } finally {
       setIsGenerating(false)
     }
+  }
+
+  async function handleSendToClient(e: React.FormEvent) {
+    e.preventDefault()
+    if (!sendEmail.trim()) return
+    setSendStatus('sending')
+    setSendError('')
+    try {
+      const res = await fetch('/api/proposals/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: sendEmail.trim(), clientName: brief.clientName, proposal }),
+      })
+      const data = await res.json() as { ok?: boolean; error?: string }
+      if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`)
+      setSendStatus('sent')
+    } catch (err) {
+      setSendError(err instanceof Error ? err.message : 'Failed to send')
+      setSendStatus('error')
+    }
+  }
+
+  function openSendModal() {
+    setSendEmail('')
+    setSendStatus('idle')
+    setSendError('')
+    setShowSendModal(true)
   }
 
   function handleDownload() {
@@ -334,6 +367,7 @@ export default function AiGeneratorPage() {
                 Download .md
               </button>
               <button
+                onClick={openSendModal}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs bg-violet hover:bg-violet-hover text-white font-medium transition-colors"
               >
                 <Send className="w-3.5 h-3.5" />
@@ -386,6 +420,131 @@ export default function AiGeneratorPage() {
           </div>
         </div>
       </div>
+
+      {/* Send to Client modal */}
+      <AnimatePresence>
+        {showSendModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(4px)' }}
+            onClick={(e) => { if (e.target === e.currentTarget && sendStatus !== 'sending') setShowSendModal(false) }}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 8 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 8 }}
+              transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+              className="w-full max-w-md bg-surface border border-line rounded-xl shadow-2xl overflow-hidden"
+            >
+              {/* Modal header */}
+              <div className="flex items-center justify-between px-5 py-4 border-b border-line">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-lg bg-violet/20 border border-violet/30 flex items-center justify-center">
+                    <Send className="w-3.5 h-3.5 text-violet-glow" />
+                  </div>
+                  <div>
+                    <h2 className="text-sm font-semibold text-ink">Send Proposal</h2>
+                    <p className="text-xs text-ink-muted">
+                      {brief.clientName ? `to ${brief.clientName}` : 'by email'}
+                    </p>
+                  </div>
+                </div>
+                {sendStatus !== 'sending' && (
+                  <button
+                    onClick={() => setShowSendModal(false)}
+                    className="w-7 h-7 flex items-center justify-center rounded-lg text-ink-muted hover:text-ink hover:bg-surface-high transition-colors"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+              {/* Success state */}
+              {sendStatus === 'sent' ? (
+                <div className="px-5 py-8 flex flex-col items-center gap-3 text-center">
+                  <div className="w-12 h-12 rounded-full bg-success/15 border border-success/30 flex items-center justify-center">
+                    <CheckCircle2 className="w-6 h-6 text-success" />
+                  </div>
+                  <div>
+                    <p className="text-ink font-medium text-sm">Proposal sent!</p>
+                    <p className="text-ink-muted text-xs mt-1">
+                      The proposal for <span className="text-ink">{brief.clientName}</span> has been sent to <span className="text-ink">{sendEmail}</span>.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowSendModal(false)}
+                    className="mt-2 px-4 py-2 rounded-lg bg-surface-high hover:bg-line text-ink text-sm font-medium transition-colors"
+                  >
+                    Close
+                  </button>
+                </div>
+              ) : (
+                /* Form state */
+                <form onSubmit={(e) => { void handleSendToClient(e) }} className="px-5 py-5 space-y-4">
+                  <div>
+                    <label className="block text-xs font-medium text-ink-dim mb-1.5">
+                      Client email <span className="text-danger">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      required
+                      autoFocus
+                      value={sendEmail}
+                      onChange={e => setSendEmail(e.target.value)}
+                      placeholder="client@example.com"
+                      disabled={sendStatus === 'sending'}
+                      className="w-full bg-bg border border-line rounded-lg px-3 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-violet transition-colors disabled:opacity-50"
+                    />
+                  </div>
+
+                  {sendStatus === 'error' && (
+                    <div className="flex items-start gap-2 p-3 bg-danger/10 border border-danger/20 rounded-lg">
+                      <AlertCircle className="w-4 h-4 text-danger shrink-0 mt-0.5" />
+                      <p className="text-danger text-xs">{sendError}</p>
+                    </div>
+                  )}
+
+                  <p className="text-xs text-ink-muted">
+                    The full proposal will be sent as a styled HTML email on behalf of <span className="text-ink">Origin Studio</span>.
+                  </p>
+
+                  <div className="flex gap-2 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setShowSendModal(false)}
+                      disabled={sendStatus === 'sending'}
+                      className="flex-1 px-4 py-2 rounded-lg border border-line text-ink-muted hover:text-ink hover:border-line/80 text-sm font-medium transition-colors disabled:opacity-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={sendStatus === 'sending' || !sendEmail.trim()}
+                      className="flex-1 flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-violet hover:bg-violet-hover text-white text-sm font-medium transition-colors disabled:opacity-50"
+                    >
+                      {sendStatus === 'sending' ? (
+                        <>
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          Sending…
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-3.5 h-3.5" />
+                          Send
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

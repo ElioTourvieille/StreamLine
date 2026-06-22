@@ -49,6 +49,10 @@ export class DeliverablesService {
     }
 
     await this.db.send(new PutCommand({ TableName: TABLE, Item: item }))
+
+    // Non-blocking: email client that a new deliverable is ready for review
+    this.notifyClientDeliverableReady(dto.projectId, dto.title).catch(() => {})
+
     return item
   }
 
@@ -61,7 +65,6 @@ export class DeliverablesService {
       }),
     )
     const items = result.Items ?? []
-    // STUDIO: filter by org; CLIENT: filter by clientId matching project
     if (user.role === Role.STUDIO) {
       return items.filter(i => i.organizationId === user.organizationId)
     }
@@ -137,13 +140,16 @@ export class DeliverablesService {
       }).catch(() => { /* non-blocking */ })
     }
 
-    // Notify studio via email
+    // Fetch real project name for the email (falls back to ID on error)
+    const project = await this.fetchProject(String(deliverable.projectId)).catch(() => undefined)
+    const projectName = typeof project?.name === 'string' ? project.name : String(deliverable.projectId)
+
     const dashboardUrl = `${process.env.WEB_URL ?? 'http://localhost:3000'}/projects/${deliverable.projectId}`
     await this.notify.sendValidationAction({
       to: process.env.STUDIO_NOTIFY_EMAIL ?? 'studio@example.com',
       studioName: 'Origin Studio',
       clientName: actor.name,
-      projectName: deliverable.projectId,
+      projectName,
       deliverableTitle: deliverable.title as string,
       action: dto.action,
       comment: dto.comment,
@@ -151,5 +157,54 @@ export class DeliverablesService {
     })
 
     return { ...deliverable, status: dto.action, reviewedBy: actor.name, updatedAt: now }
+  }
+
+  // ── Private helpers ──────────────────────────────────────────────────────────
+
+  private async notifyClientDeliverableReady(projectId: string, deliverableTitle: string) {
+    const project = await this.fetchProject(projectId)
+    if (!project?.clientId) return
+
+    const client = await this.fetchClient(String(project.clientId))
+    if (!client?.inviteToken || !client?.contactEmail) return
+
+    const portalUrl = `${process.env.WEB_URL ?? 'http://localhost:3000'}/portal/${client.inviteToken}`
+    await this.notify.sendDeliverableReady({
+      to: String(client.contactEmail),
+      clientName: String(client.name),
+      projectName: String(project.name),
+      deliverableTitle,
+      portalUrl,
+    })
+  }
+
+  private async fetchProject(projectId: string) {
+    try {
+      const result = await this.db.send(new QueryCommand({
+        TableName: TABLE,
+        IndexName: 'GSI2',
+        KeyConditionExpression: 'GSI2PK = :pk',
+        ExpressionAttributeValues: { ':pk': `PROJECT#${projectId}` },
+        Limit: 1,
+      }))
+      return result.Items?.[0]
+    } catch {
+      return undefined
+    }
+  }
+
+  private async fetchClient(clientId: string) {
+    try {
+      const result = await this.db.send(new QueryCommand({
+        TableName: TABLE,
+        IndexName: 'GSI1',
+        KeyConditionExpression: 'GSI1PK = :pk',
+        ExpressionAttributeValues: { ':pk': `CLIENT#${clientId}` },
+        Limit: 1,
+      }))
+      return result.Items?.[0]
+    } catch {
+      return undefined
+    }
   }
 }
