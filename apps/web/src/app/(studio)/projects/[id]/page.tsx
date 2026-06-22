@@ -6,10 +6,11 @@ import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft, CheckCircle2, Circle, AlertCircle, FileText,
-  MessageSquare, Loader2, Plus, X, Users,
+  MessageSquare, Loader2, Plus, X, Users, Play, Check,
 } from 'lucide-react'
-import { api, type Deliverable } from '@/lib/api'
+import { api, type Deliverable, type Milestone } from '@/lib/api'
 import { useApiData } from '@/lib/hooks'
+import { formatDate } from '@/lib/format'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -132,6 +133,8 @@ export default function ProjectDetailPage() {
   const { id } = useParams<{ id: string }>()
   const [showModal, setShowModal]             = useState(false)
   const [localDeliverables, setLocalDeliverables] = useState<Deliverable[] | null>(null)
+  const [localMilestones, setLocalMilestones] = useState<Milestone[] | null>(null)
+  const [updatingMs, setUpdatingMs]           = useState<string | null>(null)
 
   const fetchProject     = useCallback(() => api.projects.get(id), [id])
   const fetchDeliverables= useCallback(() => api.deliverables.list(id), [id])
@@ -144,9 +147,26 @@ export default function ProjectDetailPage() {
   const pending  = deliverables.filter(d => d.status === 'PENDING').length
   const approved = deliverables.filter(d => d.status === 'APPROVED').length
 
-  const milestones = project?.milestones ?? []
+  const milestones = localMilestones ?? project?.milestones ?? []
   const doneCount  = milestones.filter(m => m.status === 'COMPLETED').length
   const progress   = milestones.length > 0 ? Math.round(doneCount / milestones.length * 100) : 0
+
+  // Advance a milestone to its next state: PENDING → IN_PROGRESS → COMPLETED
+  async function advanceMilestone(m: Milestone) {
+    if (m.status === 'COMPLETED' || updatingMs) return
+    const next: Milestone['status'] = m.status === 'PENDING' ? 'IN_PROGRESS' : 'COMPLETED'
+    setUpdatingMs(m.id)
+    try {
+      await api.projects.updateMilestone(id, m.id, { status: next })
+      setLocalMilestones(prev =>
+        (prev ?? milestones).map(x => x.id === m.id ? { ...x, status: next } : x),
+      )
+    } catch {
+      // keep UI as-is on error so the user can retry
+    } finally {
+      setUpdatingMs(null)
+    }
+  }
 
   if (loadingProject) {
     return (
@@ -207,8 +227,8 @@ export default function ProjectDetailPage() {
             }
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-line">
               {[
-                { label: 'Start', value: project.startDate ? new Date(project.startDate).toLocaleDateString() : '—' },
-                { label: 'End',   value: project.endDate   ? new Date(project.endDate).toLocaleDateString()   : '—' },
+                { label: 'Start', value: formatDate(project.startDate) },
+                { label: 'End',   value: formatDate(project.endDate) },
                 { label: 'Approvals', value: `${approved}/${deliverables.length}` },
                 { label: 'Health',    value: `${progress}%` },
               ].map(({ label, value }) => (
@@ -241,13 +261,37 @@ export default function ProjectDetailPage() {
                             ? <Circle className="w-3 h-3 text-violet fill-violet" />
                             : <Circle className="w-3 h-3 text-line" />}
                       </div>
-                      <div className="text-center">
+                      <div className="text-center flex flex-col items-center gap-1.5">
                         <p className={`text-xs font-medium whitespace-nowrap ${
                           m.status === 'IN_PROGRESS' ? 'text-ink'
                           : m.status === 'COMPLETED' ? 'text-success'
                           : 'text-ink-muted'
                         }`}>{m.title}</p>
-                        {m.dueDate && <p className="text-[10px] text-ink-faint whitespace-nowrap">{new Date(m.dueDate).toLocaleDateString()}</p>}
+                        {m.dueDate && <p className="text-[10px] text-ink-faint whitespace-nowrap">{formatDate(m.dueDate)}</p>}
+
+                        {/* Contextual status action */}
+                        {m.status === 'COMPLETED' ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-success">
+                            <Check className="w-2.5 h-2.5" /> Done
+                          </span>
+                        ) : (
+                          <button
+                            onClick={() => advanceMilestone(m)}
+                            disabled={updatingMs === m.id}
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold transition-colors disabled:opacity-50 ${
+                              m.status === 'PENDING'
+                                ? 'bg-violet/15 text-violet-glow border border-violet/30 hover:bg-violet/25'
+                                : 'bg-success/15 text-success border border-success/30 hover:bg-success/25'
+                            }`}
+                          >
+                            {updatingMs === m.id
+                              ? <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                              : m.status === 'PENDING'
+                                ? <Play className="w-2.5 h-2.5" />
+                                : <Check className="w-2.5 h-2.5" />}
+                            {m.status === 'PENDING' ? 'Start' : 'Complete'}
+                          </button>
+                        )}
                       </div>
                     </div>
                   ))}
@@ -290,7 +334,7 @@ export default function ProjectDetailPage() {
                         </span>
                       </td>
                       <td className="px-5 sm:px-6 text-sm text-ink-muted text-right hidden sm:table-cell">
-                        {d.deadline ? new Date(d.deadline).toLocaleDateString() : '—'}
+                        {formatDate(d.deadline)}
                       </td>
                     </motion.tr>
                   ))}

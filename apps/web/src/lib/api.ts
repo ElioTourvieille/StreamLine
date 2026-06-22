@@ -131,6 +131,15 @@ export const api = {
       apiFetch<Project>('/projects', { method: 'POST', body: JSON.stringify(data) }),
     update: (id: string, data: unknown) =>
       apiFetch<Project>(`/projects/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+    updateMilestone: (
+      projectId: string,
+      milestoneId: string,
+      data: { status?: Milestone['status']; title?: string; dueDate?: string },
+    ) =>
+      apiFetch<Milestone>(`/projects/${projectId}/milestones/${milestoneId}`, {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+      }),
   },
 
   deliverables: {

@@ -9,6 +9,7 @@ import {
 } from 'lucide-react'
 import { api, type Deliverable, type PortalContext } from '@/lib/api'
 import { useApiData } from '@/lib/hooks'
+import { formatDate } from '@/lib/format'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -125,7 +126,7 @@ function DeliverableCard({
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-ink-dim">
-                      {c.name} <span className="font-normal text-ink-faint">{new Date(c.createdAt).toLocaleDateString()}</span>
+                      {c.name} <span className="font-normal text-ink-faint">{formatDate(c.createdAt)}</span>
                     </p>
                     <p className="text-sm text-ink-dim mt-0.5">{c.text}</p>
                   </div>
@@ -192,7 +193,7 @@ function DeliverableCard({
           {d.deadline && (
             <div className="mt-auto pt-4 border-t border-line">
               <p className="text-[11px] text-ink-muted uppercase tracking-wide mb-1">Deadline</p>
-              <p className="text-sm font-medium text-ink">{new Date(d.deadline).toLocaleDateString()}</p>
+              <p className="text-sm font-medium text-ink">{formatDate(d.deadline)}</p>
             </div>
           )}
         </div>
@@ -332,7 +333,7 @@ export default function PortalPage() {
                       <p className={`text-xs font-medium whitespace-nowrap ${
                         m.status === 'IN_PROGRESS' ? 'text-ink' : m.status === 'COMPLETED' ? 'text-success' : 'text-ink-muted'
                       }`}>{m.title}</p>
-                      {m.dueDate && <p className="text-[10px] text-ink-faint whitespace-nowrap">{new Date(m.dueDate).toLocaleDateString()}</p>}
+                      {m.dueDate && <p className="text-[10px] text-ink-faint whitespace-nowrap">{formatDate(m.dueDate)}</p>}
                     </div>
                   </div>
                 ))}
@@ -369,7 +370,18 @@ export default function PortalPage() {
 
         {/* Deliverables by project */}
         <div id="deliverables">
-          {deliverablesByProject.map(group => {
+          {allDeliverables.length === 0 ? (
+            <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
+              className="py-16 flex flex-col items-center text-center bg-surface border border-line rounded-xl">
+              <div className="w-14 h-14 rounded-2xl bg-success/10 border border-success/20 flex items-center justify-center mb-4">
+                <CheckCircle2 className="w-7 h-7 text-success/70" />
+              </div>
+              <p className="text-ink font-semibold text-base mb-1">No pending validations ✓</p>
+              <p className="text-ink-muted text-sm max-w-xs leading-relaxed">
+                You&apos;re all caught up. New deliverables will appear here as soon as the studio shares them.
+              </p>
+            </motion.div>
+          ) : deliverablesByProject.map(group => {
             const proj = projects.find(p => p.id === group.projectId)
             return (
               <div key={group.projectId} className="mb-8">
@@ -407,12 +419,6 @@ export default function PortalPage() {
               </div>
             )
           })}
-
-          {allDeliverables.length === 0 && (
-            <div className="py-16 text-center bg-surface border border-line rounded-xl">
-              <p className="text-ink-muted">No deliverables awaiting your review.</p>
-            </div>
-          )}
 
           <p className="text-center text-xs text-ink-faint mt-8 pb-4">
             Powered by StreamLine · Secure client portal

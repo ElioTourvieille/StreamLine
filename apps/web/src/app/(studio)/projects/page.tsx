@@ -4,8 +4,9 @@ import { useState, useCallback } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
 import { Plus, Search, Loader2, FolderOpen, Clock, CheckCircle2, AlertCircle } from 'lucide-react'
-import { api, type Project, type Client } from '@/lib/api'
+import { api, type Client } from '@/lib/api'
 import { useApiData } from '@/lib/hooks'
+import { formatDate } from '@/lib/format'
 
 const STATUS_STYLE: Record<string, string> = {
   ON_TRACK:   'bg-success/15 text-success',
@@ -165,12 +166,12 @@ export default function ProjectsPage() {
                       </td>
                       <td className="px-6">
                         {p.startDate
-                          ? <div className="flex items-center gap-1.5 text-sm text-ink-muted"><Clock className="w-3.5 h-3.5 text-ink-faint" />{new Date(p.startDate).toLocaleDateString()}</div>
+                          ? <div className="flex items-center gap-1.5 text-sm text-ink-muted"><Clock className="w-3.5 h-3.5 text-ink-faint" />{formatDate(p.startDate)}</div>
                           : <span className="text-ink-faint text-sm">—</span>}
                       </td>
                       <td className="px-6">
                         {p.endDate
-                          ? <div className="flex items-center gap-1.5 text-sm text-ink-muted"><CheckCircle2 className="w-3.5 h-3.5 text-ink-faint" />{new Date(p.endDate).toLocaleDateString()}</div>
+                          ? <div className="flex items-center gap-1.5 text-sm text-ink-muted"><CheckCircle2 className="w-3.5 h-3.5 text-ink-faint" />{formatDate(p.endDate)}</div>
                           : <span className="text-ink-faint text-sm">—</span>}
                       </td>
                       <td className="px-6">

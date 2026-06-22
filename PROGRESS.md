@@ -1,5 +1,32 @@
 # PROGRESS.md — StreamLine
 
+## Session 8 — 22 juin 2026
+
+**Fait :**
+- **Polish empty states / compte vide** (décision confirmée : UI 100% anglais, y compris dates) :
+  - `/clients` et `/projects` : empty states + CTA déjà présents (vérifiés, anglais)
+  - Portail client sans livrables : nouvel empty state checkmark vert « No pending validations ✓ » (remplace le texte générique + suppression de la redondance)
+  - Dashboard : `OnboardingState` + empty states activité/projets déjà présents
+- **Dates uniformisées en anglais** : helper `lib/format.ts` (`formatDate` → "Jun 19, 2026", `formatDateLong`), remplace les 9 `toLocaleDateString()` locale-dépendants dans portal, projects, projects/[id]
+- **Status badges** : audités — tous conformes au design system (tokens `success/warning/danger/violet/info` définis dans globals.css `@theme`)
+- **Métadonnées SEO** : `layout.tsx` serveur (passthrough + `metadata`) pour `/dashboard`, `/clients`, `/projects`, `/portal/[token]` (portail en `noindex`)
+- **Jalons — boutons de statut contextuels** dans `projects/[id]` :
+  - `PENDING` → bouton « Start » (→ IN_PROGRESS), `IN_PROGRESS` → bouton « Complete » (→ COMPLETED), `COMPLETED` → check vert « Done » sans bouton
+  - PATCH `/api/projects/:id/milestones/:milestoneId`, ajout `api.projects.updateMilestone()`, state local optimiste + barre de progression réactive
+  - ⚠️ L'enum réel est `PENDING` (pas `UPCOMING`) — mappé en conséquence
+- Nettoyage : import `Project` inutilisé retiré de projects/page.tsx
+- TypeScript `tsc --noEmit` web : 0 erreur
+
+**Bloquants :**
+- `next lint` casse sur package `@eslint/eslintrc` manquant (souci d'outillage préexistant, sans rapport avec le code) — typecheck OK
+
+**Prochaine étape :**
+1. Mobile responsive check complet (visé 1280px OK)
+2. README + architecture diagram pour la soumission Devpost
+3. Vidéo démo prep + soumission Devpost
+
+---
+
 ## Session 7 — 21 juin 2026
 
 **Fait :**
