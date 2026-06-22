@@ -274,22 +274,30 @@ export default function ProjectDetailPage() {
                           <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-success">
                             <Check className="w-2.5 h-2.5" /> Done
                           </span>
+                        ) : m.status === 'IN_PROGRESS' ? (
+                          <div className="flex flex-col items-center gap-1">
+                            <span className="text-[9px] font-semibold text-violet-glow uppercase tracking-wider">● In Progress</span>
+                            <button
+                              onClick={() => advanceMilestone(m)}
+                              disabled={updatingMs === m.id}
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold transition-colors disabled:opacity-50 bg-success/15 text-success border border-success/30 hover:bg-success/25"
+                            >
+                              {updatingMs === m.id
+                                ? <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                                : <Check className="w-2.5 h-2.5" />}
+                              Mark done
+                            </button>
+                          </div>
                         ) : (
                           <button
                             onClick={() => advanceMilestone(m)}
                             disabled={updatingMs === m.id}
-                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold transition-colors disabled:opacity-50 ${
-                              m.status === 'PENDING'
-                                ? 'bg-violet/15 text-violet-glow border border-violet/30 hover:bg-violet/25'
-                                : 'bg-success/15 text-success border border-success/30 hover:bg-success/25'
-                            }`}
+                            className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold transition-colors disabled:opacity-50 bg-violet/15 text-violet-glow border border-violet/30 hover:bg-violet/25"
                           >
                             {updatingMs === m.id
                               ? <Loader2 className="w-2.5 h-2.5 animate-spin" />
-                              : m.status === 'PENDING'
-                                ? <Play className="w-2.5 h-2.5" />
-                                : <Check className="w-2.5 h-2.5" />}
-                            {m.status === 'PENDING' ? 'Start' : 'Complete'}
+                              : <Play className="w-2.5 h-2.5" />}
+                            Start
                           </button>
                         )}
                       </div>

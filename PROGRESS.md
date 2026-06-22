@@ -1,5 +1,24 @@
 # PROGRESS.md — StreamLine
 
+## Session 9 — 22 juin 2026
+
+**Fait :**
+- **README.md** créé à la racine : description, stack, quick start 5 étapes, variables d'env, features, demo flow, lien vers docs/architecture.md
+- **docs/architecture.md** : diagramme Mermaid complet (Browser → Vercel → NestJS → DynamoDB + Claude API + Resend), table des PK/SK patterns, sequence diagrams portal validation et AI generator
+- **docs/devpost-description.md** : texte ~280 mots (Inspiration → What it does → How we built it → DynamoDB highlight → What's next), prêt à copier-coller sur Devpost
+- Fix UX jalons : état `IN_PROGRESS` affiche maintenant "● In Progress" (texte violet) + bouton "Mark done" → l'utilisateur ne confond plus le bouton "Complete" avec le statut final
+
+**Bloquants :**
+- ⚠️ **Action manuelle requise** : screenshot DynamoDB table config depuis la console AWS → à sauvegarder dans `docs/dynamo-screenshot.png` (obligatoire H0)
+- `next lint` : package `@eslint/eslintrc` manquant (préexistant, sans impact sur build/deploy)
+
+**Prochaine étape :**
+1. Screenshot DynamoDB → `docs/dynamo-screenshot.png`
+2. Préparer vidéo démo (flux : register → client → portal → approve → notification)
+3. Soumettre sur Devpost avant le 29 juin 17h00 PDT
+
+---
+
 ## Session 8 — 22 juin 2026
 
 **Fait :**
