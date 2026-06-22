@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { Compass, Loader2 } from 'lucide-react'
 import { api } from '@/lib/api'
 
@@ -85,7 +86,7 @@ export default function LoginPage() {
 
           <p className="text-center text-xs text-ink-muted mt-6">
             Don&apos;t have an account?{' '}
-            <a href="#" className="text-violet-glow hover:underline">Contact your studio</a>
+            <Link href="/register" className="text-violet-glow hover:underline">Create an account</Link>
           </p>
         </div>
       </div>
