@@ -1,7 +1,14 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  // future: env vars, rewrites for API proxy, etc.
+  async rewrites() {
+    return [
+      {
+        source: '/api-proxy/:path*',
+        destination: 'http://streamline-api-env.eba-pagqw7xn.eu-west-3.elasticbeanstalk.com/:path*',
+      },
+    ];
+  },
 }
 
 export default nextConfig
