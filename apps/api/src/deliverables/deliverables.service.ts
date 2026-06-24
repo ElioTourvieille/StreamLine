@@ -3,7 +3,7 @@ import {
   BadRequestException, Inject,
 } from '@nestjs/common'
 import {
-  DynamoDBDocumentClient, PutCommand, UpdateCommand, QueryCommand,
+  DynamoDBDocumentClient, PutCommand, UpdateCommand, QueryCommand, GetCommand,
 } from '@aws-sdk/lib-dynamodb'
 import { v4 as uuidv4 } from 'uuid'
 import { DYNAMO_CLIENT } from '../database/database.module'
@@ -144,9 +144,17 @@ export class DeliverablesService {
     const project = await this.fetchProject(String(deliverable.projectId)).catch(() => undefined)
     const projectName = typeof project?.name === 'string' ? project.name : String(deliverable.projectId)
 
+    // Fetch creator's email so the notification goes to the right studio user
+    const creator = deliverable.createdBy
+      ? await this.fetchUser(String(deliverable.createdBy)).catch(() => undefined)
+      : undefined
+    const studioEmail = typeof creator?.email === 'string'
+      ? creator.email
+      : (process.env.STUDIO_NOTIFY_EMAIL ?? 'studio@example.com')
+
     const dashboardUrl = `${process.env.WEB_URL ?? 'http://localhost:3000'}/projects/${deliverable.projectId}`
     await this.notify.sendValidationAction({
-      to: process.env.STUDIO_NOTIFY_EMAIL ?? 'studio@example.com',
+      to: studioEmail,
       studioName: 'Origin Studio',
       clientName: actor.name,
       projectName,
@@ -203,6 +211,18 @@ export class DeliverablesService {
         Limit: 1,
       }))
       return result.Items?.[0]
+    } catch {
+      return undefined
+    }
+  }
+
+  private async fetchUser(userId: string) {
+    try {
+      const result = await this.db.send(new GetCommand({
+        TableName: TABLE,
+        Key: { PK: `USER#${userId}`, SK: 'METADATA' },
+      }))
+      return result.Item
     } catch {
       return undefined
     }

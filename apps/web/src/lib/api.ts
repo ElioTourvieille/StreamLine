@@ -36,9 +36,11 @@ export type Organization = {
   id: string; name: string; slug: string; primaryColor?: string; logoUrl?: string; website?: string
 }
 
+export type ClientStatus = 'ACTIVE' | 'FOLLOW_UP' | 'MAINTENANCE' | 'COMPLETED' | 'ARCHIVED'
+
 export type Client = {
   id: string; name: string; contactEmail: string
-  company?: string; phone?: string; status: 'ACTIVE' | 'ARCHIVED'
+  company?: string; phone?: string; status: ClientStatus
   inviteToken?: string; organizationId?: string
 }
 

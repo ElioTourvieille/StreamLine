@@ -2,6 +2,9 @@ import { IsString, IsNotEmpty, IsOptional, IsEmail, IsEnum } from 'class-validat
 
 export enum ClientStatus {
   ACTIVE = 'ACTIVE',
+  FOLLOW_UP = 'FOLLOW_UP',
+  MAINTENANCE = 'MAINTENANCE',
+  COMPLETED = 'COMPLETED',
   ARCHIVED = 'ARCHIVED',
 }
 

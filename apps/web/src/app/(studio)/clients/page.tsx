@@ -5,10 +5,75 @@ import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Plus, Search, X, Loader2, Building2, Mail, Phone,
-  ExternalLink, Users, Copy, Check, Send,
+  ExternalLink, Users, Copy, Check, Send, ChevronDown,
 } from 'lucide-react'
-import { api, type Client } from '@/lib/api'
+import { api, type Client, type ClientStatus } from '@/lib/api'
 import { useApiData } from '@/lib/hooks'
+
+// ─── Status config ────────────────────────────────────────────────────────────
+
+const STATUS_CONFIG: Record<ClientStatus, { label: string; className: string }> = {
+  ACTIVE:      { label: 'Active',       className: 'bg-success/15 text-success border-success/30' },
+  FOLLOW_UP:   { label: 'Follow-up',    className: 'bg-warning/15 text-warning border-warning/30' },
+  MAINTENANCE: { label: 'Maintenance',  className: 'bg-blue/15 text-blue-400 border-blue-400/30' },
+  COMPLETED:   { label: 'Completed',    className: 'bg-violet/15 text-violet-glow border-violet/30' },
+  ARCHIVED:    { label: 'Archived',     className: 'bg-white/5 text-ink-muted border-line' },
+}
+
+const TABS: { key: ClientStatus | 'ALL'; label: string }[] = [
+  { key: 'ALL',         label: 'All' },
+  { key: 'ACTIVE',      label: 'Active' },
+  { key: 'FOLLOW_UP',   label: 'Follow-up' },
+  { key: 'MAINTENANCE', label: 'Maintenance' },
+  { key: 'COMPLETED',   label: 'Completed' },
+  { key: 'ARCHIVED',    label: 'Archived' },
+]
+
+// ─── Status dropdown ──────────────────────────────────────────────────────────
+
+function StatusDropdown({ client, onChange }: { client: Client; onChange: (s: ClientStatus) => void }) {
+  const [open, setOpen] = useState(false)
+  const cfg = STATUS_CONFIG[client.status] ?? STATUS_CONFIG.ACTIVE
+
+  return (
+    <div className="relative">
+      <button
+        onClick={e => { e.stopPropagation(); setOpen(o => !o) }}
+        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border transition-colors ${cfg.className}`}
+      >
+        {cfg.label}
+        <ChevronDown className="w-3 h-3 opacity-60" />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <>
+            <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: -4 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -4 }}
+              transition={{ duration: 0.1 }}
+              className="absolute left-0 top-full mt-1 z-20 bg-surface border border-line rounded-lg shadow-xl overflow-hidden min-w-[140px]"
+            >
+              {(Object.entries(STATUS_CONFIG) as [ClientStatus, typeof STATUS_CONFIG[ClientStatus]][]).map(([key, s]) => (
+                <button
+                  key={key}
+                  onClick={e => { e.stopPropagation(); onChange(key); setOpen(false) }}
+                  className={`w-full text-left px-3 py-2 text-xs font-medium transition-colors hover:bg-surface-high flex items-center gap-2 ${client.status === key ? 'text-ink' : 'text-ink-muted'}`}
+                >
+                  <span className={`w-2 h-2 rounded-full border ${s.className}`} />
+                  {s.label}
+                  {client.status === key && <Check className="w-3 h-3 ml-auto text-violet-glow" />}
+                </button>
+              ))}
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
 
 // ─── New client modal ─────────────────────────────────────────────────────────
 
@@ -177,7 +242,7 @@ function InviteModal({ client, onClose }: { client: Client; onClose: () => void 
 
 // ─── Empty state ──────────────────────────────────────────────────────────────
 
-function EmptyState({ isSearch, onAdd }: { isSearch: boolean; onAdd: () => void }) {
+function EmptyState({ isSearch, tab, onAdd }: { isSearch: boolean; tab: string; onAdd: () => void }) {
   if (isSearch) return (
     <div className="py-16 flex flex-col items-center text-center">
       <Search className="w-8 h-8 text-ink-faint mb-3" />
@@ -185,18 +250,28 @@ function EmptyState({ isSearch, onAdd }: { isSearch: boolean; onAdd: () => void 
       <p className="text-ink-faint text-xs">Try a different name, company or email.</p>
     </div>
   )
+  const isTabFilter = tab !== 'ALL'
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}
       className="py-16 flex flex-col items-center text-center">
       <div className="w-14 h-14 rounded-2xl bg-violet/10 border border-violet/20 flex items-center justify-center mb-4">
         <Users className="w-7 h-7 text-violet/50" />
       </div>
-      <p className="text-ink font-semibold text-base mb-1">No clients yet</p>
-      <p className="text-ink-muted text-sm max-w-xs mb-6 leading-relaxed">Add your first client to start a project and send them a portal link.</p>
-      <button onClick={onAdd}
-        className="flex items-center gap-2 bg-violet hover:bg-violet-hover text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors active:scale-[0.98]">
-        <Plus className="w-4 h-4" />Add your first client
-      </button>
+      {isTabFilter ? (
+        <>
+          <p className="text-ink font-semibold text-base mb-1">No {STATUS_CONFIG[tab as ClientStatus]?.label ?? tab.toLowerCase()} clients</p>
+          <p className="text-ink-muted text-sm max-w-xs mb-4 leading-relaxed">No clients with this status yet.</p>
+        </>
+      ) : (
+        <>
+          <p className="text-ink font-semibold text-base mb-1">No clients yet</p>
+          <p className="text-ink-muted text-sm max-w-xs mb-6 leading-relaxed">Add your first client to start a project and send them a portal link.</p>
+          <button onClick={onAdd}
+            className="flex items-center gap-2 bg-violet hover:bg-violet-hover text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors active:scale-[0.98]">
+            <Plus className="w-4 h-4" />Add your first client
+          </button>
+        </>
+      )}
     </motion.div>
   )
 }
@@ -206,6 +281,7 @@ function EmptyState({ isSearch, onAdd }: { isSearch: boolean; onAdd: () => void 
 export default function ClientsPage() {
   const router = useRouter()
   const [search, setSearch]       = useState('')
+  const [activeTab, setActiveTab] = useState<ClientStatus | 'ALL'>('ALL')
   const [showNew, setShowNew]     = useState(false)
   const [inviteClient, setInviteClient] = useState<Client | null>(null)
   const [localClients, setLocalClients] = useState<Client[] | null>(null)
@@ -213,14 +289,32 @@ export default function ClientsPage() {
   const fetchClients = useCallback(() => api.clients.list(), [])
   const { data: apiClients, loading, error } = useApiData(fetchClients)
 
-  const clients  = localClients ?? apiClients ?? []
-  const filtered = clients.filter(c =>
-    c.name.toLowerCase().includes(search.toLowerCase()) ||
-    (c.company ?? '').toLowerCase().includes(search.toLowerCase()) ||
-    c.contactEmail.toLowerCase().includes(search.toLowerCase())
-  )
+  const clients = localClients ?? apiClients ?? []
+
+  const tabCounts = TABS.reduce<Record<string, number>>((acc, t) => {
+    acc[t.key] = t.key === 'ALL' ? clients.length : clients.filter(c => c.status === t.key).length
+    return acc
+  }, {})
+
+  const filtered = clients
+    .filter(c => activeTab === 'ALL' || c.status === activeTab)
+    .filter(c =>
+      c.name.toLowerCase().includes(search.toLowerCase()) ||
+      (c.company ?? '').toLowerCase().includes(search.toLowerCase()) ||
+      c.contactEmail.toLowerCase().includes(search.toLowerCase())
+    )
+
   const isEmpty    = !loading && clients.length === 0
   const isNoResult = !isEmpty && filtered.length === 0
+
+  async function handleStatusChange(client: Client, newStatus: ClientStatus) {
+    setLocalClients(prev => (prev ?? clients).map(c => c.id === client.id ? { ...c, status: newStatus } : c))
+    try {
+      await api.clients.update(client.id, { status: newStatus })
+    } catch {
+      setLocalClients(prev => (prev ?? clients).map(c => c.id === client.id ? { ...c, status: client.status } : c))
+    }
+  }
 
   if (error?.includes('401') || error?.includes('Unauthorized')) {
     localStorage.removeItem('sl_token')
@@ -252,6 +346,31 @@ export default function ClientsPage() {
         </button>
       </motion.div>
 
+      {/* Tabs */}
+      {!isEmpty && (
+        <div className="flex items-center gap-1 mb-5 overflow-x-auto pb-1 scrollbar-hide">
+          {TABS.map(tab => (
+            <button
+              key={tab.key}
+              onClick={() => setActiveTab(tab.key)}
+              className={[
+                'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors whitespace-nowrap shrink-0',
+                activeTab === tab.key
+                  ? 'bg-surface-high text-ink'
+                  : 'text-ink-muted hover:text-ink hover:bg-surface-high/50',
+              ].join(' ')}
+            >
+              {tab.label}
+              {tabCounts[tab.key] > 0 && (
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-semibold ${activeTab === tab.key ? 'bg-violet/20 text-violet-glow' : 'bg-line text-ink-muted'}`}>
+                  {tabCounts[tab.key]}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+
       {loading ? (
         <div className="flex items-center justify-center py-24">
           <Loader2 className="w-6 h-6 animate-spin text-ink-muted" />
@@ -266,7 +385,7 @@ export default function ClientsPage() {
                 className="w-full bg-surface border border-line rounded-lg pl-9 pr-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-violet transition-colors" />
             </div>
           )}
-          <EmptyState isSearch={isNoResult} onAdd={() => setShowNew(true)} />
+          <EmptyState isSearch={isNoResult} tab={activeTab} onAdd={() => setShowNew(true)} />
         </>
       ) : (
         <>
@@ -289,6 +408,7 @@ export default function ClientsPage() {
                     <p className="text-sm font-medium text-ink truncate">{c.name}</p>
                     <p className="text-xs text-ink-muted truncate mt-0.5">{c.company ? `${c.company} · ` : ''}{c.contactEmail}</p>
                   </div>
+                  <StatusDropdown client={c} onChange={s => { void handleStatusChange(c, s) }} />
                   <button onClick={() => setInviteClient(c)}
                     className="shrink-0 text-ink-faint hover:text-violet transition-colors p-1" title="Send portal link">
                     <Send className="w-4 h-4" />
@@ -332,9 +452,7 @@ export default function ClientsPage() {
                         : <span className="text-ink-faint text-sm">—</span>}
                     </td>
                     <td className="px-6">
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${c.status === 'ACTIVE' ? 'bg-success/15 text-success' : 'bg-white/10 text-ink-muted'}`}>
-                        {c.status === 'ACTIVE' ? 'Active' : 'Archived'}
-                      </span>
+                      <StatusDropdown client={c} onChange={s => { void handleStatusChange(c, s) }} />
                     </td>
                     <td className="px-6">
                       <div className="flex items-center gap-3">

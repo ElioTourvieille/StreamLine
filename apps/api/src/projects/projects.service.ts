@@ -8,7 +8,6 @@ import {
 import {
   DynamoDBDocumentClient,
   PutCommand,
-  GetCommand,
   UpdateCommand,
   QueryCommand,
   DeleteCommand,
@@ -186,12 +185,28 @@ export class ProjectsService {
     milestones[idx] = { ...milestones[idx], ...dto }
     const now = new Date().toISOString()
 
+    // Auto-advance project status based on milestone states
+    const allCompleted = milestones.every((m) => m.status === MilestoneStatus.COMPLETED)
+    const anyInProgress = milestones.some(
+      (m) => m.status === MilestoneStatus.IN_PROGRESS || m.status === MilestoneStatus.COMPLETED,
+    )
+    let newProjectStatus: ProjectStatus | undefined
+    if (allCompleted) newProjectStatus = ProjectStatus.COMPLETED
+    else if (anyInProgress && project.status === ProjectStatus.DRAFT) newProjectStatus = ProjectStatus.ACTIVE
+
+    const updateExpr = newProjectStatus
+      ? 'SET milestones = :milestones, updatedAt = :now, #s = :status'
+      : 'SET milestones = :milestones, updatedAt = :now'
+    const exprValues: Record<string, unknown> = { ':milestones': milestones, ':now': now }
+    if (newProjectStatus) exprValues[':status'] = newProjectStatus
+
     await this.db.send(
       new UpdateCommand({
         TableName: TABLE,
         Key: { PK: `ORG#${project.organizationId}`, SK: `PROJECT#${id}` },
-        UpdateExpression: 'SET milestones = :milestones, updatedAt = :now',
-        ExpressionAttributeValues: { ':milestones': milestones, ':now': now },
+        UpdateExpression: updateExpr,
+        ExpressionAttributeValues: exprValues,
+        ...(newProjectStatus ? { ExpressionAttributeNames: { '#s': 'status' } } : {}),
       }),
     )
 
