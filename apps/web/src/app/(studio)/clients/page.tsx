@@ -396,7 +396,7 @@ export default function ClientsPage() {
               className="w-full bg-surface border border-line rounded-lg pl-9 pr-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-violet transition-colors" />
           </div>
 
-          <div className="bg-surface border border-line rounded-xl overflow-hidden">
+          <div className="bg-surface border border-line rounded-xl">
             {/* Mobile list */}
             <div className="sm:hidden divide-y divide-line">
               {filtered.map(c => (
