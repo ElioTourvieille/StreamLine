@@ -77,11 +77,24 @@ export class ClientsService {
 
     const updates: string[] = []
     const values: Record<string, unknown> = {}
+    const names: Record<string, string> = {}
+
+    // `name` and `status` are DynamoDB reserved words — alias them
+    const RESERVED: Partial<Record<keyof UpdateClientDto, string>> = {
+      name: '#n',
+      status: '#s',
+    }
 
     const fields: (keyof UpdateClientDto)[] = ['name', 'contactEmail', 'company', 'phone', 'logoUrl', 'status']
     for (const f of fields) {
       if (dto[f] !== undefined) {
-        updates.push(`${f} = :${f}`)
+        const alias = RESERVED[f]
+        if (alias) {
+          updates.push(`${alias} = :${f}`)
+          names[alias] = f
+        } else {
+          updates.push(`${f} = :${f}`)
+        }
         values[`:${f}`] = dto[f]
       }
     }
@@ -98,6 +111,7 @@ export class ClientsService {
         Key: { PK: `ORG#${client.organizationId}`, SK: `CLIENT#${id}` },
         UpdateExpression: `SET ${updates.join(', ')}`,
         ExpressionAttributeValues: values,
+        ...(Object.keys(names).length ? { ExpressionAttributeNames: names } : {}),
       }),
     )
 
