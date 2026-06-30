@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-06-29T00:00:00.000Z",
+  "title": "Design System: StreamLine",
+  "extensions": {
+    "colorMeta": {
+      "violet":       { "role": "primary",  "displayName": "Studio Violet",  "canonical": "oklch(54% 0.26 291)", "tonalRamp": ["#110b1c", "#1e1038", "#2e1a5e", "#4e26a0", "#7c3aed", "#9d6ef5", "#bda0f9", "#e0d4ff"] },
+      "violet-deep":  { "role": "primary",  "displayName": "Violet Deep",    "canonical": "oklch(48% 0.27 291)", "tonalRamp": ["#0d091a", "#190d31", "#281551", "#41208c", "#6d28d9", "#8c55ea", "#b08cf7", "#dfd0ff"] },
+      "violet-glow":  { "role": "primary",  "displayName": "Violet Echo",    "canonical": "oklch(82% 0.10 291)", "tonalRamp": ["#1a1225", "#2e1f49", "#4a3470", "#6b50a0", "#9a7ed4", "#b8a1e8", "#d2bbff", "#f0e9ff"] },
+      "bg":           { "role": "neutral",  "displayName": "Studio Void",    "canonical": "oklch(11% 0.01 276)", "tonalRamp": ["#0a0a0d", "#0e0e12", "#131317", "#1a1a24", "#1f1f23", "#2d2d3d", "#4a4455", "#64748b"] },
+      "surface":      { "role": "neutral",  "displayName": "Surface",        "canonical": "oklch(16% 0.02 276)", "tonalRamp": ["#0a0a0d", "#0e0e12", "#131317", "#1a1a24", "#1f1f23", "#2d2d3d", "#4a4455", "#64748b"] },
+      "surface-high": { "role": "neutral",  "displayName": "Surface High",   "canonical": "oklch(18% 0.01 276)", "tonalRamp": ["#0a0a0d", "#0e0e12", "#131317", "#1a1a24", "#1f1f23", "#2d2d3d", "#4a4455", "#64748b"] },
+      "surface-dim":  { "role": "neutral",  "displayName": "Surface Dim",    "canonical": "oklch(9%  0.01 276)", "tonalRamp": ["#070709", "#0a0a0d", "#0e0e12", "#131317", "#1a1a24", "#1f1f23", "#2d2d3d", "#4a4455"] },
+      "ink":          { "role": "neutral",  "displayName": "Ink",            "canonical": "oklch(95% 0.01 220)", "tonalRamp": ["#131317", "#2d2d3d", "#64748b", "#958da1", "#ccc3d8", "#e4e0ec", "#F1F5F9", "#ffffff"] },
+      "ink-dim":      { "role": "neutral",  "displayName": "Ink Dim",        "canonical": "oklch(84% 0.03 286)", "tonalRamp": ["#1a1a24", "#2d2d3d", "#64748b", "#958da1", "#ccc3d8", "#d9d4e4", "#e8e5f0", "#F1F5F9"] },
+      "ink-muted":    { "role": "neutral",  "displayName": "Ink Muted",      "canonical": "oklch(60% 0.04 232)", "tonalRamp": ["#131317", "#1a1a24", "#2d2d3d", "#4a4455", "#64748b", "#8896a8", "#ccc3d8", "#F1F5F9"] },
+      "success":      { "role": "tertiary", "displayName": "Signal Green",   "canonical": "oklch(71% 0.22 142)", "tonalRamp": ["#072510", "#0e4020", "#166534", "#15803d", "#22c55e", "#4ade80", "#86efac", "#dcfce7"] },
+      "warning":      { "role": "secondary","displayName": "Signal Amber",   "canonical": "oklch(76% 0.17 70)",  "tonalRamp": ["#321a02", "#5c3208", "#92400e", "#b45309", "#F59E0B", "#fbbf24", "#fde68a", "#fef9c3"] },
+      "danger":       { "role": "tertiary", "displayName": "Signal Red",     "canonical": "oklch(64% 0.24 27)",  "tonalRamp": ["#2d0a0a", "#5a1414", "#991b1b", "#b91c1c", "#EF4444", "#f87171", "#fca5a5", "#fee2e2"] },
+      "info":         { "role": "tertiary", "displayName": "Signal Blue",    "canonical": "oklch(62% 0.20 240)", "tonalRamp": ["#0c1d3a", "#1e3a5f", "#1d4ed8", "#2563eb", "#3B82F6", "#60a5fa", "#93c5fd", "#dbeafe"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Page-level greetings and primary screen titles. Used once per view." },
+      "title":   { "displayName": "Title",   "purpose": "Card headers, section titles, modal headings." },
+      "body":    { "displayName": "Body",    "purpose": "All content text, table cell values, descriptions." },
+      "label":   { "displayName": "Label",   "purpose": "Table column headers only. Maximum 3 per view." }
+    },
+    "shadows": [
+      { "name": "modal-overlay", "value": "0 25px 50px rgba(0,0,0,0.5)", "purpose": "Modal/dialog lift above the backdrop dimmer. The only permitted shadow in the system." }
+    ],
+    "motion": [
+      { "name": "ease-out-expo",  "value": "cubic-bezier(0.16, 1, 0.3, 1)",  "purpose": "Default for all entrance animations and state transitions. 150–350ms." },
+      { "name": "ease-out-state", "value": "cubic-bezier(0.4, 0, 0.2, 1)",   "purpose": "Background/color state changes (hover, active). 150ms." }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1400px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one CTA per screen. Violet earns its rarity.",
+      "html": "<button class=\"ds-btn-primary\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M12 5v14M5 12l7 7 7-7\"/></svg>New Project</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 8px; background: #7c3aed; color: #F1F5F9; font-family: Inter, system-ui, sans-serif; font-size: 0.875rem; font-weight: 600; padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; transition: background 150ms cubic-bezier(0.4,0,0.2,1), transform 100ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-primary:hover { background: #6d28d9; } .ds-btn-primary:active { transform: scale(0.98); } .ds-btn-primary:focus-visible { outline: 2px solid #7c3aed; outline-offset: 2px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Secondary actions. Never competes with the primary CTA.",
+      "html": "<button class=\"ds-btn-ghost\">View all →</button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; gap: 6px; background: #1A1A24; color: #F1F5F9; font-family: Inter, system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; padding: 10px 16px; border: 1px solid #2D2D3D; border-radius: 8px; cursor: pointer; transition: background 150ms cubic-bezier(0.4,0,0.2,1); } .ds-btn-ghost:hover { background: #1f1f23; } .ds-btn-ghost:focus-visible { outline: 2px solid #7c3aed; outline-offset: 2px; }"
+    },
+    {
+      "name": "Status Badge – Active",
+      "kind": "chip",
+      "refersTo": "badge-success",
+      "description": "Active project or approved deliverable state.",
+      "html": "<span class=\"ds-badge-active\"><span class=\"ds-badge-dot\"></span>On Track</span>",
+      "css": ".ds-badge-active { display: inline-flex; align-items: center; gap: 6px; background: rgba(34,197,94,0.15); color: #22C55E; font-family: Inter, system-ui, sans-serif; font-size: 0.6875rem; font-weight: 600; padding: 2px 10px; border-radius: 9999px; border: 1px solid rgba(34,197,94,0.30); } .ds-badge-dot { width: 6px; height: 6px; border-radius: 50%; background: #22C55E; }"
+    },
+    {
+      "name": "Status Badge – Warning",
+      "kind": "chip",
+      "refersTo": "badge-warning",
+      "description": "Pending validation or in-review state.",
+      "html": "<span class=\"ds-badge-warning\"><span class=\"ds-badge-dot-w\"></span>In Review</span>",
+      "css": ".ds-badge-warning { display: inline-flex; align-items: center; gap: 6px; background: rgba(245,158,11,0.15); color: #F59E0B; font-family: Inter, system-ui, sans-serif; font-size: 0.6875rem; font-weight: 600; padding: 2px 10px; border-radius: 9999px; border: 1px solid rgba(245,158,11,0.30); } .ds-badge-dot-w { width: 6px; height: 6px; border-radius: 50%; background: #F59E0B; }"
+    },
+    {
+      "name": "Data Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Primary content container. All project, client, and stat panels live here.",
+      "html": "<div class=\"ds-card\"><div class=\"ds-card-header\"><h3 class=\"ds-card-title\">Active Projects</h3><a class=\"ds-card-link\">View all →</a></div><div class=\"ds-card-body\"><p class=\"ds-card-meta\">No content yet.</p></div></div>",
+      "css": ".ds-card { background: #1A1A24; border: 1px solid #2D2D3D; border-radius: 12px; overflow: hidden; } .ds-card-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid #2D2D3D; } .ds-card-title { font-family: Inter, system-ui, sans-serif; font-size: 1.0625rem; font-weight: 600; color: #F1F5F9; margin: 0; } .ds-card-link { font-family: Inter, system-ui, sans-serif; font-size: 0.75rem; color: #64748B; cursor: pointer; transition: color 150ms; } .ds-card-link:hover { color: #F1F5F9; } .ds-card-body { padding: 20px; } .ds-card-meta { font-family: Inter, system-ui, sans-serif; font-size: 0.875rem; color: #64748B; margin: 0; }"
+    },
+    {
+      "name": "Stat Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Dashboard metrics. Number is the hero; label is secondary, not an eyebrow.",
+      "html": "<div class=\"ds-stat\"><p class=\"ds-stat-value\" style=\"color:#d2bbff\">12</p><p class=\"ds-stat-label\">Active Projects</p></div>",
+      "css": ".ds-stat { background: #1A1A24; border: 1px solid #2D2D3D; border-radius: 12px; padding: 20px; transition: background 150ms; } .ds-stat:hover { background: #1f1f23; } .ds-stat-value { font-family: Inter, system-ui, sans-serif; font-size: 2.25rem; font-weight: 600; line-height: 1; color: #F1F5F9; margin: 0 0 8px; } .ds-stat-label { font-family: Inter, system-ui, sans-serif; font-size: 0.75rem; font-weight: 500; color: #64748B; margin: 0; letter-spacing: 0; text-transform: none; }"
+    },
+    {
+      "name": "Nav Item – Active",
+      "kind": "nav",
+      "refersTo": "nav-item-active",
+      "description": "Active sidebar navigation state. Background-driven — no left border stripe.",
+      "html": "<a class=\"ds-nav-item ds-nav-active\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\" rx=\"1\"/></svg>Dashboard</a>",
+      "css": ".ds-nav-item { display: flex; align-items: center; gap: 12px; padding: 8px 12px; border-radius: 8px; font-family: Inter, system-ui, sans-serif; font-size: 0.875rem; font-weight: 500; color: #64748B; cursor: pointer; transition: background 150ms, color 150ms; text-decoration: none; } .ds-nav-item:hover { background: #1f1f23; color: #F1F5F9; } .ds-nav-active { background: #1f1f23; color: #F1F5F9; } .ds-nav-active svg { color: #7c3aed; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": null,
+      "description": "Standard form input. Surface background, line border, violet focus ring.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-label\">Project name</label><input class=\"ds-input\" placeholder=\"e.g. Website Redesign\" /></div>",
+      "css": ".ds-field { display: flex; flex-direction: column; gap: 6px; } .ds-label { font-family: Inter, system-ui, sans-serif; font-size: 0.8125rem; font-weight: 500; color: #ccc3d8; } .ds-input { background: #1A1A24; border: 1px solid #2D2D3D; border-radius: 8px; padding: 10px 12px; font-family: Inter, system-ui, sans-serif; font-size: 0.875rem; color: #F1F5F9; outline: none; transition: border-color 150ms; width: 100%; } .ds-input::placeholder { color: #958da1; } .ds-input:focus { border-color: rgba(124,58,237,0.5); } .ds-input:disabled { opacity: 0.5; cursor: not-allowed; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Studio Monitor",
+    "overview": "StreamLine's visual system is a reference-grade tool — like a calibrated studio monitor used by audio engineers. What you see is project reality without filter or enhancement. The interface does not celebrate itself. It is dark so that the work is visible; it is quiet so that signals are heard; it is dense because professionals need information, not whitespace.\n\nClean and professional — the kind of tool you show a client during a call without hesitation. Every design decision asks: does this make the information clearer, or does it add visual noise?\n\nThis system explicitly rejects the generic purple SaaS scaffold and the playful startup aesthetic. Studio Violet exists to mark a single thing at a time: the one action worth taking, the one status that needs attention. Its rarity is the point.",
+    "keyCharacteristics": [
+      "Tonal depth replaces shadow — four surface layers create hierarchy without blur",
+      "Studio Violet appears on ≤15% of any screen, always earning its presence",
+      "Inter at tight tracking creates a precise, focused reading environment",
+      "Semantic color is never decorative — success green and warning amber mean exactly that",
+      "Motion is exponential-ease under 350ms; never decorative choreography"
+    ],
+    "rules": [
+      { "name": "The One Signal Rule",     "body": "Studio Violet marks a single thing at a time: the primary CTA or the active state. Two violet elements on the same screen compete and collapse into decoration.",                                                                        "section": "colors" },
+      { "name": "The Semantic Lock",       "body": "Signal Green means active or approved. Signal Amber means attention needed. Signal Red means error or destructive. These colors never appear for decorative or brand purposes.",                                                                "section": "colors" },
+      { "name": "The One Label Rule",      "body": "Uppercase tracked label type is reserved for table column headers only — not for stat card categories or section eyebrows. If every section has an uppercase label, none of them carry weight.",                                              "section": "typography" },
+      { "name": "The Tight Tracking Floor","body": "Display headings use letter-spacing -0.02em minimum. Labels use 0.06em maximum. The gap between these poles creates the typographic rhythm.",                                                                                             "section": "typography" },
+      { "name": "The Flat-By-Default Rule","body": "Surfaces are always flat at rest. No box-shadow on cards, no backdrop-filter on overlays, no frosted glass. Tonal color is the depth system.",                                                                                           "section": "elevation" },
+      { "name": "The Modal Exception",     "body": "The single allowed shadow is on modal/dialog overlays: 0 25px 50px rgba(0,0,0,0.5). This is structural, not decorative.",                                                                                                               "section": "elevation" }
+    ],
+    "dos": [
+      "Use Studio Violet exclusively for the single primary CTA, active nav state background, and critical status indicators — one per context at most",
+      "Use border-radius 8px on buttons and inputs, 12px on cards and panels",
+      "Use semantic color with 15% opacity backgrounds for badges: green for approved/active, amber for pending/warning, red for errors",
+      "Use exponential easing (cubic-bezier(0.16, 1, 0.3, 1)) for entrances and state transitions, 150–350ms duration",
+      "Include prefers-reduced-motion fallbacks on all Framer Motion animations",
+      "Test every Ink Muted text value against its actual surface for 4.5:1 contrast",
+      "Use text-wrap: balance on all h1–h3 headings"
+    ],
+    "donts": [
+      "Don't use border-left or border-right greater than 1px as a colored accent on navigation items, cards, or callouts — this is a banned pattern",
+      "Don't use uppercase tracked label text above stat cards, section headings, or dashboard panels as eyebrow decorations",
+      "Don't use Studio Violet as a fill color on more than one primary action per screen",
+      "Don't add gradient text, glassmorphism cards, or backdrop-filter blur effects — flat by doctrine",
+      "Don't build identical card grids with same icon, heading, body, size repeated four or more times",
+      "Don't use Studio Violet as a background fill on any surface other than the primary button and the notification badge",
+      "Don't ship placeholder or hardcoded user data in production views",
+      "Don't add box-shadow to cards or any UI component except the single permitted modal overlay shadow"
+    ]
+  }
+}

@@ -98,12 +98,12 @@ export default function Sidebar() {
               className={[
                 'flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-all duration-150',
                 active
-                  ? 'bg-surface-high text-ink border-l-2 border-violet'
-                  : 'text-ink-muted hover:bg-surface-high hover:text-ink border-l-2 border-transparent',
+                  ? 'bg-surface-high text-violet-glow'
+                  : 'text-ink-muted hover:bg-surface-high hover:text-ink',
               ].join(' ')}
             >
               <span className="relative shrink-0">
-                <Icon className="w-4 h-4" />
+                <Icon className={`w-4 h-4 ${active ? 'text-violet' : ''}`} />
                 {isNotif && unreadCount > 0 && (
                   <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-violet rounded-full flex items-center justify-center text-[9px] font-bold text-white leading-none">
                     {unreadCount > 9 ? '9+' : unreadCount}

@@ -1,0 +1,24 @@
+{
+  "detector": {
+    "ignoreRules": [
+      "side-tab"
+    ],
+    "ignoreFiles": [
+      "apps/web/src/app/globals.css"
+    ],
+    "ignoreValues": [
+      {
+        "rule": "design-system-radius",
+        "value": "3px",
+        "reason": "Scrollbar thumb radius — utilitaire browser, pas un composant design",
+        "createdAt": "2026-06-29T14:02:41.919Z"
+      },
+      {
+        "rule": "design-system-color",
+        "value": "#6366f1",
+        "reason": "Artefact live session dans data-impeccable-variant=original, sera nettoyé au discard",
+        "createdAt": "2026-06-29T14:02:42.021Z"
+      }
+    ]
+  }
+}

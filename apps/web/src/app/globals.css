@@ -19,7 +19,7 @@
   /* Text */
   --color-ink:           #F1F5F9;
   --color-ink-dim:       #ccc3d8;
-  --color-ink-muted:     #64748B;
+  --color-ink-muted:     #8896a8;
   --color-ink-faint:     #958da1;
 
   /* Semantic */
@@ -55,7 +55,7 @@ body {
 .prose-proposal code { background: #1A1A24; border: 1px solid #2D2D3D; border-radius: 4px; padding: 0.1em 0.35em; font-size: 0.8em; color: #d2bbff; }
 .prose-proposal pre { background: #1A1A24; border: 1px solid #2D2D3D; border-radius: 8px; padding: 1rem; overflow-x: auto; margin: 0 0 0.75rem; }
 .prose-proposal pre code { background: none; border: none; padding: 0; }
-.prose-proposal blockquote { border-left: 3px solid #7c3aed; padding-left: 1rem; color: #958da1; margin: 0 0 0.75rem; }
+.prose-proposal blockquote { background: rgba(124,58,237,0.06); border-radius: 4px; padding: 0.5rem 0.875rem; color: #958da1; margin: 0 0 0.75rem; }
 .prose-proposal table { width: 100%; border-collapse: collapse; margin: 0 0 0.75rem; font-size: 0.8125rem; }
 .prose-proposal th { background: #1A1A24; color: #F1F5F9; font-weight: 600; text-align: left; padding: 0.5rem 0.75rem; border: 1px solid #2D2D3D; }
 .prose-proposal td { padding: 0.5rem 0.75rem; border: 1px solid #2D2D3D; }

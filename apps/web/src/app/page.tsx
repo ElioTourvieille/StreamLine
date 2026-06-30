@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { motion } from 'framer-motion'
 import {
   Compass, FolderOpen, Users, Sparkles,
-  ArrowRight, Zap, Bell, CheckCircle2,
+  ArrowRight, Zap, CheckCircle2,
 } from 'lucide-react'
 
 const fade = (delay = 0) => ({
@@ -26,18 +26,21 @@ const FEATURES = [
     title: 'Project workspace',
     desc: 'Milestones, deliverables, team members and progress tracking — all in one place.',
     items: ['Milestone timeline', 'Health gauge', 'Activity feed'],
+    highlight: false,
   },
   {
     icon: Users,
     title: 'Client portal',
     desc: 'Share a magic link. No account, no friction. Your client reviews and approves work in seconds.',
     items: ['Magic link access', 'Approve or request changes', 'Comment on deliverables'],
+    highlight: false,
   },
   {
     icon: Sparkles,
     title: 'AI Proposal Generator',
     desc: 'Turn a brief into a polished project proposal in seconds with real-time streaming.',
     items: ['Claude Opus 4.8', 'Real-time streaming', 'Download as Markdown'],
+    highlight: true,
   },
 ]
 
@@ -75,7 +78,7 @@ export default function LandingPage() {
 
       {/* ── Hero ────────────────────────────────────────────────────────────── */}
       <section className="relative pt-32 pb-20 px-5 sm:px-8 text-center overflow-hidden"
-        style={{ background: 'radial-gradient(ellipse at 50% -10%, #3b1d6e 0%, #131317 58%)' }}>
+        style={{ background: 'radial-gradient(ellipse at 50% -10%, color-mix(in srgb, var(--color-violet) 42%, #131317) 0%, #131317 58%)' }}>
 
         {/* Grid decoration */}
         <div className="absolute inset-0 pointer-events-none"
@@ -94,13 +97,7 @@ export default function LandingPage() {
           <motion.h1 {...fade(0.07)}
             className="text-[40px] sm:text-[62px] font-semibold tracking-tight leading-[1.1] mb-6">
             The project hub for<br />
-            <span style={{
-              background: 'linear-gradient(135deg, #c4b5fd 0%, #7c3aed 50%, #6366f1 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-            }}>
-              web studios
-            </span>
+            <span className="text-violet">web studios</span>
           </motion.h1>
 
           <motion.p {...fade(0.13)}
@@ -156,7 +153,7 @@ export default function LandingPage() {
                 </div>
                 {['Dashboard', 'Projects', 'Clients', 'AI Proposals', 'Messages', 'Notifications'].map((item, i) => (
                   <div key={item}
-                    className={`flex items-center gap-2 px-2 py-1.5 rounded-md mb-0.5 border-l-2 ${i === 0 ? 'bg-surface-high border-violet' : 'border-transparent'}`}>
+                    className={`flex items-center gap-2 px-2 py-1.5 rounded-md mb-0.5 ${i === 0 ? 'bg-surface-high' : ''}`}>
                     <div className={`w-1 h-1 rounded-full ${i === 0 ? 'bg-violet' : 'bg-line'}`} />
                     <span className={`text-[10px] ${i === 0 ? 'text-ink font-medium' : 'text-ink-faint'}`}>{item}</span>
                     {item === 'Notifications' && (
@@ -219,29 +216,45 @@ export default function LandingPage() {
 
       {/* ── Features ────────────────────────────────────────────────────────── */}
       <section className="px-5 sm:px-8 pb-24">
-        <div className="max-w-5xl mx-auto">
-          <motion.div {...inView(0)} className="text-center mb-12">
+        <div className="max-w-4xl mx-auto">
+          <motion.div {...inView(0)} className="mb-14">
             <h2 className="text-2xl sm:text-3xl font-semibold text-ink mb-3">Everything your studio needs</h2>
-            <p className="text-ink-muted text-sm max-w-md mx-auto">Two audiences, one platform. Studio side and client side.</p>
+            <p className="text-ink-muted text-sm max-w-sm">Two audiences, one platform. Studio side and client side.</p>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            {FEATURES.map(({ icon: Icon, title, desc, items }, i) => (
+          <div className="divide-y divide-line">
+            {FEATURES.map(({ icon: Icon, title, desc, items, highlight }, i) => (
               <motion.div key={title} {...inView(i * 0.09)}
-                className="bg-surface border border-line rounded-xl p-5 hover:bg-surface-high transition-colors group">
-                <div className="w-9 h-9 rounded-lg bg-violet/10 border border-violet/20 flex items-center justify-center mb-4 group-hover:bg-violet/15 transition-colors">
-                  <Icon className="w-4 h-4 text-violet-glow" />
+                className="grid grid-cols-1 sm:grid-cols-[200px_1fr] gap-4 sm:gap-8 py-5 items-center">
+                {/* Left: icon + title */}
+                <div className="flex items-center gap-3">
+                  <div className={[
+                    'shrink-0 rounded-lg flex items-center justify-center',
+                    highlight
+                      ? 'w-8 h-8 bg-violet/15 border border-violet/30'
+                      : 'w-8 h-8 bg-surface-high border border-line',
+                  ].join(' ')}>
+                    <Icon className={highlight ? 'w-3.5 h-3.5 text-violet-glow' : 'w-3.5 h-3.5 text-ink-muted'} />
+                  </div>
+                  <h3 className="text-sm font-semibold text-ink">{title}</h3>
                 </div>
-                <h3 className="text-sm font-semibold text-ink mb-2">{title}</h3>
-                <p className="text-xs text-ink-muted leading-relaxed mb-4">{desc}</p>
-                <ul className="space-y-1.5">
-                  {items.map(item => (
-                    <li key={item} className="flex items-center gap-2 text-xs text-ink-faint">
-                      <CheckCircle2 className="w-3 h-3 text-success/70 shrink-0" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
+                {/* Right: desc + chips */}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
+                  <p className="text-xs text-ink-muted leading-relaxed flex-1">{desc}</p>
+                  <div className="flex flex-wrap gap-2 shrink-0">
+                    {items.map(item => (
+                      <span key={item} className={[
+                        'flex items-center gap-1 text-[11px] rounded-md px-2 py-1',
+                        highlight
+                          ? 'text-violet-glow bg-violet/8 border border-violet/15'
+                          : 'text-ink-faint bg-surface-high border border-line',
+                      ].join(' ')}>
+                        <CheckCircle2 className="w-2.5 h-2.5 text-success/60 shrink-0" />
+                        {item}
+                      </span>
+                    ))}
+                  </div>
+                </div>
               </motion.div>
             ))}
           </div>

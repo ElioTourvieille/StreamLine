@@ -253,7 +253,7 @@ export default function DashboardPage() {
             {STAT_CARDS.map((s, i) => (
               <motion.div key={s.label} {...fadeUp(i * 0.06)}
                 className="bg-surface border border-line rounded-xl p-4 sm:p-5 hover:bg-surface-high transition-colors">
-                <p className="text-[10px] sm:text-[11px] font-semibold text-ink-muted uppercase tracking-widest mb-2 sm:mb-3 leading-tight">
+                <p className="text-xs font-medium text-ink-muted mb-2 sm:mb-3">
                   {s.label}
                 </p>
                 <p className={`text-3xl sm:text-[2.25rem] font-semibold leading-none mb-2 sm:mb-3 ${s.color}`}>

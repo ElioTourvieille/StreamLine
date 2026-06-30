@@ -1,10 +1,3 @@
-# StreamLine — Devpost Submission Description
-
-> Copy-paste this into the Devpost submission form.
-> Word count: ~280 words.
-
----
-
 ## Inspiration
 
 Running a web studio means juggling clients across email threads, Notion docs, Slack DMs, and spreadsheets — all while trying to get a simple "yes" on a design deliverable. We wanted one focused tool where the studio tracks everything internally and the client gets a clean, no-friction window into their project.
