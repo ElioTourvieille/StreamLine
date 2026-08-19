@@ -13,20 +13,20 @@ import { useApiData } from '@/lib/hooks'
 // ─── Status config ────────────────────────────────────────────────────────────
 
 const STATUS_CONFIG: Record<ClientStatus, { label: string; className: string }> = {
-  ACTIVE:      { label: 'Active',       className: 'bg-success/15 text-success border-success/30' },
-  FOLLOW_UP:   { label: 'Follow-up',    className: 'bg-warning/15 text-warning border-warning/30' },
+  ACTIVE:      { label: 'Actif',        className: 'bg-success/15 text-success border-success/30' },
+  FOLLOW_UP:   { label: 'À relancer',   className: 'bg-warning/15 text-warning border-warning/30' },
   MAINTENANCE: { label: 'Maintenance',  className: 'bg-blue/15 text-blue-400 border-blue-400/30' },
-  COMPLETED:   { label: 'Completed',    className: 'bg-violet/15 text-violet-glow border-violet/30' },
-  ARCHIVED:    { label: 'Archived',     className: 'bg-white/5 text-ink-muted border-line' },
+  COMPLETED:   { label: 'Terminé',      className: 'bg-violet/15 text-violet-glow border-violet/30' },
+  ARCHIVED:    { label: 'Archivé',      className: 'bg-white/5 text-ink-muted border-line' },
 }
 
 const TABS: { key: ClientStatus | 'ALL'; label: string }[] = [
-  { key: 'ALL',         label: 'All' },
-  { key: 'ACTIVE',      label: 'Active' },
-  { key: 'FOLLOW_UP',   label: 'Follow-up' },
+  { key: 'ALL',         label: 'Tous' },
+  { key: 'ACTIVE',      label: 'Actif' },
+  { key: 'FOLLOW_UP',   label: 'À relancer' },
   { key: 'MAINTENANCE', label: 'Maintenance' },
-  { key: 'COMPLETED',   label: 'Completed' },
-  { key: 'ARCHIVED',    label: 'Archived' },
+  { key: 'COMPLETED',   label: 'Terminé' },
+  { key: 'ARCHIVED',    label: 'Archivé' },
 ]
 
 // ─── Status dropdown ──────────────────────────────────────────────────────────
@@ -90,7 +90,7 @@ function NewClientModal({ onClose, onSave }: { onClose: () => void; onSave: (c: 
       const created = await api.clients.create({ name: form.name, contactEmail: form.contactEmail, company: form.company || undefined, phone: form.phone || undefined })
       onSave(created)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error creating client')
+      setError(err instanceof Error ? err.message : 'Erreur lors de la création du client')
     } finally {
       setLoading(false)
     }
@@ -107,15 +107,15 @@ function NewClientModal({ onClose, onSave }: { onClose: () => void; onSave: (c: 
         className="bg-surface border border-line rounded-t-2xl sm:rounded-xl w-full sm:max-w-md"
       >
         <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-line">
-          <h2 className="text-base sm:text-lg font-semibold text-ink">New Client</h2>
+          <h2 className="text-base sm:text-lg font-semibold text-ink">Nouveau client</h2>
           <button onClick={onClose} className="text-ink-muted hover:text-ink transition-colors p-1"><X className="w-5 h-5" /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
           {[
-            { label: 'Contact Name', key: 'name',         required: true,  placeholder: 'Jean Dupont' },
-            { label: 'Company',      key: 'company',      required: false, placeholder: 'Acme Corp' },
-            { label: 'Email',        key: 'contactEmail', required: true,  placeholder: 'contact@company.com', type: 'email' },
-            { label: 'Phone',        key: 'phone',        required: false, placeholder: '+33 6 00 00 00 00' },
+            { label: 'Nom du contact', key: 'name',         required: true,  placeholder: 'Jean Dupont' },
+            { label: 'Entreprise',     key: 'company',      required: false, placeholder: 'Acme Corp' },
+            { label: 'E-mail',         key: 'contactEmail', required: true,  placeholder: 'contact@entreprise.com', type: 'email' },
+            { label: 'Téléphone',      key: 'phone',        required: false, placeholder: '+41 22 000 00 00' },
           ].map(({ label, key, required, placeholder, type }) => (
             <div key={key}>
               <label className="block text-xs font-medium text-ink-dim mb-1.5 uppercase tracking-wide">
@@ -130,10 +130,10 @@ function NewClientModal({ onClose, onSave }: { onClose: () => void; onSave: (c: 
           {error && <p className="text-danger text-sm">{error}</p>}
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose}
-              className="flex-1 bg-surface-high hover:bg-surface border border-line text-ink-dim text-sm font-medium py-2.5 rounded-lg transition-colors">Cancel</button>
+              className="flex-1 bg-surface-high hover:bg-surface border border-line text-ink-dim text-sm font-medium py-2.5 rounded-lg transition-colors">Annuler</button>
             <button type="submit" disabled={loading}
               className="flex-1 bg-violet hover:bg-violet-hover text-white text-sm font-semibold py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-60">
-              {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}Create Client
+              {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}Créer le client
             </button>
           </div>
         </form>
@@ -159,7 +159,7 @@ function InviteModal({ client, onClose }: { client: Client; onClose: () => void 
       const res = await api.clients.invite(client.id, form)
       setPortalUrl(res.portalUrl)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error generating portal link')
+      setError(err instanceof Error ? err.message : 'Erreur lors de la génération du lien')
     } finally {
       setLoading(false)
     }
@@ -182,32 +182,32 @@ function InviteModal({ client, onClose }: { client: Client; onClose: () => void 
         className="bg-surface border border-line rounded-t-2xl sm:rounded-xl w-full sm:max-w-md"
       >
         <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-line">
-          <h2 className="text-base font-semibold text-ink">Send Portal Link</h2>
+          <h2 className="text-base font-semibold text-ink">Envoyer le lien du portail</h2>
           <button onClick={onClose} className="text-ink-muted hover:text-ink p-1"><X className="w-5 h-5" /></button>
         </div>
 
         <div className="p-5 sm:p-6">
           {!portalUrl ? (
             <form onSubmit={handleInvite} className="space-y-4">
-              <p className="text-sm text-ink-muted">Generate a secure portal link for <span className="text-ink font-medium">{client.name}</span>. They can access it without an account.</p>
+              <p className="text-sm text-ink-muted">Générez un lien de portail sécurisé pour <span className="text-ink font-medium">{client.name}</span>. Il y accède sans avoir besoin de compte.</p>
               <div>
-                <label className="block text-xs font-medium text-ink-dim mb-1.5 uppercase tracking-wide">Client email <span className="text-danger">*</span></label>
+                <label className="block text-xs font-medium text-ink-dim mb-1.5 uppercase tracking-wide">E-mail du client <span className="text-danger">*</span></label>
                 <input type="email" required value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
                   className="w-full bg-bg border border-line rounded-lg px-3 py-2.5 text-sm text-ink focus:outline-none focus:border-violet transition-colors" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-ink-dim mb-1.5 uppercase tracking-wide">Client name <span className="text-danger">*</span></label>
+                <label className="block text-xs font-medium text-ink-dim mb-1.5 uppercase tracking-wide">Nom du client <span className="text-danger">*</span></label>
                 <input type="text" required value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                   className="w-full bg-bg border border-line rounded-lg px-3 py-2.5 text-sm text-ink focus:outline-none focus:border-violet transition-colors" />
               </div>
               {error && <p className="text-danger text-sm">{error}</p>}
               <div className="flex gap-3 pt-1">
                 <button type="button" onClick={onClose}
-                  className="flex-1 bg-surface-high border border-line text-ink-dim text-sm font-medium py-2.5 rounded-lg transition-colors">Cancel</button>
+                  className="flex-1 bg-surface-high border border-line text-ink-dim text-sm font-medium py-2.5 rounded-lg transition-colors">Annuler</button>
                 <button type="submit" disabled={loading}
                   className="flex-1 bg-violet hover:bg-violet-hover text-white text-sm font-semibold py-2.5 rounded-lg flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-60">
                   {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-                  Generate Link
+                  Générer le lien
                 </button>
               </div>
             </form>
@@ -215,10 +215,10 @@ function InviteModal({ client, onClose }: { client: Client; onClose: () => void 
             <div className="space-y-4">
               <div className="flex items-center gap-2 p-3 bg-success/10 border border-success/30 rounded-lg">
                 <Check className="w-4 h-4 text-success shrink-0" />
-                <p className="text-sm text-success font-medium">Portal link generated!</p>
+                <p className="text-sm text-success font-medium">Lien du portail généré !</p>
               </div>
               <div>
-                <p className="text-xs text-ink-muted mb-2">Share this link with {form.name}:</p>
+                <p className="text-xs text-ink-muted mb-2">Partagez ce lien avec {form.name} :</p>
                 <div className="flex gap-2">
                   <code className="flex-1 bg-bg border border-line rounded-lg px-3 py-2 text-xs text-violet-glow truncate">
                     {portalUrl}
@@ -229,9 +229,9 @@ function InviteModal({ client, onClose }: { client: Client; onClose: () => void 
                   </button>
                 </div>
               </div>
-              <p className="text-xs text-ink-faint">Link valid for 90 days. The client can access it without creating an account.</p>
+              <p className="text-xs text-ink-faint">Lien valable 90 jours. Le client y accède sans créer de compte.</p>
               <button onClick={onClose}
-                className="w-full bg-surface-high hover:bg-surface border border-line text-ink text-sm font-medium py-2.5 rounded-lg transition-colors">Done</button>
+                className="w-full bg-surface-high hover:bg-surface border border-line text-ink text-sm font-medium py-2.5 rounded-lg transition-colors">Terminé</button>
             </div>
           )}
         </div>
@@ -246,8 +246,8 @@ function EmptyState({ isSearch, tab, onAdd }: { isSearch: boolean; tab: string; 
   if (isSearch) return (
     <div className="py-16 flex flex-col items-center text-center">
       <Search className="w-8 h-8 text-ink-faint mb-3" />
-      <p className="text-ink-muted text-sm font-medium mb-1">No results</p>
-      <p className="text-ink-faint text-xs">Try a different name, company or email.</p>
+      <p className="text-ink-muted text-sm font-medium mb-1">Aucun résultat</p>
+      <p className="text-ink-faint text-xs">Essayez un autre nom, entreprise ou e-mail.</p>
     </div>
   )
   const isTabFilter = tab !== 'ALL'
@@ -259,16 +259,16 @@ function EmptyState({ isSearch, tab, onAdd }: { isSearch: boolean; tab: string; 
       </div>
       {isTabFilter ? (
         <>
-          <p className="text-ink font-semibold text-base mb-1">No {STATUS_CONFIG[tab as ClientStatus]?.label ?? tab.toLowerCase()} clients</p>
-          <p className="text-ink-muted text-sm max-w-xs mb-4 leading-relaxed">No clients with this status yet.</p>
+          <p className="text-ink font-semibold text-base mb-1">Aucun client « {STATUS_CONFIG[tab as ClientStatus]?.label ?? tab.toLowerCase()} »</p>
+          <p className="text-ink-muted text-sm max-w-xs mb-4 leading-relaxed">Aucun client avec ce statut pour l’instant.</p>
         </>
       ) : (
         <>
-          <p className="text-ink font-semibold text-base mb-1">No clients yet</p>
-          <p className="text-ink-muted text-sm max-w-xs mb-6 leading-relaxed">Add your first client to start a project and send them a portal link.</p>
+          <p className="text-ink font-semibold text-base mb-1">Aucun client pour l’instant</p>
+          <p className="text-ink-muted text-sm max-w-xs mb-6 leading-relaxed">Ajoutez votre premier client pour démarrer un projet et lui envoyer un lien de portail.</p>
           <button onClick={onAdd}
             className="flex items-center gap-2 bg-violet hover:bg-violet-hover text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors active:scale-[0.98]">
-            <Plus className="w-4 h-4" />Add your first client
+            <Plus className="w-4 h-4" />Ajouter votre premier client
           </button>
         </>
       )}
@@ -338,11 +338,11 @@ export default function ClientsPage() {
         className="flex items-center justify-between mb-6 sm:mb-8">
         <div>
           <h1 className="text-[28px] sm:text-[32px] font-semibold text-ink tracking-tight leading-tight">Clients</h1>
-          <p className="text-ink-muted text-sm mt-1">{clients.filter(c => c.status === 'ACTIVE').length} active clients</p>
+          <p className="text-ink-muted text-sm mt-1">{clients.filter(c => c.status === 'ACTIVE').length} clients actifs</p>
         </div>
         <button onClick={() => setShowNew(true)}
           className="flex items-center gap-2 bg-violet hover:bg-violet-hover text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors active:scale-[0.98] shrink-0">
-          <Plus className="w-4 h-4" /><span className="hidden sm:inline">New Client</span><span className="sm:hidden">New</span>
+          <Plus className="w-4 h-4" /><span className="hidden sm:inline">Nouveau client</span><span className="sm:hidden">Nouveau</span>
         </button>
       </motion.div>
 
@@ -380,7 +380,7 @@ export default function ClientsPage() {
           {!isEmpty && (
             <div className="relative mb-5 max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-faint pointer-events-none" />
-              <input type="text" placeholder="Search clients..." value={search}
+              <input type="text" placeholder="Rechercher un client..." value={search}
                 onChange={e => setSearch(e.target.value)}
                 className="w-full bg-surface border border-line rounded-lg pl-9 pr-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-violet transition-colors" />
             </div>
@@ -391,7 +391,7 @@ export default function ClientsPage() {
         <>
           <div className="relative mb-5 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-faint pointer-events-none" />
-            <input type="text" placeholder="Search clients..." value={search}
+            <input type="text" placeholder="Rechercher un client..." value={search}
               onChange={e => setSearch(e.target.value)}
               className="w-full bg-surface border border-line rounded-lg pl-9 pr-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-violet transition-colors" />
           </div>
@@ -410,7 +410,7 @@ export default function ClientsPage() {
                   </div>
                   <StatusDropdown client={c} onChange={s => { void handleStatusChange(c, s) }} />
                   <button onClick={() => setInviteClient(c)}
-                    className="shrink-0 text-ink-faint hover:text-violet transition-colors p-1" title="Send portal link">
+                    className="shrink-0 text-ink-faint hover:text-violet transition-colors p-1" title="Envoyer le lien du portail">
                     <Send className="w-4 h-4" />
                   </button>
                 </div>
@@ -421,7 +421,7 @@ export default function ClientsPage() {
             <table className="w-full hidden sm:table">
               <thead>
                 <tr className="border-b border-line">
-                  {['Client', 'Company', 'Email', 'Phone', 'Status', ''].map(h => (
+                  {['Client', 'Entreprise', 'E-mail', 'Téléphone', 'Statut', ''].map(h => (
                     <th key={h} className="text-left px-6 py-3 text-[11px] font-semibold text-ink-muted uppercase tracking-widest">{h}</th>
                   ))}
                 </tr>
@@ -456,9 +456,9 @@ export default function ClientsPage() {
                     </td>
                     <td className="px-6">
                       <div className="flex items-center gap-3">
-                        <button onClick={() => setInviteClient(c)} title="Send portal link"
+                        <button onClick={() => setInviteClient(c)} title="Envoyer le lien du portail"
                           className="text-ink-faint hover:text-violet transition-colors flex items-center gap-1.5 text-xs font-medium">
-                          <Send className="w-3.5 h-3.5" /><span className="hidden lg:inline">Portal link</span>
+                          <Send className="w-3.5 h-3.5" /><span className="hidden lg:inline">Lien du portail</span>
                         </button>
                         <ExternalLink className="w-3.5 h-3.5 text-ink-faint hover:text-ink transition-colors cursor-pointer" />
                       </div>

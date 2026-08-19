@@ -5,13 +5,13 @@ import './globals.css'
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 export const metadata: Metadata = {
-  title: 'StreamLine — Studio project management',
-  description: 'The project hub for digital studios and their clients.',
+  title: 'StreamLine — Gestion de projets pour studios',
+  description: 'La plateforme de suivi de projet pour les studios digitaux et leurs clients.',
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html suppressHydrationWarning lang="en" className={inter.variable}>
+    <html suppressHydrationWarning lang="fr" className={inter.variable}>
       <body className="font-sans antialiased bg-bg text-ink">
         {children}
       {/* impeccable-live-start */}

@@ -14,49 +14,49 @@ export interface ProposalBrief {
 }
 
 function buildPrompt(brief: ProposalBrief): string {
-  return `You are an expert web agency consultant. Generate a professional project proposal in markdown for the following brief.
+  return `Tu es un consultant expert en agence web. Génère une proposition de projet professionnelle en markdown à partir du brief suivant.
 
-**Client:** ${brief.clientName}
-**Project type:** ${brief.projectType}
-**Budget range:** ${brief.budgetRange}
-**Timeline:** ${brief.timeline}
-**Description:** ${brief.description}
-**Key deliverables:** ${brief.deliverables.join(', ')}
-**Technical requirements / stack:** ${brief.requirements}
+**Client :** ${brief.clientName}
+**Type de projet :** ${brief.projectType}
+**Budget :** ${brief.budgetRange}
+**Délai :** ${brief.timeline}
+**Description :** ${brief.description}
+**Livrables clés :** ${brief.deliverables.join(', ')}
+**Exigences techniques / stack :** ${brief.requirements}
 
-Write a complete, polished proposal in English. Structure it with these sections:
+Rédige une proposition complète et soignée en français. Structure-la avec ces sections :
 
-# Project Proposal — ${brief.clientName}
+# Proposition de projet — ${brief.clientName}
 
-## Executive Summary
-Brief paragraph presenting the project and our understanding of the need.
+## Résumé exécutif
+Paragraphe bref présentant le projet et notre compréhension du besoin.
 
-## Project Scope
-Detailed scope covering what's included, with sub-sections per deliverable.
+## Périmètre du projet
+Périmètre détaillé couvrant ce qui est inclus, avec une sous-section par livrable.
 
-## Technical Approach
-Technologies, architecture choices, and methodology.
+## Approche technique
+Technologies, choix d'architecture et méthodologie.
 
-## Project Timeline
-Phase breakdown with milestones and estimated durations.
+## Calendrier du projet
+Découpage en phases avec jalons et durées estimées.
 
 ## Budget
-Itemized cost breakdown matching the ${brief.budgetRange} range, then a total.
+Détail des coûts correspondant à la fourchette ${brief.budgetRange}, puis un total.
 
-## Commercial Terms
-Payment schedule, change-request policy, warranty, and support.
+## Conditions commerciales
+Échéancier de paiement, politique de demande de modification, garantie et support.
 
-## Next Steps
-Clear call to action: what happens after approval.
+## Prochaines étapes
+Appel à l'action clair : ce qui se passe après validation.
 
-Use professional but warm English. Be specific and concrete. No filler text.`
+Utilise un français professionnel mais chaleureux. Sois précis et concret. Pas de remplissage inutile.`
 }
 
 export async function POST(req: NextRequest) {
   const brief: ProposalBrief = await req.json()
 
   if (!brief.clientName || !brief.projectType) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+    return NextResponse.json({ error: 'Champs obligatoires manquants' }, { status: 400 })
   }
 
   const stream = anthropic.messages.stream({

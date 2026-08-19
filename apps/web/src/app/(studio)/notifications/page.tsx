@@ -10,20 +10,20 @@ import { api, type Notification } from '@/lib/api'
 function formatRelative(iso: string) {
   const diff = Date.now() - new Date(iso).getTime()
   const mins = Math.floor(diff / 60000)
-  if (mins < 1) return 'just now'
-  if (mins < 60) return `${mins}m ago`
+  if (mins < 1) return "à l'instant"
+  if (mins < 60) return `il y a ${mins} min`
   const hrs = Math.floor(mins / 60)
-  if (hrs < 24) return `${hrs}h ago`
-  return Math.floor(hrs / 24) === 1 ? 'Yesterday' : `${Math.floor(hrs / 24)}d ago`
+  if (hrs < 24) return `il y a ${hrs} h`
+  return Math.floor(hrs / 24) === 1 ? 'Hier' : `il y a ${Math.floor(hrs / 24)} j`
 }
 
 type Tab = 'all' | 'validations' | 'documents' | 'system'
 
 const TABS: { key: Tab; label: string }[] = [
-  { key: 'all', label: 'All' },
+  { key: 'all', label: 'Toutes' },
   { key: 'validations', label: 'Validations' },
   { key: 'documents', label: 'Documents' },
-  { key: 'system', label: 'System' },
+  { key: 'system', label: 'Système' },
 ]
 
 function filterByTab(notifs: Notification[], tab: Tab): Notification[] {
@@ -163,7 +163,7 @@ export default function NotificationsPage() {
         <div>
           <h1 className="text-[28px] sm:text-[32px] font-semibold text-ink tracking-tight">Notifications</h1>
           <p className="text-ink-muted text-sm mt-1">
-            {unreadCount > 0 ? `${unreadCount} unread` : 'All caught up'}
+            {unreadCount > 0 ? `${unreadCount} non lue${unreadCount !== 1 ? 's' : ''}` : 'Tout est à jour'}
           </p>
         </div>
         {unreadCount > 0 && (
@@ -176,7 +176,7 @@ export default function NotificationsPage() {
               ? <Loader2 className="w-4 h-4 animate-spin" />
               : <CheckCircle2 className="w-4 h-4" />
             }
-            Mark all as read
+            Tout marquer comme lu
           </button>
         )}
       </div>
@@ -211,8 +211,8 @@ export default function NotificationsPage() {
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 gap-3">
             <CheckCircle2 className="w-10 h-10 text-success/60" />
-            <p className="text-sm font-semibold text-ink">You&apos;re all caught up ✓</p>
-            <p className="text-xs text-ink-muted">No notifications in this category.</p>
+            <p className="text-sm font-semibold text-ink">Tout est à jour ✓</p>
+            <p className="text-xs text-ink-muted">Aucune notification dans cette catégorie.</p>
           </div>
         ) : (
           filtered.map(n => (

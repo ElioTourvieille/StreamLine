@@ -16,7 +16,7 @@ export function useApiData<T>(
     try {
       setData(await fetcher())
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Unknown error')
+      setError(e instanceof Error ? e.message : 'Erreur inconnue')
     } finally {
       setLoading(false)
     }

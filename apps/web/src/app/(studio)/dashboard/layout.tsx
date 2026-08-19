@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Dashboard — StreamLine',
-  description: 'Overview of your studio: active projects, pending client validations, completed milestones and recent activity.',
+  title: 'Tableau de bord — StreamLine',
+  description: 'Vue d’ensemble de votre studio : projets actifs, validations clients en attente, jalons terminés et activité récente.',
 }
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {

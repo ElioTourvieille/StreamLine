@@ -10,14 +10,14 @@ import {
 import { api } from '@/lib/api'
 
 const NAV = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { href: '/projects', icon: FolderOpen, label: 'Projects' },
+  { href: '/dashboard', icon: LayoutDashboard, label: 'Tableau de bord' },
+  { href: '/projects', icon: FolderOpen, label: 'Projets' },
   { href: '/clients', icon: Users, label: 'Clients' },
-  { href: '/ai-generator', icon: Sparkles, label: 'AI Proposals' },
+  { href: '/ai-generator', icon: Sparkles, label: 'Propositions IA' },
   { href: '/documents', icon: FileText, label: 'Documents' },
   { href: '/messages', icon: Mail, label: 'Messages' },
   { href: '/notifications', icon: Bell, label: 'Notifications' },
-  { href: '/settings', icon: Settings, label: 'Settings' },
+  { href: '/settings', icon: Settings, label: 'Paramètres' },
 ]
 
 function getInitials(name: string) {
@@ -81,7 +81,7 @@ export default function Sidebar() {
           <div>
             <div className="font-semibold text-ink text-sm leading-tight">StreamLine</div>
             <div className="font-semibold text-ink text-sm leading-tight">Studio</div>
-            <div className="text-ink-muted text-[11px] mt-0.5">Admin Dashboard</div>
+            <div className="text-ink-muted text-[11px] mt-0.5">Espace admin</div>
           </div>
         </div>
       </div>
@@ -129,7 +129,7 @@ export default function Sidebar() {
           <button
             onClick={handleLogout}
             className="text-ink-muted hover:text-ink transition-colors p-1 rounded"
-            title="Sign out"
+            title="Se déconnecter"
           >
             <LogOut className="w-3.5 h-3.5" />
           </button>

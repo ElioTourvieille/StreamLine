@@ -13,15 +13,15 @@ function initials(name: string) {
 function formatRelative(iso: string) {
   const diff = Date.now() - new Date(iso).getTime()
   const mins = Math.floor(diff / 60000)
-  if (mins < 1) return 'just now'
-  if (mins < 60) return `${mins}m ago`
+  if (mins < 1) return "à l'instant"
+  if (mins < 60) return `il y a ${mins} min`
   const hrs = Math.floor(mins / 60)
-  if (hrs < 24) return `${hrs}h ago`
-  return Math.floor(hrs / 24) === 1 ? 'Yesterday' : `${Math.floor(hrs / 24)}d ago`
+  if (hrs < 24) return `il y a ${hrs} h`
+  return Math.floor(hrs / 24) === 1 ? 'Hier' : `il y a ${Math.floor(hrs / 24)} j`
 }
 
 function formatTime(iso: string) {
-  return new Date(iso).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  return new Date(iso).toLocaleTimeString('fr-CH', { hour: '2-digit', minute: '2-digit' })
 }
 
 const AVATAR_COLORS = [
@@ -72,7 +72,7 @@ function ThreadItem({
           {thread.lastMessage.text}
         </p>
       ) : (
-        <p className="text-xs text-ink-faint italic">No messages yet</p>
+        <p className="text-xs text-ink-faint italic">Aucun message pour l’instant</p>
       )}
     </button>
   )
@@ -206,7 +206,7 @@ export default function MessagesPage() {
             <h1 className="text-base font-semibold text-ink">Messages</h1>
           </div>
           <p className="text-xs text-ink-faint mt-0.5">
-            {threads.length} project{threads.length !== 1 ? 's' : ''}
+            {threads.length} projet{threads.length !== 1 ? 's' : ''}
           </p>
         </div>
 
@@ -214,8 +214,8 @@ export default function MessagesPage() {
           {threads.length === 0 ? (
             <div className="px-4 py-10 text-center">
               <FolderOpen className="w-8 h-8 text-ink-faint mx-auto mb-2" />
-              <p className="text-xs text-ink-muted">No projects yet.</p>
-              <p className="text-xs text-ink-faint mt-1">Create a project to start messaging.</p>
+              <p className="text-xs text-ink-muted">Aucun projet pour l’instant.</p>
+              <p className="text-xs text-ink-faint mt-1">Créez un projet pour commencer à échanger des messages.</p>
             </div>
           ) : (
             threads.map(t => (
@@ -238,8 +238,8 @@ export default function MessagesPage() {
               <MessageSquare className="w-6 h-6 text-ink-faint" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-ink">Open a project to start a conversation</p>
-              <p className="text-xs text-ink-muted mt-1">Select a project from the left panel</p>
+              <p className="text-sm font-semibold text-ink">Ouvrez un projet pour démarrer une conversation</p>
+              <p className="text-xs text-ink-muted mt-1">Sélectionnez un projet dans le panneau de gauche</p>
             </div>
           </div>
         ) : (
@@ -251,7 +251,7 @@ export default function MessagesPage() {
               </div>
               <div>
                 <p className="text-sm font-semibold text-ink">{selectedThread?.projectName ?? '—'}</p>
-                <p className="text-xs text-ink-faint">Project conversation · refreshes every 5s</p>
+                <p className="text-xs text-ink-faint">Conversation du projet · actualisation toutes les 5 s</p>
               </div>
             </div>
 
@@ -264,7 +264,7 @@ export default function MessagesPage() {
               ) : messages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full gap-2 text-center">
                   <MessageSquare className="w-8 h-8 text-ink-faint" />
-                  <p className="text-sm text-ink-muted">No messages yet. Start the conversation below.</p>
+                  <p className="text-sm text-ink-muted">Aucun message pour l’instant. Démarrez la conversation ci-dessous.</p>
                 </div>
               ) : (
                 messages.map(msg => (
@@ -281,7 +281,7 @@ export default function MessagesPage() {
                   type="text"
                   value={text}
                   onChange={e => setText(e.target.value)}
-                  placeholder="Write a message…"
+                  placeholder="Écrire un message…"
                   className="flex-1 bg-bg border border-line rounded-xl px-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-violet transition-colors"
                   disabled={sending}
                 />

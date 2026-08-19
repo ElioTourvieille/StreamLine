@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Clients — StreamLine',
-  description: 'Manage your studio clients, contact details, and send secure portal links so they can review and approve deliverables.',
+  description: 'Gérez les clients de votre studio, leurs coordonnées, et envoyez des liens de portail sécurisés pour qu’ils consultent et approuvent leurs livrables.',
 }
 
 export default function ClientsLayout({ children }: { children: React.ReactNode }) {
