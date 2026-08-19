@@ -21,7 +21,15 @@ export class PortalService {
       new GetCommand({ TableName: TABLE, Key: { PK: `TOKEN#${token}`, SK: `TOKEN#${token}` } }),
     )
     if (!result.Item) throw new NotFoundException('Invalid or expired portal link')
-    return result.Item as { clientId: string; organizationId: string; email: string; name: string }
+
+    // DynamoDB's TTL sweep only guarantees deletion "usually within 48 hours"
+    // of expiry, so a stale-but-not-yet-swept item must not be trusted —
+    // enforce the cutoff ourselves on every read.
+    const item = result.Item as { clientId: string; organizationId: string; email: string; name: string; ttl?: number }
+    if (item.ttl && item.ttl < Math.floor(Date.now() / 1000)) {
+      throw new NotFoundException('Invalid or expired portal link')
+    }
+    return item
   }
 
   async getPortalContext(token: string) {
