@@ -55,7 +55,7 @@ function ThreadItem({
     <button
       onClick={onClick}
       className={`w-full text-left px-4 py-3.5 border-b border-line transition-colors hover:bg-surface-high ${
-        selected ? 'bg-surface-high border-l-2 border-l-violet' : 'border-l-2 border-l-transparent'
+        selected ? 'bg-surface-high' : ''
       }`}
     >
       <div className="flex items-start justify-between gap-2 mb-1">

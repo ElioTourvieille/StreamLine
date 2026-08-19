@@ -247,7 +247,7 @@ export default function SettingsPage() {
                 </div>
                 <button
                   onClick={() => setShowLogout(true)}
-                  className="flex items-center gap-2 bg-danger/10 hover:bg-danger/20 border border-danger/30 text-danger px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
+                  className="flex items-center gap-2 bg-danger/8 hover:bg-danger/15 border border-danger/30 text-danger px-4 py-2 rounded-lg text-sm font-semibold transition-colors"
                 >
                   <LogOut className="w-4 h-4" />
                   Se déconnecter

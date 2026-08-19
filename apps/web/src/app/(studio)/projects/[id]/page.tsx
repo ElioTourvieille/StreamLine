@@ -15,17 +15,17 @@ import { formatDate } from '@/lib/format'
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 const VALIDATION_STYLES: Record<string, string> = {
-  APPROVED:          'bg-success/15 text-success',
-  PENDING:           'bg-warning/15 text-warning',
-  CHANGES_REQUESTED: 'bg-danger/15 text-danger',
+  APPROVED:          'bg-success/8 text-success',
+  PENDING:           'bg-warning/8 text-warning',
+  CHANGES_REQUESTED: 'bg-danger/8 text-danger',
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  ON_TRACK:   'bg-success/15 text-success',
-  AT_RISK:    'bg-warning/15 text-warning',
-  OVERDUE:    'bg-danger/15 text-danger',
+  ON_TRACK:   'bg-success/8 text-success',
+  AT_RISK:    'bg-warning/8 text-warning',
+  OVERDUE:    'bg-danger/8 text-danger',
   IN_PROGRESS:'bg-violet/15 text-violet-glow',
-  COMPLETED:  'bg-info/15 text-info',
+  COMPLETED:  'bg-info/8 text-info',
 }
 
 const PROJECT_STATUS_LABEL: Record<string, string> = {
@@ -226,7 +226,7 @@ export default function ProjectDetailPage() {
           <ArrowLeft className="w-5 h-5" />
         </Link>
         <h1 className="text-xl sm:text-2xl font-semibold text-ink tracking-tight">{project.name}</h1>
-        <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${STATUS_STYLES[project.status] ?? 'bg-white/5 text-ink-muted'}`}>
+        <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${STATUS_STYLES[project.status] ?? 'bg-ink/5 text-ink-muted'}`}>
           <span className="w-1.5 h-1.5 rounded-full bg-current" />
           {PROJECT_STATUS_LABEL[project.status] ?? project.status.replace(/_/g, ' ')}
         </span>
@@ -303,7 +303,7 @@ export default function ProjectDetailPage() {
                             <button
                               onClick={() => advanceMilestone(m)}
                               disabled={updatingMs === m.id}
-                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold transition-colors disabled:opacity-50 bg-success/15 text-success border border-success/30 hover:bg-success/25"
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold transition-colors disabled:opacity-50 bg-success/8 text-success border border-success/30 hover:bg-success/15"
                             >
                               {updatingMs === m.id
                                 ? <Loader2 className="w-2.5 h-2.5 animate-spin" />
@@ -360,7 +360,7 @@ export default function ProjectDetailPage() {
                         <span className="text-xs text-ink-muted">{TYPE_LABEL[d.type] ?? d.type.replace(/_/g, ' ')}</span>
                       </td>
                       <td className="px-5 sm:px-6">
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${VALIDATION_STYLES[d.status] ?? 'bg-white/5 text-ink-muted'}`}>
+                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${VALIDATION_STYLES[d.status] ?? 'bg-ink/5 text-ink-muted'}`}>
                           {VALIDATION_LABEL[d.status] ?? d.status.replace(/_/g, ' ')}
                         </span>
                       </td>
@@ -383,7 +383,7 @@ export default function ProjectDetailPage() {
             <div className="flex items-center justify-center mb-4">
               <div className="relative w-24 h-24">
                 <svg className="w-24 h-24 -rotate-90" viewBox="0 0 96 96">
-                  <circle cx="48" cy="48" r="38" fill="none" stroke="#2D2D3D" strokeWidth="8" />
+                  <circle cx="48" cy="48" r="38" fill="none" stroke="#E4E4EA" strokeWidth="8" />
                   <circle cx="48" cy="48" r="38" fill="none" stroke="#7c3aed" strokeWidth="8"
                     strokeDasharray={`${2 * Math.PI * 38 * progress / 100} ${2 * Math.PI * 38 * (1 - progress / 100)}`}
                     strokeLinecap="round" />

@@ -219,7 +219,7 @@ export default function DashboardPage() {
 
   const STAT_CARDS = [
     { label: 'Projets actifs',        value: stats.activeProjects,      color: 'text-violet-glow',  alert: null },
-    { label: 'Validations en attente', value: stats.pendingValidations,  color: 'text-warning',      alert: stats.pendingValidations > 0 ? 'Attention requise' : null, alertStyle: 'bg-warning/15 text-warning' },
+    { label: 'Validations en attente', value: stats.pendingValidations,  color: 'text-warning',      alert: stats.pendingValidations > 0 ? 'Attention requise' : null, alertStyle: 'bg-warning/8 text-warning' },
     { label: 'Jalons terminés',       value: stats.completedMilestones, color: 'text-success',       alert: null },
     { label: 'Total clients',         value: stats.totalClients,        color: 'text-ink',           alert: null },
   ]
