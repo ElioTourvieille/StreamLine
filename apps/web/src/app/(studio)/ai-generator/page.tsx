@@ -8,32 +8,32 @@ import { Sparkles, X, Loader2, Download, Send, CheckCircle2, AlertCircle } from 
 import type { ProposalBrief } from '@/app/api/proposals/generate/route'
 
 const PROJECT_TYPES = [
-  'Brochure Website',
+  'Site vitrine',
   'E-commerce',
-  'Web Application',
-  'Mobile Application',
-  'UX/UI Redesign',
-  'Visual Identity',
-  'SEO / Digital Marketing',
-  'Maintenance & Support',
+  'Application web',
+  'Application mobile',
+  'Refonte UX/UI',
+  'Identité visuelle',
+  'SEO / Marketing digital',
+  'Maintenance & support',
 ]
 
 const BUDGET_RANGES = [
-  '< $5,000',
-  '$5,000 – $10,000',
-  '$10,000 – $25,000',
-  '$25,000 – $50,000',
-  '$50,000 – $100,000',
-  '> $100,000',
+  '< CHF 5’000',
+  'CHF 5’000 – 10’000',
+  'CHF 10’000 – 25’000',
+  'CHF 25’000 – 50’000',
+  'CHF 50’000 – 100’000',
+  '> CHF 100’000',
 ]
 
 const TIMELINES = [
-  '2 weeks',
-  '1 month',
-  '2 months',
-  '3 months',
-  '6 months',
-  '6+ months',
+  '2 semaines',
+  '1 mois',
+  '2 mois',
+  '3 mois',
+  '6 mois',
+  '6+ mois',
 ]
 
 const DEFAULT_BRIEF: ProposalBrief = {
@@ -114,7 +114,7 @@ export default function AiGeneratorPage() {
         setProposal(accumulated)
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred')
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue')
     } finally {
       setIsGenerating(false)
     }
@@ -135,7 +135,7 @@ export default function AiGeneratorPage() {
       if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`)
       setSendStatus('sent')
     } catch (err) {
-      setSendError(err instanceof Error ? err.message : 'Failed to send')
+      setSendError(err instanceof Error ? err.message : 'Échec de l’envoi')
       setSendStatus('error')
     }
   }
@@ -152,7 +152,7 @@ export default function AiGeneratorPage() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `proposal-${brief.clientName.toLowerCase().replace(/\s+/g, '-') || 'client'}.md`
+    a.download = `proposition-${brief.clientName.toLowerCase().replace(/\s+/g, '-') || 'client'}.md`
     a.click()
     URL.revokeObjectURL(url)
   }
@@ -172,8 +172,8 @@ export default function AiGeneratorPage() {
           <Sparkles className="w-4 h-4 text-violet-glow" />
         </div>
         <div>
-          <h1 className="text-ink font-semibold text-sm">AI Proposal Generator</h1>
-          <p className="text-ink-muted text-xs">Generate a professional project proposal in seconds</p>
+          <h1 className="text-ink font-semibold text-sm">Générateur de propositions IA</h1>
+          <p className="text-ink-muted text-xs">Générez une proposition de projet professionnelle en quelques secondes</p>
         </div>
       </div>
 
@@ -185,13 +185,13 @@ export default function AiGeneratorPage() {
             {/* Client name */}
             <div>
               <label className="block text-xs font-medium text-ink-dim mb-1.5">
-                Client Name <span className="text-danger">*</span>
+                Nom du client <span className="text-danger">*</span>
               </label>
               <input
                 type="text"
                 value={brief.clientName}
                 onChange={e => set('clientName', e.target.value)}
-                placeholder="e.g. Acme Corp"
+                placeholder="ex. Acme Corp"
                 className="w-full bg-surface border border-line rounded-lg px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-violet transition-colors"
               />
             </div>
@@ -199,7 +199,7 @@ export default function AiGeneratorPage() {
             {/* Project type */}
             <div>
               <label className="block text-xs font-medium text-ink-dim mb-1.5">
-                Project Type <span className="text-danger">*</span>
+                Type de projet <span className="text-danger">*</span>
               </label>
               <div className="flex flex-wrap gap-1.5">
                 {PROJECT_TYPES.map(type => (
@@ -230,7 +230,7 @@ export default function AiGeneratorPage() {
                   onChange={e => set('budgetRange', e.target.value)}
                   className="w-full bg-surface border border-line rounded-lg px-3 py-2 text-sm text-ink focus:outline-none focus:border-violet transition-colors appearance-none"
                 >
-                  <option value="">Select...</option>
+                  <option value="">Sélectionner...</option>
                   {BUDGET_RANGES.map(b => (
                     <option key={b} value={b}>{b}</option>
                   ))}
@@ -238,14 +238,14 @@ export default function AiGeneratorPage() {
               </div>
               <div>
                 <label className="block text-xs font-medium text-ink-dim mb-1.5">
-                  Timeline <span className="text-danger">*</span>
+                  Délai <span className="text-danger">*</span>
                 </label>
                 <select
                   value={brief.timeline}
                   onChange={e => set('timeline', e.target.value)}
                   className="w-full bg-surface border border-line rounded-lg px-3 py-2 text-sm text-ink focus:outline-none focus:border-violet transition-colors appearance-none"
                 >
-                  <option value="">Select...</option>
+                  <option value="">Sélectionner...</option>
                   {TIMELINES.map(t => (
                     <option key={t} value={t}>{t}</option>
                   ))}
@@ -255,11 +255,11 @@ export default function AiGeneratorPage() {
 
             {/* Description */}
             <div>
-              <label className="block text-xs font-medium text-ink-dim mb-1.5">Project Description</label>
+              <label className="block text-xs font-medium text-ink-dim mb-1.5">Description du projet</label>
               <textarea
                 value={brief.description}
                 onChange={e => set('description', e.target.value)}
-                placeholder="Describe the context, goals, and challenges of the project..."
+                placeholder="Décrivez le contexte, les objectifs et les enjeux du projet..."
                 rows={4}
                 className="w-full bg-surface border border-line rounded-lg px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-violet transition-colors resize-none"
               />
@@ -267,7 +267,7 @@ export default function AiGeneratorPage() {
 
             {/* Deliverables (tag input) */}
             <div>
-              <label className="block text-xs font-medium text-ink-dim mb-1.5">Key Deliverables</label>
+              <label className="block text-xs font-medium text-ink-dim mb-1.5">Livrables clés</label>
               <div className="bg-surface border border-line rounded-lg px-3 py-2 flex flex-wrap gap-1.5 min-h-[42px] focus-within:border-violet transition-colors">
                 {brief.deliverables.map(d => (
                   <span
@@ -286,7 +286,7 @@ export default function AiGeneratorPage() {
                   onChange={e => setTagInput(e.target.value)}
                   onKeyDown={handleTagKeyDown}
                   onBlur={addDeliverable}
-                  placeholder={brief.deliverables.length === 0 ? 'Add a deliverable, press Enter...' : ''}
+                  placeholder={brief.deliverables.length === 0 ? 'Ajoutez un livrable, appuyez sur Entrée...' : ''}
                   className="flex-1 min-w-[120px] bg-transparent text-sm text-ink placeholder:text-ink-faint outline-none"
                 />
               </div>
@@ -294,11 +294,11 @@ export default function AiGeneratorPage() {
 
             {/* Tech requirements */}
             <div>
-              <label className="block text-xs font-medium text-ink-dim mb-1.5">Tech Stack & Requirements</label>
+              <label className="block text-xs font-medium text-ink-dim mb-1.5">Stack technique & exigences</label>
               <textarea
                 value={brief.requirements}
                 onChange={e => set('requirements', e.target.value)}
-                placeholder="e.g. Next.js, Stripe, Vercel hosting, GDPR compliance, mobile responsive..."
+                placeholder="ex. Next.js, Stripe, hébergement Vercel, conformité RGPD, responsive mobile..."
                 rows={3}
                 className="w-full bg-surface border border-line rounded-lg px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-violet transition-colors resize-none"
               />
@@ -320,12 +320,12 @@ export default function AiGeneratorPage() {
               {isGenerating ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Generating...
+                  Génération...
                 </>
               ) : (
                 <>
                   <Sparkles className="w-4 h-4" />
-                  Generate Proposal
+                  Générer la proposition
                 </>
               )}
             </button>
@@ -344,7 +344,7 @@ export default function AiGeneratorPage() {
                   !isEditing ? 'bg-surface-high text-ink' : 'text-ink-muted hover:text-ink',
                 ].join(' ')}
               >
-                Preview
+                Aperçu
               </button>
               <button
                 onClick={() => {
@@ -356,7 +356,7 @@ export default function AiGeneratorPage() {
                   isEditing ? 'bg-surface-high text-ink' : 'text-ink-muted hover:text-ink',
                 ].join(' ')}
               >
-                Edit
+                Modifier
               </button>
               <div className="flex-1" />
               <button
@@ -364,14 +364,14 @@ export default function AiGeneratorPage() {
                 className="flex items-center gap-1.5 px-3 py-1 rounded text-xs text-ink-muted hover:text-ink hover:bg-surface-high transition-colors"
               >
                 <Download className="w-3.5 h-3.5" />
-                Download .md
+                Télécharger en .md
               </button>
               <button
                 onClick={openSendModal}
                 className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs bg-violet hover:bg-violet-hover text-white font-medium transition-colors"
               >
                 <Send className="w-3.5 h-3.5" />
-                Send to Client
+                Envoyer au client
               </button>
             </div>
           )}
@@ -384,9 +384,9 @@ export default function AiGeneratorPage() {
                   <Sparkles className="w-7 h-7 text-violet/50" />
                 </div>
                 <div>
-                  <p className="text-ink-dim text-sm font-medium">Fill in the brief</p>
+                  <p className="text-ink-dim text-sm font-medium">Remplissez le brief</p>
                   <p className="text-ink-muted text-xs mt-1 max-w-xs">
-                    Complete the form on the left, then click &ldquo;Generate Proposal&rdquo; to get a full commercial proposal in seconds.
+                    Complétez le formulaire à gauche, puis cliquez sur « Générer la proposition » pour obtenir une proposition commerciale complète en quelques secondes.
                   </p>
                 </div>
               </div>
@@ -396,7 +396,7 @@ export default function AiGeneratorPage() {
               <div className="h-full flex items-center justify-center">
                 <div className="flex flex-col items-center gap-3 text-center">
                   <Loader2 className="w-8 h-8 text-violet animate-spin" />
-                  <p className="text-ink-muted text-sm">Claude is writing your proposal...</p>
+                  <p className="text-ink-muted text-sm">Claude rédige votre proposition...</p>
                 </div>
               </div>
             )}
@@ -447,9 +447,9 @@ export default function AiGeneratorPage() {
                     <Send className="w-3.5 h-3.5 text-violet-glow" />
                   </div>
                   <div>
-                    <h2 className="text-sm font-semibold text-ink">Send Proposal</h2>
+                    <h2 className="text-sm font-semibold text-ink">Envoyer la proposition</h2>
                     <p className="text-xs text-ink-muted">
-                      {brief.clientName ? `to ${brief.clientName}` : 'by email'}
+                      {brief.clientName ? `à ${brief.clientName}` : 'par e-mail'}
                     </p>
                   </div>
                 </div>
@@ -470,16 +470,16 @@ export default function AiGeneratorPage() {
                     <CheckCircle2 className="w-6 h-6 text-success" />
                   </div>
                   <div>
-                    <p className="text-ink font-medium text-sm">Proposal sent!</p>
+                    <p className="text-ink font-medium text-sm">Proposition envoyée !</p>
                     <p className="text-ink-muted text-xs mt-1">
-                      The proposal for <span className="text-ink">{brief.clientName}</span> has been sent to <span className="text-ink">{sendEmail}</span>.
+                      La proposition pour <span className="text-ink">{brief.clientName}</span> a été envoyée à <span className="text-ink">{sendEmail}</span>.
                     </p>
                   </div>
                   <button
                     onClick={() => setShowSendModal(false)}
                     className="mt-2 px-4 py-2 rounded-lg bg-surface-high hover:bg-line text-ink text-sm font-medium transition-colors"
                   >
-                    Close
+                    Fermer
                   </button>
                 </div>
               ) : (
@@ -487,7 +487,7 @@ export default function AiGeneratorPage() {
                 <form onSubmit={(e) => { void handleSendToClient(e) }} className="px-5 py-5 space-y-4">
                   <div>
                     <label className="block text-xs font-medium text-ink-dim mb-1.5">
-                      Client email <span className="text-danger">*</span>
+                      E-mail du client <span className="text-danger">*</span>
                     </label>
                     <input
                       type="email"
@@ -495,7 +495,7 @@ export default function AiGeneratorPage() {
                       autoFocus
                       value={sendEmail}
                       onChange={e => setSendEmail(e.target.value)}
-                      placeholder="client@example.com"
+                      placeholder="client@exemple.com"
                       disabled={sendStatus === 'sending'}
                       className="w-full bg-bg border border-line rounded-lg px-3 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-violet transition-colors disabled:opacity-50"
                     />
@@ -509,7 +509,7 @@ export default function AiGeneratorPage() {
                   )}
 
                   <p className="text-xs text-ink-muted">
-                    The full proposal will be sent as a styled HTML email on behalf of <span className="text-ink">Origin Studio</span>.
+                    La proposition complète sera envoyée sous forme d’e-mail HTML au nom d’<span className="text-ink">Origin Studio</span>.
                   </p>
 
                   <div className="flex gap-2 pt-1">
@@ -519,7 +519,7 @@ export default function AiGeneratorPage() {
                       disabled={sendStatus === 'sending'}
                       className="flex-1 px-4 py-2 rounded-lg border border-line text-ink-muted hover:text-ink hover:border-line/80 text-sm font-medium transition-colors disabled:opacity-50"
                     >
-                      Cancel
+                      Annuler
                     </button>
                     <button
                       type="submit"
@@ -529,12 +529,12 @@ export default function AiGeneratorPage() {
                       {sendStatus === 'sending' ? (
                         <>
                           <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          Sending…
+                          Envoi…
                         </>
                       ) : (
                         <>
                           <Send className="w-3.5 h-3.5" />
-                          Send
+                          Envoyer
                         </>
                       )}
                     </button>

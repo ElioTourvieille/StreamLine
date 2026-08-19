@@ -28,10 +28,10 @@ export default function NewProjectPage() {
   const [error, setError]     = useState('')
   const [form, setForm]       = useState({ name: '', clientId: '', description: '', startDate: '', endDate: '' })
   const [milestones, setMilestones] = useState<MilestoneLocal[]>([
-    { id: '1', title: 'Discovery & Brief', dueDate: '' },
-    { id: '2', title: 'Design Validation', dueDate: '' },
-    { id: '3', title: 'Development', dueDate: '' },
-    { id: '4', title: 'Launch', dueDate: '' },
+    { id: '1', title: 'Découverte & Brief', dueDate: '' },
+    { id: '2', title: 'Validation design', dueDate: '' },
+    { id: '3', title: 'Développement', dueDate: '' },
+    { id: '4', title: 'Lancement', dueDate: '' },
   ])
 
   const fetchClients = useCallback(() => api.clients.list(), [])
@@ -68,7 +68,7 @@ export default function NewProjectPage() {
       })
       router.push(`/projects/${project.id}`)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error creating project')
+      setError(err instanceof Error ? err.message : 'Erreur lors de la création du projet')
       setLoading(false)
     }
   }
@@ -77,21 +77,21 @@ export default function NewProjectPage() {
     <div className="p-6 sm:p-8 max-w-3xl mx-auto">
       <Link href="/projects"
         className="flex items-center gap-1.5 text-sm text-ink-muted hover:text-ink mb-6 transition-colors w-fit">
-        <ArrowLeft className="w-4 h-4" />Back to Projects
+        <ArrowLeft className="w-4 h-4" />Retour aux projets
       </Link>
 
       <div className="mb-8">
-        <h1 className="text-[28px] font-semibold text-ink tracking-tight">New Project</h1>
-        <p className="text-ink-muted text-sm mt-1">Set up a project with milestones and assign it to a client.</p>
+        <h1 className="text-[28px] font-semibold text-ink tracking-tight">Nouveau projet</h1>
+        <p className="text-ink-muted text-sm mt-1">Configurez un projet avec ses jalons et associez-le à un client.</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8">
         {/* General */}
         <div className="bg-surface border border-line rounded-lg p-6 space-y-5">
-          <h2 className="text-sm font-semibold text-ink-dim uppercase tracking-widest">General</h2>
+          <h2 className="text-sm font-semibold text-ink-dim uppercase tracking-widest">Général</h2>
 
-          <Field label="Project Name" required>
-            <input type="text" required placeholder="E-Commerce Redesign 2026" value={form.name}
+          <Field label="Nom du projet" required>
+            <input type="text" required placeholder="Refonte e-commerce 2026" value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
               className={INPUT} />
           </Field>
@@ -101,7 +101,7 @@ export default function NewProjectPage() {
               onChange={e => setForm(f => ({ ...f, clientId: e.target.value }))}
               disabled={loadingClients}
               className={INPUT + ' appearance-none cursor-pointer disabled:opacity-60'}>
-              <option value="">{loadingClients ? 'Loading clients…' : 'Select a client…'}</option>
+              <option value="">{loadingClients ? 'Chargement des clients…' : 'Sélectionner un client…'}</option>
               {(clients ?? []).map(c => (
                 <option key={c.id} value={c.id}>{c.company ? `${c.company} — ` : ''}{c.name}</option>
               ))}
@@ -109,14 +109,14 @@ export default function NewProjectPage() {
           </Field>
 
           <Field label="Description">
-            <textarea rows={3} placeholder="Briefly describe the project scope and goals…"
+            <textarea rows={3} placeholder="Décrivez brièvement le périmètre et les objectifs du projet…"
               value={form.description}
               onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
               className={INPUT + ' resize-none'} />
           </Field>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <Field label="Start Date">
+            <Field label="Date de début">
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-faint pointer-events-none" />
                 <input type="date" value={form.startDate}
@@ -124,7 +124,7 @@ export default function NewProjectPage() {
                   className={INPUT + ' pl-9 [scheme:dark]'} />
               </div>
             </Field>
-            <Field label="End Date">
+            <Field label="Date de fin">
               <div className="relative">
                 <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-faint pointer-events-none" />
                 <input type="date" value={form.endDate}
@@ -138,10 +138,10 @@ export default function NewProjectPage() {
         {/* Milestones */}
         <div className="bg-surface border border-line rounded-lg p-6">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-sm font-semibold text-ink-dim uppercase tracking-widest">Milestones</h2>
+            <h2 className="text-sm font-semibold text-ink-dim uppercase tracking-widest">Jalons</h2>
             <button type="button" onClick={addMilestone}
               className="flex items-center gap-1.5 text-xs text-ink-muted hover:text-ink border border-line hover:border-line-dim rounded-md px-3 py-1.5 transition-colors">
-              <Plus className="w-3.5 h-3.5" />Add Milestone
+              <Plus className="w-3.5 h-3.5" />Ajouter un jalon
             </button>
           </div>
 
@@ -151,7 +151,7 @@ export default function NewProjectPage() {
                 <div className="w-6 h-6 rounded-full border-2 border-line flex items-center justify-center shrink-0">
                   <span className="text-[10px] font-bold text-ink-faint">{i + 1}</span>
                 </div>
-                <input type="text" placeholder={`Milestone ${i + 1}`} value={m.title}
+                <input type="text" placeholder={`Jalon ${i + 1}`} value={m.title}
                   onChange={e => updateMilestone(m.id, 'title', e.target.value)}
                   className="flex-1 bg-bg border border-line rounded-md px-3 py-2 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-violet transition-colors" />
                 <div className="relative">
@@ -175,11 +175,11 @@ export default function NewProjectPage() {
         <div className="flex gap-3">
           <Link href="/projects"
             className="flex-1 text-center bg-surface-high hover:bg-surface-higher border border-line text-ink-dim text-sm font-medium py-2.5 rounded-md transition-colors">
-            Cancel
+            Annuler
           </Link>
           <button type="submit" disabled={loading}
             className="flex-1 bg-violet hover:bg-violet-hover text-white text-sm font-semibold py-2.5 rounded-md transition-colors flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-60">
-            {loading && <Loader2 className="w-4 h-4 animate-spin" />}Create Project
+            {loading && <Loader2 className="w-4 h-4 animate-spin" />}Créer le projet
           </button>
         </div>
       </form>

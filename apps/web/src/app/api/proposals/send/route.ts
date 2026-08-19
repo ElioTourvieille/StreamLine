@@ -11,11 +11,11 @@ export async function POST(req: NextRequest) {
     }
 
     if (!email || !proposal) {
-      return NextResponse.json({ error: 'Missing email or proposal' }, { status: 400 })
+      return NextResponse.json({ error: 'E-mail ou proposition manquant' }, { status: 400 })
     }
 
     if (!process.env.RESEND_API_KEY) {
-      return NextResponse.json({ error: 'Email service not configured' }, { status: 503 })
+      return NextResponse.json({ error: 'Service e-mail non configuré' }, { status: 503 })
     }
 
     const resend = new Resend(process.env.RESEND_API_KEY)
@@ -25,14 +25,14 @@ export async function POST(req: NextRequest) {
     await resend.emails.send({
       from,
       to: email,
-      subject: `Project Proposal — ${clientName}`,
+      subject: `Proposition de projet — ${clientName}`,
       html: buildEmail(clientName, htmlBody),
     })
 
     return NextResponse.json({ ok: true })
   } catch (err) {
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : 'Failed to send email' },
+      { error: err instanceof Error ? err.message : 'Échec de l’envoi de l’e-mail' },
       { status: 500 },
     )
   }
@@ -82,15 +82,15 @@ function buildEmail(clientName: string, body: string): string {
   <div class="card">
     <div class="top">
       <span class="brand">StreamLine</span>
-      <span class="badge">Project Proposal</span>
+      <span class="badge">Proposition de projet</span>
     </div>
     <div class="hero">
-      <h1>Your project proposal</h1>
-      <p>Hi ${clientName}, please find the project proposal prepared for you below.</p>
+      <h1>Votre proposition de projet</h1>
+      <p>Bonjour ${clientName}, veuillez trouver ci-dessous la proposition de projet préparée pour vous.</p>
     </div>
     <div class="body">${body}</div>
     <div class="foot">
-      <p>Sent via <a href="https://www.origin-studio.ch">StreamLine by Origin Studio</a></p>
+      <p>Envoyé via <a href="https://www.origin-studio.ch">StreamLine by Origin Studio</a></p>
     </div>
   </div>
 </div>

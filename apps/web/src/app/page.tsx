@@ -23,31 +23,31 @@ const inView = (delay = 0) => ({
 const FEATURES = [
   {
     icon: FolderOpen,
-    title: 'Project workspace',
-    desc: 'Milestones, deliverables, team members and progress tracking — all in one place.',
-    items: ['Milestone timeline', 'Health gauge', 'Activity feed'],
+    title: 'Espace projet',
+    desc: "Jalons, livrables, membres de l'équipe et suivi de l'avancement — tout au même endroit.",
+    items: ['Frise des jalons', 'Indicateur de santé', "Fil d'activité"],
     highlight: false,
   },
   {
     icon: Users,
-    title: 'Client portal',
-    desc: 'Share a magic link. No account, no friction. Your client reviews and approves work in seconds.',
-    items: ['Magic link access', 'Approve or request changes', 'Comment on deliverables'],
+    title: 'Portail client',
+    desc: 'Partagez un lien magique. Pas de compte, aucune friction. Votre client consulte et approuve le travail en quelques secondes.',
+    items: ['Accès par lien magique', 'Approuver ou demander des modifications', 'Commenter les livrables'],
     highlight: false,
   },
   {
     icon: Sparkles,
-    title: 'AI Proposal Generator',
-    desc: 'Turn a brief into a polished project proposal in seconds with real-time streaming.',
-    items: ['Claude Opus 4.8', 'Real-time streaming', 'Download as Markdown'],
+    title: 'Générateur de propositions IA',
+    desc: 'Transformez un brief en proposition de projet soignée en quelques secondes, avec un rendu en temps réel.',
+    items: ['Claude Opus 4.8', 'Rendu en temps réel', 'Téléchargement en Markdown'],
     highlight: true,
   },
 ]
 
 const STEPS = [
-  { n: '1', title: 'Add a client', desc: 'Create a client profile with contact and company details.' },
-  { n: '2', title: 'Create a project', desc: 'Set up milestones, assign the client, and add deliverables.' },
-  { n: '3', title: 'Share the portal', desc: 'Send a magic link — the client approves work directly.' },
+  { n: '1', title: 'Ajouter un client', desc: 'Créez une fiche client avec les coordonnées et les informations de l’entreprise.' },
+  { n: '2', title: 'Créer un projet', desc: 'Configurez les jalons, associez le client et ajoutez des livrables.' },
+  { n: '3', title: 'Partager le portail', desc: 'Envoyez un lien magique — le client approuve directement le travail.' },
 ]
 
 export default function LandingPage() {
@@ -66,11 +66,11 @@ export default function LandingPage() {
           <div className="flex items-center gap-2 sm:gap-3">
             <Link href="/login"
               className="text-sm text-ink-muted hover:text-ink transition-colors px-3 py-1.5 hidden sm:block">
-              Sign in
+              Se connecter
             </Link>
             <Link href="/register"
               className="text-sm font-semibold bg-violet hover:bg-violet-hover text-white px-4 py-1.5 rounded-lg transition-colors active:scale-[0.98]">
-              Get started
+              Commencer
             </Link>
           </div>
         </div>
@@ -91,31 +91,31 @@ export default function LandingPage() {
           <motion.div {...fade(0)}
             className="inline-flex items-center gap-2 bg-violet/10 border border-violet/25 rounded-full px-3.5 py-1 text-xs font-medium text-violet-glow mb-7">
             <Zap className="w-3 h-3" />
-            H0 Hackathon · AWS + Vercel · June 2026
+            Par Origin Studio · Genève
           </motion.div>
 
           <motion.h1 {...fade(0.07)}
             className="text-[40px] sm:text-[62px] font-semibold tracking-tight leading-[1.1] mb-6">
-            The project hub for<br />
-            <span className="text-violet">web studios</span>
+            La plateforme de suivi de projet pour<br />
+            <span className="text-violet">les studios web</span>
           </motion.h1>
 
           <motion.p {...fade(0.13)}
             className="text-base sm:text-xl text-ink-muted max-w-2xl mx-auto mb-10 leading-relaxed">
-            Manage clients, track deliverables, and give clients a beautiful
-            approval portal — no email threads, no spreadsheets.
+            Gérez vos clients, suivez vos livrables, et offrez à vos clients un
+            portail d’approbation soigné — fini les fils d’e-mails et les tableurs.
           </motion.p>
 
           <motion.div {...fade(0.19)}
             className="flex flex-col sm:flex-row items-center justify-center gap-3">
             <Link href="/register"
               className="flex items-center gap-2 bg-violet hover:bg-violet-hover text-white font-semibold px-6 py-3 rounded-lg text-sm transition-colors active:scale-[0.98] w-full sm:w-auto justify-center">
-              Start for free
+              Commencer gratuitement
               <ArrowRight className="w-4 h-4" />
             </Link>
             <Link href="/login"
               className="flex items-center gap-2 bg-surface hover:bg-surface-high border border-line text-ink-dim font-medium px-6 py-3 rounded-lg text-sm transition-colors w-full sm:w-auto justify-center">
-              Sign in to your studio
+              Se connecter à mon studio
             </Link>
           </motion.div>
         </div>
@@ -151,7 +151,7 @@ export default function LandingPage() {
                   </div>
                   <span className="text-[11px] font-semibold text-ink">StreamLine</span>
                 </div>
-                {['Dashboard', 'Projects', 'Clients', 'AI Proposals', 'Messages', 'Notifications'].map((item, i) => (
+                {['Tableau de bord', 'Projets', 'Clients', 'Propositions IA', 'Messages', 'Notifications'].map((item, i) => (
                   <div key={item}
                     className={`flex items-center gap-2 px-2 py-1.5 rounded-md mb-0.5 ${i === 0 ? 'bg-surface-high' : ''}`}>
                     <div className={`w-1 h-1 rounded-full ${i === 0 ? 'bg-violet' : 'bg-line'}`} />
@@ -167,19 +167,19 @@ export default function LandingPage() {
               <div className="flex-1 p-4 overflow-hidden">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <p className="text-sm font-semibold text-ink">Good morning, Elio</p>
-                    <p className="text-[11px] text-ink-muted mt-0.5">3 active projects · 2 pending validations</p>
+                    <p className="text-sm font-semibold text-ink">Bonjour, Elio</p>
+                    <p className="text-[11px] text-ink-muted mt-0.5">3 projets actifs · 2 validations en attente</p>
                   </div>
-                  <div className="bg-violet text-white text-[10px] font-semibold px-3 py-1 rounded-lg">+ New Project</div>
+                  <div className="bg-violet text-white text-[10px] font-semibold px-3 py-1 rounded-lg">+ Nouveau projet</div>
                 </div>
 
                 {/* Stat cards */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-4">
                   {[
-                    { label: 'Active Projects',      value: '3', color: 'text-violet-glow' },
-                    { label: 'Pending Validations',  value: '2', color: 'text-warning' },
-                    { label: 'Milestones Done',      value: '8', color: 'text-success' },
-                    { label: 'Total Clients',        value: '5', color: 'text-ink' },
+                    { label: 'Projets actifs',       value: '3', color: 'text-violet-glow' },
+                    { label: 'Validations en attente', value: '2', color: 'text-warning' },
+                    { label: 'Jalons terminés',      value: '8', color: 'text-success' },
+                    { label: 'Total clients',        value: '5', color: 'text-ink' },
                   ].map(({ label, value, color }) => (
                     <div key={label} className="bg-bg border border-line rounded-lg p-2.5">
                       <p className="text-[9px] text-ink-faint uppercase tracking-wide mb-1 leading-tight">{label}</p>
@@ -191,12 +191,12 @@ export default function LandingPage() {
                 {/* Project rows */}
                 <div className="bg-bg border border-line rounded-lg overflow-hidden">
                   <div className="flex items-center gap-2 px-3 py-2 border-b border-line">
-                    <p className="text-[10px] font-semibold text-ink-muted uppercase tracking-widest">Active Projects</p>
+                    <p className="text-[10px] font-semibold text-ink-muted uppercase tracking-widest">Projets actifs</p>
                   </div>
                   {[
-                    { name: "Refonte L'ARC",   client: 'L\'ARC',  progress: 75, label: 'On Track',  c: 'text-success bg-success/15' },
-                    { name: 'Site Pictet Group', client: 'Pictet', progress: 40, label: 'In Review',  c: 'text-warning bg-warning/15' },
-                    { name: 'App Mobile Verso',  client: 'Verso',  progress: 20, label: 'Draft',      c: 'text-ink-muted bg-white/5' },
+                    { name: "Refonte L'ARC",   client: 'L\'ARC',  progress: 75, label: 'Dans les temps', c: 'text-success bg-success/15' },
+                    { name: 'Site Pictet Group', client: 'Pictet', progress: 40, label: 'En révision',   c: 'text-warning bg-warning/15' },
+                    { name: 'App Mobile Verso',  client: 'Verso',  progress: 20, label: 'Brouillon',     c: 'text-ink-muted bg-white/5' },
                   ].map(p => (
                     <div key={p.name} className="flex items-center gap-3 px-3 py-2.5 border-b border-line last:border-0 hover:bg-surface-high transition-colors">
                       <p className="text-[11px] font-medium text-ink flex-1 truncate">{p.name}</p>
@@ -218,8 +218,8 @@ export default function LandingPage() {
       <section className="px-5 sm:px-8 pb-24">
         <div className="max-w-4xl mx-auto">
           <motion.div {...inView(0)} className="mb-14">
-            <h2 className="text-2xl sm:text-3xl font-semibold text-ink mb-3">Everything your studio needs</h2>
-            <p className="text-ink-muted text-sm max-w-sm">Two audiences, one platform. Studio side and client side.</p>
+            <h2 className="text-2xl sm:text-3xl font-semibold text-ink mb-3">Tout ce dont votre studio a besoin</h2>
+            <p className="text-ink-muted text-sm max-w-sm">Deux publics, une seule plateforme. Côté studio et côté client.</p>
           </motion.div>
 
           <div className="divide-y divide-line">
@@ -265,8 +265,8 @@ export default function LandingPage() {
       <section className="px-5 sm:px-8 pb-24">
         <div className="max-w-4xl mx-auto">
           <motion.div {...inView(0)} className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-semibold text-ink mb-3">Up and running in minutes</h2>
-            <p className="text-ink-muted text-sm">The whole loop — client to approval — under 5 minutes.</p>
+            <h2 className="text-2xl sm:text-3xl font-semibold text-ink mb-3">Opérationnel en quelques minutes</h2>
+            <p className="text-ink-muted text-sm">Tout le cycle — du client à l’approbation — en moins de 5 minutes.</p>
           </motion.div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 relative">
@@ -292,13 +292,13 @@ export default function LandingPage() {
           <div className="w-12 h-12 rounded-xl bg-violet/10 border border-violet/20 flex items-center justify-center mx-auto mb-6">
             <Compass className="w-6 h-6 text-violet/70" />
           </div>
-          <h2 className="text-2xl sm:text-3xl font-semibold text-ink mb-3">Ready to streamline your studio?</h2>
+          <h2 className="text-2xl sm:text-3xl font-semibold text-ink mb-3">Prêt à simplifier la gestion de votre studio ?</h2>
           <p className="text-ink-muted text-sm mb-8 max-w-sm mx-auto leading-relaxed">
-            Create your account and set up your first project in minutes.
+            Créez votre compte et configurez votre premier projet en quelques minutes.
           </p>
           <Link href="/register"
             className="inline-flex items-center gap-2 bg-violet hover:bg-violet-hover text-white font-semibold px-8 py-3.5 rounded-lg text-sm transition-colors active:scale-[0.98]">
-            Create your studio
+            Créer votre studio
             <ArrowRight className="w-4 h-4" />
           </Link>
         </motion.div>
@@ -312,7 +312,7 @@ export default function LandingPage() {
               <Compass className="w-2.5 h-2.5 text-violet-glow" />
             </div>
             <span className="text-xs text-ink-muted">
-              StreamLine by{' '}
+              StreamLine par{' '}
               <a href="https://www.origin-studio.ch/" target="_blank" rel="noopener noreferrer"
                 className="text-ink-dim hover:text-ink transition-colors">
                 Origin Studio

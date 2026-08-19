@@ -28,6 +28,29 @@ const STATUS_STYLES: Record<string, string> = {
   COMPLETED:  'bg-info/15 text-info',
 }
 
+const PROJECT_STATUS_LABEL: Record<string, string> = {
+  ON_TRACK:    'Dans les temps',
+  AT_RISK:     'À risque',
+  OVERDUE:     'En retard',
+  IN_PROGRESS: 'En cours',
+  COMPLETED:   'Terminé',
+}
+
+const VALIDATION_LABEL: Record<string, string> = {
+  APPROVED:          'Approuvé',
+  PENDING:           'En attente',
+  CHANGES_REQUESTED: 'Modifications demandées',
+}
+
+const TYPE_LABEL: Record<string, string> = {
+  DESIGN_APPROVAL: 'Validation design',
+  DOCUMENT:        'Document',
+  ASSET:           'Ressource',
+  PROTOTYPE:       'Prototype',
+  VIDEO:           'Vidéo',
+  OTHER:           'Autre',
+}
+
 const DELIVERABLE_TYPES = ['DESIGN_APPROVAL', 'DOCUMENT', 'ASSET', 'PROTOTYPE', 'VIDEO', 'OTHER']
 
 // ─── New Deliverable Modal ────────────────────────────────────────────────────
@@ -60,7 +83,7 @@ function NewDeliverableModal({
       })
       onSave(d)
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error creating deliverable')
+      setError(err instanceof Error ? err.message : 'Erreur lors de la création du livrable')
     } finally {
       setLoading(false)
     }
@@ -77,13 +100,13 @@ function NewDeliverableModal({
         className="bg-surface border border-line rounded-t-2xl sm:rounded-xl w-full sm:max-w-md"
       >
         <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-line">
-          <h2 className="text-base font-semibold text-ink">Request Validation</h2>
+          <h2 className="text-base font-semibold text-ink">Demander une validation</h2>
           <button onClick={onClose} className="text-ink-muted hover:text-ink p-1"><X className="w-5 h-5" /></button>
         </div>
         <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4">
           <div>
-            <label className="block text-xs font-medium text-ink-dim mb-1.5 uppercase tracking-wide">Title <span className="text-danger">*</span></label>
-            <input type="text" required placeholder="Homepage Hero Section" value={form.title}
+            <label className="block text-xs font-medium text-ink-dim mb-1.5 uppercase tracking-wide">Titre <span className="text-danger">*</span></label>
+            <input type="text" required placeholder="Section héro de la page d’accueil" value={form.title}
               onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
               className="w-full bg-bg border border-line rounded-lg px-3 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-violet transition-colors" />
           </div>
@@ -91,23 +114,23 @@ function NewDeliverableModal({
             <label className="block text-xs font-medium text-ink-dim mb-1.5 uppercase tracking-wide">Type</label>
             <select value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}
               className="w-full bg-bg border border-line rounded-lg px-3 py-2.5 text-sm text-ink focus:outline-none focus:border-violet transition-colors appearance-none cursor-pointer">
-              {DELIVERABLE_TYPES.map(t => <option key={t} value={t}>{t.replace(/_/g, ' ')}</option>)}
+              {DELIVERABLE_TYPES.map(t => <option key={t} value={t}>{TYPE_LABEL[t] ?? t.replace(/_/g, ' ')}</option>)}
             </select>
           </div>
           <div>
             <label className="block text-xs font-medium text-ink-dim mb-1.5 uppercase tracking-wide">Description</label>
-            <textarea rows={3} placeholder="Describe what the client needs to validate…" value={form.description}
+            <textarea rows={3} placeholder="Décrivez ce que le client doit valider…" value={form.description}
               onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
               className="w-full bg-bg border border-line rounded-lg px-3 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-violet transition-colors resize-none" />
           </div>
           <div>
-            <label className="block text-xs font-medium text-ink-dim mb-1.5 uppercase tracking-wide">Preview URL</label>
+            <label className="block text-xs font-medium text-ink-dim mb-1.5 uppercase tracking-wide">URL de l’aperçu</label>
             <input type="url" placeholder="https://figma.com/..." value={form.previewUrl}
               onChange={e => setForm(f => ({ ...f, previewUrl: e.target.value }))}
               className="w-full bg-bg border border-line rounded-lg px-3 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-violet transition-colors" />
           </div>
           <div>
-            <label className="block text-xs font-medium text-ink-dim mb-1.5 uppercase tracking-wide">Deadline</label>
+            <label className="block text-xs font-medium text-ink-dim mb-1.5 uppercase tracking-wide">Échéance</label>
             <input type="date" value={form.deadline}
               onChange={e => setForm(f => ({ ...f, deadline: e.target.value }))}
               className="w-full bg-bg border border-line rounded-lg px-3 py-2.5 text-sm text-ink focus:outline-none focus:border-violet transition-colors [scheme:dark]" />
@@ -115,10 +138,10 @@ function NewDeliverableModal({
           {error && <p className="text-danger text-sm">{error}</p>}
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onClose}
-              className="flex-1 bg-surface-high border border-line text-ink-dim text-sm font-medium py-2.5 rounded-lg transition-colors">Cancel</button>
+              className="flex-1 bg-surface-high border border-line text-ink-dim text-sm font-medium py-2.5 rounded-lg transition-colors">Annuler</button>
             <button type="submit" disabled={loading}
               className="flex-1 bg-violet hover:bg-violet-hover text-white text-sm font-semibold py-2.5 rounded-lg flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-60">
-              {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}Send Request
+              {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}Envoyer la demande
             </button>
           </div>
         </form>
@@ -179,8 +202,8 @@ export default function ProjectDetailPage() {
   if (!project) {
     return (
       <div className="p-8 text-center">
-        <p className="text-ink-muted">Project not found.</p>
-        <Link href="/projects" className="text-violet-glow text-sm mt-2 inline-block">← Back to Projects</Link>
+        <p className="text-ink-muted">Projet introuvable.</p>
+        <Link href="/projects" className="text-violet-glow text-sm mt-2 inline-block">← Retour aux projets</Link>
       </div>
     )
   }
@@ -205,12 +228,12 @@ export default function ProjectDetailPage() {
         <h1 className="text-xl sm:text-2xl font-semibold text-ink tracking-tight">{project.name}</h1>
         <span className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${STATUS_STYLES[project.status] ?? 'bg-white/5 text-ink-muted'}`}>
           <span className="w-1.5 h-1.5 rounded-full bg-current" />
-          {project.status.replace(/_/g, ' ')}
+          {PROJECT_STATUS_LABEL[project.status] ?? project.status.replace(/_/g, ' ')}
         </span>
         <div className="ml-auto">
           <button onClick={() => setShowModal(true)}
             className="flex items-center gap-2 bg-violet hover:bg-violet-hover text-white text-sm font-semibold px-4 py-2 rounded-lg transition-colors active:scale-[0.98]">
-            <Plus className="w-4 h-4" /><span className="hidden sm:inline">Request Validation</span><span className="sm:hidden">New</span>
+            <Plus className="w-4 h-4" /><span className="hidden sm:inline">Demander une validation</span><span className="sm:hidden">Nouveau</span>
           </button>
         </div>
       </div>
@@ -220,17 +243,17 @@ export default function ProjectDetailPage() {
         <div className="space-y-5">
           {/* Scope card */}
           <div className="bg-surface border border-line rounded-lg p-5 sm:p-6">
-            <h2 className="text-base font-semibold text-ink mb-3">Project Scope</h2>
+            <h2 className="text-base font-semibold text-ink mb-3">Périmètre du projet</h2>
             {project.description
               ? <p className="text-sm text-ink-dim leading-relaxed mb-5">{project.description}</p>
-              : <p className="text-sm text-ink-faint mb-5">No description provided.</p>
+              : <p className="text-sm text-ink-faint mb-5">Aucune description fournie.</p>
             }
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t border-line">
               {[
-                { label: 'Start', value: formatDate(project.startDate) },
-                { label: 'End',   value: formatDate(project.endDate) },
-                { label: 'Approvals', value: `${approved}/${deliverables.length}` },
-                { label: 'Health',    value: `${progress}%` },
+                { label: 'Début',        value: formatDate(project.startDate) },
+                { label: 'Fin',          value: formatDate(project.endDate) },
+                { label: 'Approbations', value: `${approved}/${deliverables.length}` },
+                { label: 'Santé',        value: `${progress}%` },
               ].map(({ label, value }) => (
                 <div key={label}>
                   <p className="text-[11px] text-ink-muted uppercase tracking-wide mb-1">{label}</p>
@@ -243,7 +266,7 @@ export default function ProjectDetailPage() {
           {/* Milestone timeline */}
           {milestones.length > 0 && (
             <div className="bg-surface border border-line rounded-lg p-5 sm:p-6">
-              <p className="text-[11px] font-semibold text-ink-muted uppercase tracking-widest mb-5">Milestone Timeline</p>
+              <p className="text-[11px] font-semibold text-ink-muted uppercase tracking-widest mb-5">Frise des jalons</p>
               <div className="overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
                 <div className="relative flex items-start justify-between min-w-[480px] sm:min-w-0">
                   <div className="absolute top-4 left-4 right-4 h-0.5 bg-line" />
@@ -272,11 +295,11 @@ export default function ProjectDetailPage() {
                         {/* Contextual status action */}
                         {m.status === 'COMPLETED' ? (
                           <span className="inline-flex items-center gap-1 text-[10px] font-semibold text-success">
-                            <Check className="w-2.5 h-2.5" /> Done
+                            <Check className="w-2.5 h-2.5" /> Terminé
                           </span>
                         ) : m.status === 'IN_PROGRESS' ? (
                           <div className="flex flex-col items-center gap-1">
-                            <span className="text-[9px] font-semibold text-violet-glow uppercase tracking-wider">● In Progress</span>
+                            <span className="text-[9px] font-semibold text-violet-glow uppercase tracking-wider">● En cours</span>
                             <button
                               onClick={() => advanceMilestone(m)}
                               disabled={updatingMs === m.id}
@@ -285,7 +308,7 @@ export default function ProjectDetailPage() {
                               {updatingMs === m.id
                                 ? <Loader2 className="w-2.5 h-2.5 animate-spin" />
                                 : <Check className="w-2.5 h-2.5" />}
-                              Mark done
+                              Marquer terminé
                             </button>
                           </div>
                         ) : (
@@ -297,7 +320,7 @@ export default function ProjectDetailPage() {
                             {updatingMs === m.id
                               ? <Loader2 className="w-2.5 h-2.5 animate-spin" />
                               : <Play className="w-2.5 h-2.5" />}
-                            Start
+                            Démarrer
                           </button>
                         )}
                       </div>
@@ -312,7 +335,7 @@ export default function ProjectDetailPage() {
           <div className="bg-surface border border-line rounded-lg overflow-hidden">
             <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-line">
               <h2 className="text-base font-semibold text-ink">Validations</h2>
-              <span className="text-xs text-ink-muted">{pending} pending</span>
+              <span className="text-xs text-ink-muted">{pending} en attente</span>
             </div>
 
             {loadingDels ? (
@@ -322,9 +345,9 @@ export default function ProjectDetailPage() {
             ) : deliverables.length === 0 ? (
               <div className="py-10 text-center">
                 <FileText className="w-7 h-7 text-ink-faint mx-auto mb-2" />
-                <p className="text-sm text-ink-muted">No validations yet.</p>
+                <p className="text-sm text-ink-muted">Aucune validation pour l’instant.</p>
                 <button onClick={() => setShowModal(true)}
-                  className="text-sm text-violet-glow hover:underline mt-1">Request your first validation →</button>
+                  className="text-sm text-violet-glow hover:underline mt-1">Demander votre première validation →</button>
               </div>
             ) : (
               <table className="w-full">
@@ -334,11 +357,11 @@ export default function ProjectDetailPage() {
                       className={`h-12 border-b border-line hover:bg-surface-high transition-colors ${i === deliverables.length - 1 ? 'border-b-0' : ''}`}>
                       <td className="px-5 sm:px-6 text-sm font-medium text-ink">{d.title}</td>
                       <td className="px-5 sm:px-6 hidden sm:table-cell">
-                        <span className="text-xs text-ink-muted">{d.type.replace(/_/g, ' ')}</span>
+                        <span className="text-xs text-ink-muted">{TYPE_LABEL[d.type] ?? d.type.replace(/_/g, ' ')}</span>
                       </td>
                       <td className="px-5 sm:px-6">
                         <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${VALIDATION_STYLES[d.status] ?? 'bg-white/5 text-ink-muted'}`}>
-                          {d.status.replace(/_/g, ' ')}
+                          {VALIDATION_LABEL[d.status] ?? d.status.replace(/_/g, ' ')}
                         </span>
                       </td>
                       <td className="px-5 sm:px-6 text-sm text-ink-muted text-right hidden sm:table-cell">
@@ -356,7 +379,7 @@ export default function ProjectDetailPage() {
         <div className="space-y-5">
           {/* Stats */}
           <div className="bg-surface border border-line rounded-lg p-5">
-            <h2 className="text-sm font-semibold text-ink mb-4">Project Health</h2>
+            <h2 className="text-sm font-semibold text-ink mb-4">Santé du projet</h2>
             <div className="flex items-center justify-center mb-4">
               <div className="relative w-24 h-24">
                 <svg className="w-24 h-24 -rotate-90" viewBox="0 0 96 96">
@@ -367,15 +390,15 @@ export default function ProjectDetailPage() {
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <span className="text-xl font-bold text-ink">{progress}%</span>
-                  <span className="text-[10px] text-ink-muted">Complete</span>
+                  <span className="text-[10px] text-ink-muted">Terminé</span>
                 </div>
               </div>
             </div>
             <div className="grid grid-cols-3 gap-3 pt-4 border-t border-line">
               {[
-                { icon: CheckCircle2, label: 'Approved', value: approved },
-                { icon: AlertCircle,  label: 'Pending',  value: pending  },
-                { icon: FileText,     label: 'Total',    value: deliverables.length },
+                { icon: CheckCircle2, label: 'Approuvés',  value: approved },
+                { icon: AlertCircle,  label: 'En attente', value: pending  },
+                { icon: FileText,     label: 'Total',      value: deliverables.length },
               ].map(({ label, value }) => (
                 <div key={label} className="text-center">
                   <p className="text-base font-bold text-ink">{value}</p>
@@ -387,11 +410,11 @@ export default function ProjectDetailPage() {
 
           {/* Team (members from project if available) */}
           <div className="bg-surface border border-line rounded-lg p-5">
-            <h2 className="text-sm font-semibold text-ink mb-4">Project Info</h2>
+            <h2 className="text-sm font-semibold text-ink mb-4">Infos projet</h2>
             <div className="space-y-3">
               <div className="flex items-center gap-2.5">
                 <Users className="w-4 h-4 text-ink-faint shrink-0" />
-                <span className="text-sm text-ink-muted">Client ID: <span className="text-ink font-medium">{project.clientId.slice(0, 8)}…</span></span>
+                <span className="text-sm text-ink-muted">ID client : <span className="text-ink font-medium">{project.clientId.slice(0, 8)}…</span></span>
               </div>
               <div className="flex items-center gap-2.5">
                 <MessageSquare className="w-4 h-4 text-ink-faint shrink-0" />

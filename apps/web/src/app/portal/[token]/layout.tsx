@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Client Portal — StreamLine',
-  description: 'Review your project progress and approve deliverables securely — no account required.',
+  title: 'Portail client — StreamLine',
+  description: 'Suivez l’avancement de votre projet et approuvez vos livrables en toute sécurité — sans compte requis.',
   robots: { index: false, follow: false },
 }
 

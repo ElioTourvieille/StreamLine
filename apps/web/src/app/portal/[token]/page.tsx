@@ -14,12 +14,12 @@ import { formatDate } from '@/lib/format'
 // ─── Constants ────────────────────────────────────────────────────────────────
 
 const TYPE_LABEL: Record<string, string> = {
-  DESIGN_APPROVAL: 'Design Approval',
+  DESIGN_APPROVAL: 'Validation design',
   DOCUMENT:        'Document',
-  ASSET:           'Asset',
+  ASSET:           'Ressource',
   PROTOTYPE:       'Prototype',
-  VIDEO:           'Video',
-  OTHER:           'Other',
+  VIDEO:           'Vidéo',
+  OTHER:           'Autre',
 }
 
 const STATUS_STYLE: Record<string, string> = {
@@ -29,9 +29,9 @@ const STATUS_STYLE: Record<string, string> = {
 }
 
 const STATUS_LABEL: Record<string, string> = {
-  PENDING:           'Pending Approval',
-  APPROVED:          'Approved',
-  CHANGES_REQUESTED: 'Changes Requested',
+  PENDING:           'En attente de validation',
+  APPROVED:          'Approuvé',
+  CHANGES_REQUESTED: 'Modifications demandées',
 }
 
 // ─── Deliverable card ────────────────────────────────────────────────────────
@@ -100,7 +100,7 @@ function DeliverableCard({
         <div className="p-4 sm:p-6 space-y-4">
           {d.description && (
             <div className="bg-surface-high border border-line rounded-lg p-4">
-              <p className="text-xs font-semibold text-ink-muted uppercase tracking-widest mb-2">Designer&apos;s Notes</p>
+              <p className="text-xs font-semibold text-ink-muted uppercase tracking-widest mb-2">Notes du studio</p>
               <p className="text-sm text-ink-dim leading-relaxed">{d.description}</p>
             </div>
           )}
@@ -108,17 +108,17 @@ function DeliverableCard({
           {d.previewUrl ? (
             <a href={d.previewUrl} target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-2 text-sm text-violet-glow hover:underline">
-              <ExternalLink className="w-4 h-4" />Open Preview
+              <ExternalLink className="w-4 h-4" />Ouvrir l’aperçu
             </a>
           ) : (
             <div className="h-32 bg-surface-high border border-dashed border-line rounded-lg flex items-center justify-center">
-              <p className="text-sm text-ink-faint">Preview not attached</p>
+              <p className="text-sm text-ink-faint">Aucun aperçu joint</p>
             </div>
           )}
 
           {d.comments.length > 0 && (
             <div className="space-y-3">
-              <p className="text-xs font-semibold text-ink-muted uppercase tracking-widest">Activity</p>
+              <p className="text-xs font-semibold text-ink-muted uppercase tracking-widest">Activité</p>
               {d.comments.map((c, i) => (
                 <div key={c.id ?? i} className="flex gap-3">
                   <div className="shrink-0 w-7 h-7 rounded-full bg-violet/20 border border-violet/30 flex items-center justify-center text-[10px] font-bold text-violet-glow">
@@ -138,7 +138,7 @@ function DeliverableCard({
 
         {/* Right: validation panel */}
         <div className="p-4 sm:p-6 border-t border-line md:border-t-0 flex flex-col gap-4">
-          <p className="text-xs font-semibold text-ink-muted uppercase tracking-widest">Your Validation</p>
+          <p className="text-xs font-semibold text-ink-muted uppercase tracking-widest">Votre validation</p>
 
           <AnimatePresence mode="wait">
             {done ? (
@@ -162,9 +162,9 @@ function DeliverableCard({
                 </motion.div>
                 <div>
                   <p className={`text-sm font-semibold ${currentStatus === 'APPROVED' ? 'text-success' : 'text-warning'}`}>
-                    {currentStatus === 'APPROVED' ? 'You approved this' : 'Changes requested'}
+                    {currentStatus === 'APPROVED' ? 'Vous avez approuvé' : 'Modifications demandées'}
                   </p>
-                  <p className="text-xs text-ink-muted mt-0.5">Response recorded</p>
+                  <p className="text-xs text-ink-muted mt-0.5">Réponse enregistrée</p>
                 </div>
               </motion.div>
             ) : (
@@ -173,17 +173,17 @@ function DeliverableCard({
                 <button onClick={() => handle('APPROVED')} disabled={!!loading}
                   className="flex items-center justify-center gap-2 w-full bg-success hover:bg-green-600 text-white font-semibold py-3.5 rounded-xl transition-colors active:scale-[0.98] disabled:opacity-60 text-sm">
                   {loading === 'APPROVED' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Check className="w-4 h-4" />}
-                  Approve
+                  Approuver
                 </button>
                 <div className="space-y-2">
-                  <textarea rows={3} placeholder="Describe the changes you need…"
+                  <textarea rows={3} placeholder="Décrivez les modifications souhaitées…"
                     value={comment} onChange={e => setComment(e.target.value)}
                     className="w-full bg-bg border border-line rounded-xl px-3 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-violet transition-colors resize-none" />
                   <button onClick={() => handle('CHANGES_REQUESTED')}
                     disabled={!!loading || !comment.trim()}
                     className="flex items-center justify-center gap-2 w-full bg-warning/15 hover:bg-warning/25 border border-warning/40 text-warning font-semibold py-3 rounded-xl transition-colors active:scale-[0.98] disabled:opacity-40 text-sm">
                     {loading === 'CHANGES_REQUESTED' ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
-                    Request Changes
+                    Demander des modifications
                   </button>
                 </div>
               </motion.div>
@@ -192,7 +192,7 @@ function DeliverableCard({
 
           {d.deadline && (
             <div className="mt-auto pt-4 border-t border-line">
-              <p className="text-[11px] text-ink-muted uppercase tracking-wide mb-1">Deadline</p>
+              <p className="text-[11px] text-ink-muted uppercase tracking-wide mb-1">Échéance</p>
               <p className="text-sm font-medium text-ink">{formatDate(d.deadline)}</p>
             </div>
           )}
@@ -219,10 +219,10 @@ function PortalError({ message }: { message: string }) {
         <div className="w-14 h-14 rounded-2xl bg-danger/10 border border-danger/20 flex items-center justify-center mx-auto mb-4">
           <AlertTriangle className="w-7 h-7 text-danger/60" />
         </div>
-        <p className="text-ink font-semibold text-base mb-1">Unable to load portal</p>
+        <p className="text-ink font-semibold text-base mb-1">Impossible de charger le portail</p>
         <p className="text-ink-muted text-sm">{message.includes('404') || message.includes('Not Found')
-          ? 'This link is invalid or has expired.'
-          : 'Something went wrong. Please try again later.'}</p>
+          ? 'Ce lien est invalide ou a expiré.'
+          : 'Une erreur est survenue. Merci de réessayer plus tard.'}</p>
       </div>
     </div>
   )
@@ -239,7 +239,7 @@ export default function PortalPage() {
   const [statuses, setStatuses] = useState<Record<string, string>>({})
 
   if (loading) return <PortalSkeleton />
-  if (error || !ctx) return <PortalError message={error ?? 'Unknown error'} />
+  if (error || !ctx) return <PortalError message={error ?? 'Erreur inconnue'} />
 
   const { client, projects, deliverablesByProject } = ctx
 
@@ -267,7 +267,7 @@ export default function PortalPage() {
           </div>
           <span className="font-semibold text-ink text-sm hidden sm:inline">StreamLine</span>
           <span className="text-[10px] sm:text-[11px] font-semibold bg-surface-high border border-line text-ink-muted px-2 py-0.5 rounded uppercase tracking-wide">
-            Client Portal
+            Portail client
           </span>
         </div>
         <div className="flex items-center gap-2.5 text-sm text-ink-muted">
@@ -283,11 +283,11 @@ export default function PortalPage() {
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}
           className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-semibold text-ink tracking-tight">
-            Welcome back, {client.name.split(' ')[0]}
+            Bon retour, {client.name.split(' ')[0]}
           </h1>
           {firstProject && (
             <p className="text-ink-muted text-sm mt-1">
-              Project: <span className="text-ink font-medium">{firstProject.name}</span>
+              Projet : <span className="text-ink font-medium">{firstProject.name}</span>
             </p>
           )}
         </motion.div>
@@ -299,9 +299,9 @@ export default function PortalPage() {
             className="bg-surface border border-line rounded-xl p-4 sm:p-6 mb-4 sm:mb-6"
           >
             <div className="flex items-center justify-between mb-1">
-              <h2 className="text-base font-semibold text-ink">{activeMilestone?.title ?? 'Progress'}</h2>
+              <h2 className="text-base font-semibold text-ink">{activeMilestone?.title ?? 'Avancement'}</h2>
               <span className="text-xs font-semibold bg-surface-high border border-line text-ink-dim px-2.5 py-1 rounded-full shrink-0">
-                {progress}% Complete
+                {progress}% terminé
               </span>
             </div>
 
@@ -349,22 +349,22 @@ export default function PortalPage() {
         >
           <div className="bg-surface border border-line border-l-4 border-l-warning rounded-xl p-4">
             <p className="text-[11px] font-semibold text-warning uppercase tracking-widest mb-1">Validations</p>
-            <p className="text-2xl font-bold text-ink mb-2">{pending} Pending</p>
+            <p className="text-2xl font-bold text-ink mb-2">{pending} en attente</p>
             {pending > 0 && (
               <a href="#deliverables" className="text-sm font-semibold text-warning hover:text-amber-400 transition-colors">
-                Review Now →
+                Voir maintenant →
               </a>
             )}
           </div>
           <div className="bg-surface border border-line border-l-4 border-l-success rounded-xl p-4">
-            <p className="text-[11px] font-semibold text-success uppercase tracking-widest mb-1">Approved</p>
-            <p className="text-2xl font-bold text-ink mb-2">{approved} Deliverable{approved !== 1 ? 's' : ''}</p>
-            <span className="text-sm font-semibold text-success">{approved > 0 ? 'Great progress!' : 'Nothing yet'}</span>
+            <p className="text-[11px] font-semibold text-success uppercase tracking-widest mb-1">Approuvés</p>
+            <p className="text-2xl font-bold text-ink mb-2">{approved} livrable{approved !== 1 ? 's' : ''}</p>
+            <span className="text-sm font-semibold text-success">{approved > 0 ? 'Belle progression !' : 'Rien pour l’instant'}</span>
           </div>
           <div className="bg-surface border border-line border-l-4 border-l-info rounded-xl p-4">
             <p className="text-[11px] font-semibold text-info uppercase tracking-widest mb-1">Total</p>
-            <p className="text-2xl font-bold text-ink mb-2">{allDeliverables.length} Item{allDeliverables.length !== 1 ? 's' : ''}</p>
-            <span className="text-sm text-ink-muted">In this project</span>
+            <p className="text-2xl font-bold text-ink mb-2">{allDeliverables.length} élément{allDeliverables.length !== 1 ? 's' : ''}</p>
+            <span className="text-sm text-ink-muted">Dans ce projet</span>
           </div>
         </motion.div>
 
@@ -376,9 +376,9 @@ export default function PortalPage() {
               <div className="w-14 h-14 rounded-2xl bg-success/10 border border-success/20 flex items-center justify-center mb-4">
                 <CheckCircle2 className="w-7 h-7 text-success/70" />
               </div>
-              <p className="text-ink font-semibold text-base mb-1">No pending validations ✓</p>
+              <p className="text-ink font-semibold text-base mb-1">Aucune validation en attente ✓</p>
               <p className="text-ink-muted text-sm max-w-xs leading-relaxed">
-                You&apos;re all caught up. New deliverables will appear here as soon as the studio shares them.
+                Tout est à jour. Les nouveaux livrables apparaîtront ici dès que le studio les partagera.
               </p>
             </motion.div>
           ) : deliverablesByProject.map(group => {
@@ -390,24 +390,24 @@ export default function PortalPage() {
                     <h2 className="text-lg font-semibold text-ink">{proj?.name ?? group.projectId}</h2>
                     <div className="flex items-center gap-1.5 text-sm text-ink-muted">
                       <MessageSquare className="w-4 h-4" />
-                      <span>{group.items.length} items</span>
+                      <span>{group.items.length} élément{group.items.length !== 1 ? 's' : ''}</span>
                     </div>
                   </div>
                 )}
 
                 {projects.length === 1 && (
                   <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-semibold text-ink">Deliverables</h2>
+                    <h2 className="text-lg font-semibold text-ink">Livrables</h2>
                     <div className="flex items-center gap-2 text-sm text-ink-muted">
                       <MessageSquare className="w-4 h-4" />
-                      <span>{group.items.length} items</span>
+                      <span>{group.items.length} élément{group.items.length !== 1 ? 's' : ''}</span>
                     </div>
                   </div>
                 )}
 
                 {group.items.length === 0 ? (
                   <div className="bg-surface border border-line rounded-xl py-12 text-center">
-                    <p className="text-ink-muted text-sm">No deliverables yet for this project.</p>
+                    <p className="text-ink-muted text-sm">Aucun livrable pour ce projet pour l’instant.</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -421,7 +421,7 @@ export default function PortalPage() {
           })}
 
           <p className="text-center text-xs text-ink-faint mt-8 pb-4">
-            Powered by StreamLine · Secure client portal
+            Propulsé par StreamLine · Portail client sécurisé
           </p>
         </div>
       </div>

@@ -28,7 +28,7 @@ export default function RegisterPage() {
       localStorage.setItem('sl_token', accessToken)
       router.push('/dashboard')
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Registration failed'
+      const msg = err instanceof Error ? err.message : 'Échec de la création du compte'
       try { setError(JSON.parse(msg)?.message ?? msg) } catch { setError(msg) }
     } finally {
       setLoading(false)
@@ -49,16 +49,16 @@ export default function RegisterPage() {
             <div className="w-12 h-12 rounded-xl bg-violet flex items-center justify-center mb-4">
               <Compass className="w-6 h-6 text-white" />
             </div>
-            <h1 className="text-xl font-semibold text-ink">Create your studio</h1>
-            <p className="text-ink-muted text-sm mt-1">Start your StreamLine account</p>
+            <h1 className="text-xl font-semibold text-ink">Créez votre studio</h1>
+            <p className="text-ink-muted text-sm mt-1">Créez votre compte StreamLine</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             {[
-              { label: 'Full name',     key: 'name',             type: 'text',     placeholder: 'Elio Rossi',         required: true },
-              { label: 'Email',         key: 'email',            type: 'email',    placeholder: 'you@studio.com',     required: true },
-              { label: 'Password',      key: 'password',         type: 'password', placeholder: '8+ characters',      required: true },
-              { label: 'Studio name',   key: 'organizationName', type: 'text',     placeholder: 'Origin Studio',      required: false },
+              { label: 'Nom complet',   key: 'name',             type: 'text',     placeholder: 'Elio Rossi',         required: true },
+              { label: 'E-mail',        key: 'email',            type: 'email',    placeholder: 'vous@studio.com',    required: true },
+              { label: 'Mot de passe',  key: 'password',         type: 'password', placeholder: '8 caractères min.',  required: true },
+              { label: 'Nom du studio', key: 'organizationName', type: 'text',     placeholder: 'Origin Studio',      required: false },
             ].map(({ label, key, type, placeholder, required }) => (
               <div key={key}>
                 <label className="block text-xs font-medium text-ink-dim mb-1.5 uppercase tracking-wide">
@@ -84,13 +84,13 @@ export default function RegisterPage() {
               className="w-full bg-violet hover:bg-violet-hover text-white font-semibold py-2.5 rounded-md text-sm transition-colors flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-60"
             >
               {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-              Create account
+              Créer le compte
             </button>
           </form>
 
           <p className="text-center text-xs text-ink-muted mt-6">
-            Already have an account?{' '}
-            <Link href="/login" className="text-violet-glow hover:underline">Sign in</Link>
+            Déjà un compte ?{' '}
+            <Link href="/login" className="text-violet-glow hover:underline">Se connecter</Link>
           </p>
         </motion.div>
       </div>

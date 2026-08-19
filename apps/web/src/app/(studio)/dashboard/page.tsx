@@ -14,22 +14,22 @@ import { api, type OrgStats, type ActivityEvent, type Project, type Client } fro
 
 function greeting() {
   const h = new Date().getHours()
-  if (h < 12) return 'Good morning'
-  if (h < 18) return 'Good afternoon'
-  return 'Good evening'
+  if (h < 12) return 'Bonjour'
+  if (h < 18) return 'Bon après-midi'
+  return 'Bonsoir'
 }
 
 function formatRelative(iso: string) {
   if (!iso) return ''
   const diff = Date.now() - new Date(iso).getTime()
   const mins = Math.floor(diff / 60000)
-  if (mins < 1) return 'just now'
-  if (mins < 60) return `${mins}m ago`
+  if (mins < 1) return "à l'instant"
+  if (mins < 60) return `il y a ${mins} min`
   const hrs = Math.floor(mins / 60)
-  if (hrs < 24) return `${hrs}h ago`
+  if (hrs < 24) return `il y a ${hrs} h`
   const days = Math.floor(hrs / 24)
-  if (days === 1) return 'Yesterday'
-  return `${days} days ago`
+  if (days === 1) return 'Hier'
+  return `il y a ${days} jours`
 }
 
 function milestoneProgress(project: Project) {
@@ -39,11 +39,11 @@ function milestoneProgress(project: Project) {
 }
 
 const STATUS_DISPLAY: Record<string, { label: string; dot: string }> = {
-  DRAFT:     { label: 'Draft',     dot: 'bg-ink-muted' },
-  ACTIVE:    { label: 'On Track',  dot: 'bg-success' },
-  REVIEW:    { label: 'In Review', dot: 'bg-warning' },
-  COMPLETED: { label: 'Completed', dot: 'bg-ink-muted' },
-  ARCHIVED:  { label: 'Archived',  dot: 'bg-ink-muted' },
+  DRAFT:     { label: 'Brouillon',    dot: 'bg-ink-muted' },
+  ACTIVE:    { label: 'Dans les temps', dot: 'bg-success' },
+  REVIEW:    { label: 'En révision',  dot: 'bg-warning' },
+  COMPLETED: { label: 'Terminé',      dot: 'bg-ink-muted' },
+  ARCHIVED:  { label: 'Archivé',      dot: 'bg-ink-muted' },
 }
 
 const STATUS_STYLE: Record<string, string> = {
@@ -114,33 +114,33 @@ function OnboardingState() {
       <div className="w-16 h-16 rounded-2xl bg-violet/10 border border-violet/20 flex items-center justify-center mb-5">
         <FolderOpen className="w-8 h-8 text-violet/50" />
       </div>
-      <h2 className="text-xl font-semibold text-ink mb-2">Your studio is all set</h2>
+      <h2 className="text-xl font-semibold text-ink mb-2">Votre studio est prêt</h2>
       <p className="text-ink-muted text-sm max-w-sm mb-8 leading-relaxed">
-        Start by adding a client, create a project and send them a portal link — the whole loop in under 5 minutes.
+        Commencez par ajouter un client, créez un projet et envoyez-lui un lien vers le portail — tout le cycle en moins de 5 minutes.
       </p>
       <div className="flex flex-col sm:flex-row items-center gap-3">
         <Link href="/clients"
           className="flex items-center gap-2 bg-surface hover:bg-surface-high border border-line text-ink px-4 py-2.5 rounded-lg text-sm font-medium transition-colors group">
           <Users className="w-4 h-4 text-ink-muted" />
-          Add a client
+          Ajouter un client
           <ArrowRight className="w-3.5 h-3.5 text-ink-muted group-hover:translate-x-0.5 transition-transform" />
         </Link>
         <Link href="/projects/new"
           className="flex items-center gap-2 bg-violet hover:bg-violet-hover text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors active:scale-[0.98]">
           <Plus className="w-4 h-4" />
-          New Project
+          Nouveau projet
         </Link>
         <Link href="/ai-generator"
           className="flex items-center gap-2 bg-surface hover:bg-surface-high border border-line text-ink-dim px-4 py-2.5 rounded-lg text-sm font-medium transition-colors group">
           <Sparkles className="w-4 h-4 text-violet/60 group-hover:text-violet transition-colors" />
-          Generate a proposal
+          Générer une proposition
         </Link>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-12 max-w-2xl w-full text-left">
         {[
-          { step: '1', title: 'Add a client', desc: 'Create a client profile with contact details.' },
-          { step: '2', title: 'Create a project', desc: 'Set up milestones, deliverables, and assign the client.' },
-          { step: '3', title: 'Send the portal', desc: 'Invite the client — they can review and approve deliverables.' },
+          { step: '1', title: 'Ajouter un client', desc: 'Créez une fiche client avec ses coordonnées.' },
+          { step: '2', title: 'Créer un projet', desc: 'Configurez les jalons, les livrables, et associez le client.' },
+          { step: '3', title: 'Envoyer le portail', desc: 'Invitez le client — il peut consulter et approuver les livrables.' },
         ].map(({ step, title, desc }) => (
           <div key={step} className="bg-surface border border-line rounded-xl p-4">
             <div className="w-6 h-6 rounded-full bg-violet/15 border border-violet/30 flex items-center justify-center text-xs font-bold text-violet-glow mb-3">{step}</div>
@@ -184,7 +184,7 @@ export default function DashboardPage() {
 
       setDash({ stats, activity, projects, clients, userName: user.name })
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load dashboard')
+      setError(e instanceof Error ? e.message : 'Échec du chargement du tableau de bord')
     } finally {
       setLoading(false)
     }
@@ -199,7 +199,7 @@ export default function DashboardPage() {
       <div className="p-6 sm:p-8 max-w-[1400px] mx-auto flex flex-col items-center justify-center py-24 gap-4">
         <p className="text-danger text-sm">{error}</p>
         <button onClick={load} className="flex items-center gap-2 text-ink-muted hover:text-ink text-sm transition-colors">
-          <RefreshCw className="w-4 h-4" /> Retry
+          <RefreshCw className="w-4 h-4" /> Réessayer
         </button>
       </div>
     )
@@ -218,10 +218,10 @@ export default function DashboardPage() {
   const isEmpty = projects.length === 0 && clients.length === 0
 
   const STAT_CARDS = [
-    { label: 'Active Projects',      value: stats.activeProjects,      color: 'text-violet-glow',  alert: null },
-    { label: 'Pending Validations',  value: stats.pendingValidations,  color: 'text-warning',      alert: stats.pendingValidations > 0 ? 'Attention required' : null, alertStyle: 'bg-warning/15 text-warning' },
-    { label: 'Completed Milestones', value: stats.completedMilestones, color: 'text-success',       alert: null },
-    { label: 'Total Clients',        value: stats.totalClients,        color: 'text-ink',           alert: null },
+    { label: 'Projets actifs',        value: stats.activeProjects,      color: 'text-violet-glow',  alert: null },
+    { label: 'Validations en attente', value: stats.pendingValidations,  color: 'text-warning',      alert: stats.pendingValidations > 0 ? 'Attention requise' : null, alertStyle: 'bg-warning/15 text-warning' },
+    { label: 'Jalons terminés',       value: stats.completedMilestones, color: 'text-success',       alert: null },
+    { label: 'Total clients',         value: stats.totalClients,        color: 'text-ink',           alert: null },
   ]
 
   return (
@@ -234,15 +234,15 @@ export default function DashboardPage() {
           </h1>
           <p className="text-ink-muted text-sm mt-1">
             {stats.activeProjects > 0
-              ? `${stats.activeProjects} active project${stats.activeProjects !== 1 ? 's' : ''} · ${stats.pendingValidations} pending validation${stats.pendingValidations !== 1 ? 's' : ''}`
-              : "Here is what's happening at your studio today."}
+              ? `${stats.activeProjects} projet${stats.activeProjects !== 1 ? 's' : ''} actif${stats.activeProjects !== 1 ? 's' : ''} · ${stats.pendingValidations} validation${stats.pendingValidations !== 1 ? 's' : ''} en attente`
+              : "Voici ce qui se passe dans votre studio aujourd'hui."}
           </p>
         </div>
         <Link href="/projects/new"
           className="flex items-center gap-2 bg-violet hover:bg-violet-hover text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors active:scale-[0.98] shrink-0">
           <Plus className="w-4 h-4" />
-          <span className="hidden sm:inline">New Project</span>
-          <span className="sm:hidden">New</span>
+          <span className="hidden sm:inline">Nouveau projet</span>
+          <span className="sm:hidden">Nouveau</span>
         </Link>
       </motion.div>
 
@@ -275,19 +275,19 @@ export default function DashboardPage() {
             {/* Active projects */}
             <div className="bg-surface border border-line rounded-xl overflow-hidden">
               <div className="flex items-center justify-between px-5 sm:px-6 py-4 border-b border-line">
-                <h2 className="text-base sm:text-lg font-semibold text-ink">Active Projects</h2>
+                <h2 className="text-base sm:text-lg font-semibold text-ink">Projets actifs</h2>
                 <Link href="/projects" className="text-xs text-ink-muted hover:text-ink transition-colors">
-                  View all →
+                  Voir tout →
                 </Link>
               </div>
 
               {activeProjects.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-12 gap-3 text-center px-6">
                   <FolderOpen className="w-8 h-8 text-ink-faint" />
-                  <p className="text-sm text-ink-muted">No active projects yet.</p>
+                  <p className="text-sm text-ink-muted">Aucun projet actif pour l’instant.</p>
                   <Link href="/projects/new"
                     className="text-xs text-violet-glow hover:underline">
-                    Create your first project →
+                    Créer votre premier projet →
                   </Link>
                 </div>
               ) : (
@@ -321,7 +321,7 @@ export default function DashboardPage() {
                   <table className="w-full hidden sm:table">
                     <thead>
                       <tr className="border-b border-line">
-                        {['Project', 'Client', 'Progress', 'Status'].map(h => (
+                        {['Projet', 'Client', 'Avancement', 'Statut'].map(h => (
                           <th key={h} className="text-left px-6 py-3 text-[11px] font-semibold text-ink-muted uppercase tracking-widest">{h}</th>
                         ))}
                       </tr>
@@ -365,14 +365,14 @@ export default function DashboardPage() {
             {/* Activity feed */}
             <div className="bg-surface border border-line rounded-xl overflow-hidden">
               <div className="px-5 py-4 border-b border-line">
-                <h2 className="text-base sm:text-lg font-semibold text-ink">Activity Feed</h2>
+                <h2 className="text-base sm:text-lg font-semibold text-ink">Fil d’activité</h2>
               </div>
               <div className="p-5">
                 {activity.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-8 gap-2 text-center">
                     <CheckCircle2 className="w-8 h-8 text-ink-faint" />
-                    <p className="text-sm text-ink-muted">No activity yet.</p>
-                    <p className="text-xs text-ink-faint">Approvals and project events will appear here.</p>
+                    <p className="text-sm text-ink-muted">Aucune activité pour l’instant.</p>
+                    <p className="text-xs text-ink-faint">Les approbations et événements de projet apparaîtront ici.</p>
                   </div>
                 ) : (
                   <div className="space-y-4">
@@ -384,7 +384,7 @@ export default function DashboardPage() {
                         <div className="flex-1 min-w-0">
                           <p className="text-sm text-ink leading-snug">{a.title}</p>
                           {a.actor && (
-                            <p className="text-[11px] text-ink-faint mt-0.5">by {a.actor}</p>
+                            <p className="text-[11px] text-ink-faint mt-0.5">par {a.actor}</p>
                           )}
                           <div className="flex items-center gap-1 mt-1">
                             <Clock className="w-3 h-3 text-ink-faint" />

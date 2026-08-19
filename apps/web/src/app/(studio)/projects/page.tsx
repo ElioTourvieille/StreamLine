@@ -17,19 +17,19 @@ const STATUS_STYLE: Record<string, string> = {
 }
 
 const STATUS_LABEL: Record<string, string> = {
-  ON_TRACK:   'On Track',
-  AT_RISK:    'At Risk',
-  OVERDUE:    'Overdue',
-  COMPLETED:  'Completed',
-  IN_PROGRESS:'In Progress',
+  ON_TRACK:   'Dans les temps',
+  AT_RISK:    'À risque',
+  OVERDUE:    'En retard',
+  COMPLETED:  'Terminé',
+  IN_PROGRESS:'En cours',
 }
 
 function EmptyState({ isSearch }: { isSearch: boolean }) {
   if (isSearch) return (
     <div className="py-16 flex flex-col items-center text-center">
       <Search className="w-8 h-8 text-ink-faint mb-3" />
-      <p className="text-ink-muted text-sm font-medium mb-1">No results</p>
-      <p className="text-ink-faint text-xs">Try a different project name or status.</p>
+      <p className="text-ink-muted text-sm font-medium mb-1">Aucun résultat</p>
+      <p className="text-ink-faint text-xs">Essayez un autre nom de projet ou statut.</p>
     </div>
   )
   return (
@@ -38,11 +38,11 @@ function EmptyState({ isSearch }: { isSearch: boolean }) {
       <div className="w-14 h-14 rounded-2xl bg-violet/10 border border-violet/20 flex items-center justify-center mb-4">
         <FolderOpen className="w-7 h-7 text-violet/50" />
       </div>
-      <p className="text-ink font-semibold text-base mb-1">No projects yet</p>
-      <p className="text-ink-muted text-sm max-w-xs mb-6 leading-relaxed">Create your first project to start tracking deliverables and client validations.</p>
+      <p className="text-ink font-semibold text-base mb-1">Aucun projet pour l’instant</p>
+      <p className="text-ink-muted text-sm max-w-xs mb-6 leading-relaxed">Créez votre premier projet pour suivre les livrables et les validations clients.</p>
       <Link href="/projects/new"
         className="flex items-center gap-2 bg-violet hover:bg-violet-hover text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors active:scale-[0.98]">
-        <Plus className="w-4 h-4" />Create your first project
+        <Plus className="w-4 h-4" />Créer votre premier projet
       </Link>
     </motion.div>
   )
@@ -75,12 +75,12 @@ export default function ProjectsPage() {
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}
         className="flex items-center justify-between mb-6 sm:mb-8">
         <div>
-          <h1 className="text-[28px] sm:text-[32px] font-semibold text-ink tracking-tight leading-tight">Projects</h1>
-          <p className="text-ink-muted text-sm mt-1">{active} active project{active !== 1 ? 's' : ''}</p>
+          <h1 className="text-[28px] sm:text-[32px] font-semibold text-ink tracking-tight leading-tight">Projets</h1>
+          <p className="text-ink-muted text-sm mt-1">{active} projet{active !== 1 ? 's' : ''} actif{active !== 1 ? 's' : ''}</p>
         </div>
         <Link href="/projects/new"
           className="flex items-center gap-2 bg-violet hover:bg-violet-hover text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors active:scale-[0.98] shrink-0">
-          <Plus className="w-4 h-4" /><span className="hidden sm:inline">New Project</span><span className="sm:hidden">New</span>
+          <Plus className="w-4 h-4" /><span className="hidden sm:inline">Nouveau projet</span><span className="sm:hidden">Nouveau</span>
         </Link>
       </motion.div>
 
@@ -93,7 +93,7 @@ export default function ProjectsPage() {
           {!isEmpty && (
             <div className="relative mb-5 max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-faint pointer-events-none" />
-              <input type="text" placeholder="Search projects…" value={search} onChange={e => setSearch(e.target.value)}
+              <input type="text" placeholder="Rechercher un projet…" value={search} onChange={e => setSearch(e.target.value)}
                 className="w-full bg-surface border border-line rounded-lg pl-9 pr-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-violet transition-colors" />
             </div>
           )}
@@ -103,7 +103,7 @@ export default function ProjectsPage() {
         <>
           <div className="relative mb-5 max-w-sm">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-ink-faint pointer-events-none" />
-            <input type="text" placeholder="Search projects…" value={search} onChange={e => setSearch(e.target.value)}
+            <input type="text" placeholder="Rechercher un projet…" value={search} onChange={e => setSearch(e.target.value)}
               className="w-full bg-surface border border-line rounded-lg pl-9 pr-4 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-violet transition-colors" />
           </div>
 
@@ -134,7 +134,7 @@ export default function ProjectsPage() {
             <table className="w-full hidden sm:table">
               <thead>
                 <tr className="border-b border-line">
-                  {['Project', 'Client', 'Status', 'Start', 'End', ''].map(h => (
+                  {['Projet', 'Client', 'Statut', 'Début', 'Fin', ''].map(h => (
                     <th key={h} className="text-left px-6 py-3 text-[11px] font-semibold text-ink-muted uppercase tracking-widest">{h}</th>
                   ))}
                 </tr>

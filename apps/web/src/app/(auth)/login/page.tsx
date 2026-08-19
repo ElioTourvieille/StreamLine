@@ -23,7 +23,7 @@ export default function LoginPage() {
       localStorage.setItem('sl_token', accessToken)
       router.push('/dashboard')
     } catch {
-      setError('Invalid email or password')
+      setError('E-mail ou mot de passe invalide')
     } finally {
       setLoading(false)
     }
@@ -45,26 +45,26 @@ export default function LoginPage() {
               <Compass className="w-6 h-6 text-white" />
             </div>
             <h1 className="text-xl font-semibold text-ink">StreamLine</h1>
-            <p className="text-ink-muted text-sm mt-1">Sign in to your studio</p>
+            <p className="text-ink-muted text-sm mt-1">Connectez-vous à votre studio</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-xs font-medium text-ink-dim mb-1.5 uppercase tracking-wide">
-                Email
+                E-mail
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
-                placeholder="you@studio.com"
+                placeholder="vous@studio.com"
                 required
                 className="w-full bg-bg border border-line rounded-md px-3 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-violet transition-colors"
               />
             </div>
             <div>
               <label className="block text-xs font-medium text-ink-dim mb-1.5 uppercase tracking-wide">
-                Password
+                Mot de passe
               </label>
               <input
                 type="password"
@@ -86,13 +86,13 @@ export default function LoginPage() {
               className="w-full bg-violet hover:bg-violet-hover text-white font-semibold py-2.5 rounded-md text-sm transition-colors flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-60"
             >
               {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-              Sign in
+              Se connecter
             </button>
           </form>
 
           <p className="text-center text-xs text-ink-muted mt-6">
-            Don&apos;t have an account?{' '}
-            <Link href="/register" className="text-violet-glow hover:underline">Create an account</Link>
+            Pas encore de compte ?{' '}
+            <Link href="/register" className="text-violet-glow hover:underline">Créer un compte</Link>
           </p>
         </motion.div>
       </div>
