@@ -78,12 +78,12 @@ export default function LandingPage() {
 
       {/* ── Hero ────────────────────────────────────────────────────────────── */}
       <section className="relative pt-32 pb-20 px-5 sm:px-8 text-center overflow-hidden"
-        style={{ background: 'radial-gradient(ellipse at 50% -10%, color-mix(in srgb, var(--color-violet) 42%, #131317) 0%, #131317 58%)' }}>
+        style={{ background: 'radial-gradient(ellipse at 50% -10%, color-mix(in srgb, var(--color-violet) 20%, #f7f7fb) 0%, #f7f7fb 58%)' }}>
 
         {/* Grid decoration */}
         <div className="absolute inset-0 pointer-events-none"
           style={{
-            backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)',
+            backgroundImage: 'linear-gradient(rgba(20,20,28,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(20,20,28,0.04) 1px, transparent 1px)',
             backgroundSize: '64px 64px',
           }} />
 
@@ -127,7 +127,7 @@ export default function LandingPage() {
           transition={{ duration: 0.65, delay: 0.32, ease: [0.16, 1, 0.3, 1] }}
           className="max-w-5xl mx-auto">
           <div className="rounded-xl border border-line overflow-hidden shadow-[0_0_80px_rgba(124,58,237,0.10)]"
-            style={{ background: '#0e0e12' }}>
+            style={{ background: '#EFF0F4' }}>
 
             {/* Browser chrome */}
             <div className="flex items-center gap-2 px-4 py-3 border-b border-line bg-bg">
@@ -194,9 +194,9 @@ export default function LandingPage() {
                     <p className="text-[10px] font-semibold text-ink-muted uppercase tracking-widest">Projets actifs</p>
                   </div>
                   {[
-                    { name: "Refonte L'ARC",   client: 'L\'ARC',  progress: 75, label: 'Dans les temps', c: 'text-success bg-success/15' },
-                    { name: 'Site Pictet Group', client: 'Pictet', progress: 40, label: 'En révision',   c: 'text-warning bg-warning/15' },
-                    { name: 'App Mobile Verso',  client: 'Verso',  progress: 20, label: 'Brouillon',     c: 'text-ink-muted bg-white/5' },
+                    { name: "Refonte L'ARC",   client: 'L\'ARC',  progress: 75, label: 'Dans les temps', c: 'text-success bg-success/8' },
+                    { name: 'Site Pictet Group', client: 'Pictet', progress: 40, label: 'En révision',   c: 'text-warning bg-warning/8' },
+                    { name: 'App Mobile Verso',  client: 'Verso',  progress: 20, label: 'Brouillon',     c: 'text-ink-muted bg-ink/5' },
                   ].map(p => (
                     <div key={p.name} className="flex items-center gap-3 px-3 py-2.5 border-b border-line last:border-0 hover:bg-surface-high transition-colors">
                       <p className="text-[11px] font-medium text-ink flex-1 truncate">{p.name}</p>
@@ -240,8 +240,8 @@ export default function LandingPage() {
                 </div>
                 {/* Right: desc + chips */}
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
-                  <p className="text-xs text-ink-muted leading-relaxed flex-1">{desc}</p>
-                  <div className="flex flex-wrap gap-2 shrink-0">
+                  <p className="text-xs text-ink-muted leading-relaxed flex-1 min-w-50">{desc}</p>
+                  <div className="flex flex-wrap gap-2 shrink-0 max-w-70 sm:justify-end">
                     {items.map(item => (
                       <span key={item} className={[
                         'flex items-center gap-1 text-[11px] rounded-md px-2 py-1',
@@ -288,7 +288,7 @@ export default function LandingPage() {
       <section className="px-5 sm:px-8 pb-28">
         <motion.div {...inView(0)}
           className="max-w-2xl mx-auto border border-violet/20 rounded-2xl p-10 sm:p-14 text-center"
-          style={{ background: 'radial-gradient(ellipse at 50% 0%, #2a1a4e50 0%, #1A1A24 65%)' }}>
+          style={{ background: 'radial-gradient(ellipse at 50% 0%, #ece3fb 0%, #ffffff 65%)' }}>
           <div className="w-12 h-12 rounded-xl bg-violet/10 border border-violet/20 flex items-center justify-center mx-auto mb-6">
             <Compass className="w-6 h-6 text-violet/70" />
           </div>

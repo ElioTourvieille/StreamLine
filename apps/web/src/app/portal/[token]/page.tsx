@@ -23,9 +23,9 @@ const TYPE_LABEL: Record<string, string> = {
 }
 
 const STATUS_STYLE: Record<string, string> = {
-  PENDING:           'bg-warning/15 text-warning',
-  APPROVED:          'bg-success/15 text-success',
-  CHANGES_REQUESTED: 'bg-danger/15 text-danger',
+  PENDING:           'bg-warning/8 text-warning',
+  APPROVED:          'bg-success/8 text-success',
+  CHANGES_REQUESTED: 'bg-danger/8 text-danger',
 }
 
 const STATUS_LABEL: Record<string, string> = {
@@ -150,8 +150,8 @@ function DeliverableCard({
                 transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
                 className={`flex items-center gap-3 p-4 rounded-xl ${
                   currentStatus === 'APPROVED'
-                    ? 'bg-success/10 border border-success/30'
-                    : 'bg-warning/10 border border-warning/30'
+                    ? 'bg-success/8 border border-success/30'
+                    : 'bg-warning/8 border border-warning/30'
                 }`}
               >
                 <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}
@@ -181,7 +181,7 @@ function DeliverableCard({
                     className="w-full bg-bg border border-line rounded-xl px-3 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-violet transition-colors resize-none" />
                   <button onClick={() => handle('CHANGES_REQUESTED')}
                     disabled={!!loading || !comment.trim()}
-                    className="flex items-center justify-center gap-2 w-full bg-warning/15 hover:bg-warning/25 border border-warning/40 text-warning font-semibold py-3 rounded-xl transition-colors active:scale-[0.98] disabled:opacity-40 text-sm">
+                    className="flex items-center justify-center gap-2 w-full bg-warning/8 hover:bg-warning/15 border border-warning/40 text-warning font-semibold py-3 rounded-xl transition-colors active:scale-[0.98] disabled:opacity-40 text-sm">
                     {loading === 'CHANGES_REQUESTED' ? <Loader2 className="w-4 h-4 animate-spin" /> : <RotateCcw className="w-4 h-4" />}
                     Demander des modifications
                   </button>
@@ -347,21 +347,21 @@ export default function PortalPage() {
           transition={{ duration: 0.4, delay: 0.12 }}
           className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6 sm:mb-8"
         >
-          <div className="bg-surface border border-line border-l-4 border-l-warning rounded-xl p-4">
+          <div className="bg-surface border border-line rounded-xl p-4">
             <p className="text-[11px] font-semibold text-warning uppercase tracking-widest mb-1">Validations</p>
             <p className="text-2xl font-bold text-ink mb-2">{pending} en attente</p>
             {pending > 0 && (
-              <a href="#deliverables" className="text-sm font-semibold text-warning hover:text-amber-400 transition-colors">
+              <a href="#deliverables" className="text-sm font-semibold text-warning hover:opacity-75 transition-opacity">
                 Voir maintenant →
               </a>
             )}
           </div>
-          <div className="bg-surface border border-line border-l-4 border-l-success rounded-xl p-4">
+          <div className="bg-surface border border-line rounded-xl p-4">
             <p className="text-[11px] font-semibold text-success uppercase tracking-widest mb-1">Approuvés</p>
             <p className="text-2xl font-bold text-ink mb-2">{approved} livrable{approved !== 1 ? 's' : ''}</p>
             <span className="text-sm font-semibold text-success">{approved > 0 ? 'Belle progression !' : 'Rien pour l’instant'}</span>
           </div>
-          <div className="bg-surface border border-line border-l-4 border-l-info rounded-xl p-4">
+          <div className="bg-surface border border-line rounded-xl p-4">
             <p className="text-[11px] font-semibold text-info uppercase tracking-widest mb-1">Total</p>
             <p className="text-2xl font-bold text-ink mb-2">{allDeliverables.length} élément{allDeliverables.length !== 1 ? 's' : ''}</p>
             <span className="text-sm text-ink-muted">Dans ce projet</span>

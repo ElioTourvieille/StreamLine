@@ -37,7 +37,7 @@ export default function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-bg flex items-center justify-center p-4"
-      style={{ background: 'radial-gradient(ellipse at 50% 0%, #2a1a4e 0%, #131317 60%)' }}>
+      style={{ background: 'radial-gradient(ellipse at 50% 0%, #ece3fb 0%, #f7f7fb 60%)' }}>
       <div className="w-full max-w-sm">
         <motion.div
           initial={{ opacity: 0, y: 16 }}

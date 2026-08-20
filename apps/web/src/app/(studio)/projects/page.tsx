@@ -9,10 +9,10 @@ import { useApiData } from '@/lib/hooks'
 import { formatDate } from '@/lib/format'
 
 const STATUS_STYLE: Record<string, string> = {
-  ON_TRACK:   'bg-success/15 text-success',
-  AT_RISK:    'bg-warning/15 text-warning',
-  OVERDUE:    'bg-danger/15 text-danger',
-  COMPLETED:  'bg-info/15 text-info',
+  ON_TRACK:   'bg-success/8 text-success',
+  AT_RISK:    'bg-warning/8 text-warning',
+  OVERDUE:    'bg-danger/8 text-danger',
+  COMPLETED:  'bg-info/8 text-info',
   IN_PROGRESS:'bg-violet/15 text-violet-glow',
 }
 
@@ -122,7 +122,7 @@ export default function ProjectsPage() {
                       <p className="text-sm font-medium text-ink truncate">{p.name}</p>
                       <p className="text-xs text-ink-muted truncate mt-0.5">{client?.company ?? client?.name ?? '—'}</p>
                     </div>
-                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${STATUS_STYLE[p.status] ?? 'bg-white/5 text-ink-muted'}`}>
+                    <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${STATUS_STYLE[p.status] ?? 'bg-ink/5 text-ink-muted'}`}>
                       {STATUS_LABEL[p.status] ?? p.status}
                     </span>
                   </Link>
@@ -159,7 +159,7 @@ export default function ProjectsPage() {
                         <span className="text-sm text-ink-muted">{client?.company ?? client?.name ?? '—'}</span>
                       </td>
                       <td className="px-6">
-                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${STATUS_STYLE[p.status] ?? 'bg-white/5 text-ink-muted'}`}>
+                        <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${STATUS_STYLE[p.status] ?? 'bg-ink/5 text-ink-muted'}`}>
                           <span className="w-1.5 h-1.5 rounded-full bg-current" />
                           {STATUS_LABEL[p.status] ?? p.status}
                         </span>

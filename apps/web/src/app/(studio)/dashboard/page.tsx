@@ -47,11 +47,11 @@ const STATUS_DISPLAY: Record<string, { label: string; dot: string }> = {
 }
 
 const STATUS_STYLE: Record<string, string> = {
-  DRAFT:     'bg-white/5 text-ink-muted',
-  ACTIVE:    'bg-success/15 text-success',
-  REVIEW:    'bg-warning/15 text-warning',
-  COMPLETED: 'bg-white/10 text-ink-muted',
-  ARCHIVED:  'bg-white/5 text-ink-muted',
+  DRAFT:     'bg-ink/5 text-ink-muted',
+  ACTIVE:    'bg-success/8 text-success',
+  REVIEW:    'bg-warning/8 text-warning',
+  COMPLETED: 'bg-ink/8 text-ink-muted',
+  ARCHIVED:  'bg-ink/5 text-ink-muted',
 }
 
 const PROGRESS_COLOR: Record<string, string> = {
@@ -219,7 +219,7 @@ export default function DashboardPage() {
 
   const STAT_CARDS = [
     { label: 'Projets actifs',        value: stats.activeProjects,      color: 'text-violet-glow',  alert: null },
-    { label: 'Validations en attente', value: stats.pendingValidations,  color: 'text-warning',      alert: stats.pendingValidations > 0 ? 'Attention requise' : null, alertStyle: 'bg-warning/15 text-warning' },
+    { label: 'Validations en attente', value: stats.pendingValidations,  color: 'text-warning',      alert: stats.pendingValidations > 0 ? 'Attention requise' : null, alertStyle: 'bg-warning/8 text-warning' },
     { label: 'Jalons terminés',       value: stats.completedMilestones, color: 'text-success',       alert: null },
     { label: 'Total clients',         value: stats.totalClients,        color: 'text-ink',           alert: null },
   ]
@@ -305,10 +305,10 @@ export default function DashboardPage() {
                             <p className="text-xs text-ink-muted mt-0.5">{client?.company ?? client?.name ?? '—'}</p>
                           </div>
                           <div className="flex items-center gap-2.5 shrink-0 ml-3">
-                            <div className="h-1.5 w-14 rounded-full bg-white/10">
+                            <div className="h-1.5 w-14 rounded-full bg-ink/10">
                               <div className={`h-full rounded-full ${PROGRESS_COLOR[p.status] ?? 'bg-violet'}`} style={{ width: `${progress}%` }} />
                             </div>
-                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${STATUS_STYLE[p.status] ?? 'bg-white/5 text-ink-muted'}`}>
+                            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${STATUS_STYLE[p.status] ?? 'bg-ink/5 text-ink-muted'}`}>
                               {STATUS_DISPLAY[p.status]?.label ?? p.status}
                             </span>
                           </div>
@@ -341,14 +341,14 @@ export default function DashboardPage() {
                             <td className="px-6 text-sm text-ink-muted">{client?.company ?? client?.name ?? '—'}</td>
                             <td className="px-6">
                               <div className="flex items-center gap-2.5">
-                                <div className="h-1.5 w-20 rounded-full bg-white/10">
+                                <div className="h-1.5 w-20 rounded-full bg-ink/10">
                                   <div className={`h-full rounded-full ${PROGRESS_COLOR[p.status] ?? 'bg-violet'}`} style={{ width: `${progress}%` }} />
                                 </div>
                                 <span className="text-xs text-ink-muted">{progress}%</span>
                               </div>
                             </td>
                             <td className="px-6">
-                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${STATUS_STYLE[p.status] ?? 'bg-white/5 text-ink-muted'}`}>
+                              <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${STATUS_STYLE[p.status] ?? 'bg-ink/5 text-ink-muted'}`}>
                                 <span className={`w-1.5 h-1.5 rounded-full ${STATUS_DISPLAY[p.status]?.dot ?? 'bg-ink-muted'}`} />
                                 {STATUS_DISPLAY[p.status]?.label ?? p.status}
                               </span>

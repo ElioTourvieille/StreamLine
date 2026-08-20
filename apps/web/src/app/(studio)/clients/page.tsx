@@ -13,11 +13,11 @@ import { useApiData } from '@/lib/hooks'
 // ─── Status config ────────────────────────────────────────────────────────────
 
 const STATUS_CONFIG: Record<ClientStatus, { label: string; className: string }> = {
-  ACTIVE:      { label: 'Actif',        className: 'bg-success/15 text-success border-success/30' },
-  FOLLOW_UP:   { label: 'À relancer',   className: 'bg-warning/15 text-warning border-warning/30' },
-  MAINTENANCE: { label: 'Maintenance',  className: 'bg-blue/15 text-blue-400 border-blue-400/30' },
+  ACTIVE:      { label: 'Actif',        className: 'bg-success/8 text-success border-success/30' },
+  FOLLOW_UP:   { label: 'À relancer',   className: 'bg-warning/8 text-warning border-warning/30' },
+  MAINTENANCE: { label: 'Maintenance',  className: 'bg-info/8 text-info border-info/30' },
   COMPLETED:   { label: 'Terminé',      className: 'bg-violet/15 text-violet-glow border-violet/30' },
-  ARCHIVED:    { label: 'Archivé',      className: 'bg-white/5 text-ink-muted border-line' },
+  ARCHIVED:    { label: 'Archivé',      className: 'bg-ink/5 text-ink-muted border-line' },
 }
 
 const TABS: { key: ClientStatus | 'ALL'; label: string }[] = [

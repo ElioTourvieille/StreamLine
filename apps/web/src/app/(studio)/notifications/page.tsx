@@ -34,11 +34,11 @@ function filterByTab(notifs: Notification[], tab: Tab): Notification[] {
   return notifs
 }
 
-const TYPE_CONFIG: Record<Notification['type'], { border: string; icon: React.ElementType; iconColor: string }> = {
-  deliverable_approved: { border: 'border-l-success', icon: ThumbsUp, iconColor: 'text-success' },
-  deliverable_changes: { border: 'border-l-warning', icon: AlertCircle, iconColor: 'text-warning' },
-  invite_accepted: { border: 'border-l-blue-500', icon: UserCheck, iconColor: 'text-blue-400' },
-  system: { border: 'border-l-ink-muted', icon: Bell, iconColor: 'text-ink-muted' },
+const TYPE_CONFIG: Record<Notification['type'], { icon: React.ElementType; iconColor: string }> = {
+  deliverable_approved: { icon: ThumbsUp, iconColor: 'text-success' },
+  deliverable_changes: { icon: AlertCircle, iconColor: 'text-warning' },
+  invite_accepted: { icon: UserCheck, iconColor: 'text-info' },
+  system: { icon: Bell, iconColor: 'text-ink-muted' },
 }
 
 // ─── NotifItem ────────────────────────────────────────────────────────────────
@@ -50,12 +50,12 @@ function NotifItem({
   notif: Notification
   onRead: (id: string, projectId?: string) => void
 }) {
-  const { border, icon: Icon, iconColor } = TYPE_CONFIG[notif.type] ?? TYPE_CONFIG.system
+  const { icon: Icon, iconColor } = TYPE_CONFIG[notif.type] ?? TYPE_CONFIG.system
 
   return (
     <button
       onClick={() => onRead(notif.id, notif.projectId)}
-      className={`w-full text-left flex items-start gap-4 px-5 py-4 border-b border-line border-l-4 ${border} transition-colors hover:bg-surface-high ${
+      className={`w-full text-left flex items-start gap-4 px-5 py-4 border-b border-line transition-colors hover:bg-surface-high ${
         notif.isRead ? 'opacity-60' : ''
       }`}
     >
