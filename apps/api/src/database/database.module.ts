@@ -11,7 +11,7 @@ const DYNAMO_CLIENT = 'DYNAMO_CLIENT'
       provide: DYNAMO_CLIENT,
       useFactory: () => {
         const client = new DynamoDBClient({
-          region: process.env.AWS_REGION ?? 'eu-west-3',
+          region: process.env.AWS_REGION ?? 'eu-central-2',
           ...(process.env.DYNAMODB_ENDPOINT
             ? { endpoint: process.env.DYNAMODB_ENDPOINT }
             : {}),

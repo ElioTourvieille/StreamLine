@@ -14,7 +14,8 @@
     "lint": "pnpm --parallel --filter web --filter api lint",
     "typecheck": "pnpm --parallel --filter web --filter api typecheck",
     "db:setup": "pnpm --filter api db:setup",
-    "db:setup:local": "DYNAMODB_ENDPOINT=http://localhost:8000 pnpm --filter api db:setup"
+    "db:setup:local": "DYNAMODB_ENDPOINT=http://localhost:8000 pnpm --filter api db:setup",
+    "s3:setup": "pnpm --filter api s3:setup"
   },
   "devDependencies": {
     "typescript": "^5.5.4"

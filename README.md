@@ -35,8 +35,9 @@ pnpm install
 cp apps/api/.env.example apps/api/.env        # fill AWS + JWT keys
 cp apps/web/.env.local.example apps/web/.env.local  # fill ANTHROPIC_API_KEY
 
-# 4. Provision DynamoDB table
+# 4. Provision DynamoDB table and the S3 bucket for deliverable uploads
 pnpm db:setup
+pnpm s3:setup
 
 # 5. Start development servers (web :3000 · api :3001)
 pnpm dev
@@ -46,12 +47,13 @@ pnpm dev
 
 **`apps/api/.env`**
 ```env
-AWS_REGION=eu-west-1
+AWS_REGION=eu-central-2   # Zurich — Swiss data residency
 AWS_ACCESS_KEY_ID=...
 AWS_SECRET_ACCESS_KEY=...
-DYNAMODB_TABLE_NAME=streamline-dev
+DYNAMO_TABLE=streamline
+S3_BUCKET=...            # deliverable file uploads — see pnpm s3:setup
 JWT_SECRET=...
-FRONTEND_URL=http://localhost:3000
+WEB_URL=http://localhost:3000
 RESEND_API_KEY=re_...   # optional in dev
 ```
 

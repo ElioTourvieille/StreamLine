@@ -28,4 +28,10 @@ export class PortalController {
   ) {
     return this.portalService.validateDeliverable(token, id, dto)
   }
+
+  @Throttle(PORTAL_THROTTLE)
+  @Get(':token/deliverables/:id/file-url')
+  getFileUrl(@Param('token') token: string, @Param('id') id: string) {
+    return this.portalService.getDeliverableFileUrl(token, id)
+  }
 }

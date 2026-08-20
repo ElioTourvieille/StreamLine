@@ -103,7 +103,7 @@ INVITE#{token}       | METADATA + TTL 90j              → Token portal client
 - Auth JWT (register + login + me) avec création automatique d'organisation
 - Clients : CRUD complet + invitation portal (génère token DynamoDB)
 - Projets : CRUD + milestones + membres
-- Livrables : create + list + workflow (approve / request changes)
+- Livrables : create + list + workflow (approve / request changes) + upload de fichiers réels (S3, URLs pré-signées, bucket privé)
 - Portail client public `/portal/[token]` : accès par token, validations, animations Framer Motion, error states
 - AI Proposal Generator `/ai-generator` : Claude Opus 4.8, streaming temps réel, rendu markdown, download `.md`
 - Email via Resend (lazy-loaded — fonctionne sans la clé en dev)
@@ -124,6 +124,7 @@ INVITE#{token}       | METADATA + TTL 90j              → Token portal client
 
 - `ANTHROPIC_API_KEY` dans `apps/web/.env.local` (placeholder)
 - DynamoDB table à provisionner : `pnpm db:setup`
+- Bucket S3 à provisionner : `pnpm s3:setup` (sinon l'upload de fichiers échoue proprement avec une erreur 503, l'app démarre quand même)
 - Credentials AWS dans `apps/api/.env`
 
 ---
@@ -142,10 +143,13 @@ INVITE#{token}       | METADATA + TTL 90j              → Token portal client
 | POST/GET/PATCH/DELETE | `/api/projects` | ✅ | STUDIO |
 | POST/PATCH | `/api/projects/:id/milestones` | ✅ | STUDIO |
 | POST/GET | `/api/deliverables` | ✅ | STUDIO/CLIENT |
+| POST | `/api/deliverables/upload-url` | ✅ | STUDIO |
+| GET | `/api/deliverables/:id/file-url` | ✅ | STUDIO/CLIENT |
 | GET/PATCH | `/api/users/me` | ✅ | any |
 | GET/POST/DELETE | `/api/projects/:id/members` | ✅ | STUDIO |
 | GET | `/api/portal/:token` | ❌ | public |
 | POST | `/api/portal/:token/deliverables/:id/validate` | ❌ | public |
+| GET | `/api/portal/:token/deliverables/:id/file-url` | ❌ | public |
 
 ---
 
@@ -162,6 +166,7 @@ pnpm dev:api          # NestJS seul (port 3001)
 
 # DB
 pnpm db:setup         # Provisioning DynamoDB (à faire une fois)
+pnpm s3:setup          # Provisioning du bucket S3 pour les livrables (à faire une fois)
 
 # Build
 pnpm build
@@ -183,13 +188,14 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 
 ### apps/api/.env
 ```env
-AWS_REGION=eu-west-1
+AWS_REGION=eu-central-2               # Zurich — résidence des données en Suisse
 AWS_ACCESS_KEY_ID=...                 # ← à remplir
 AWS_SECRET_ACCESS_KEY=...             # ← à remplir
-DYNAMODB_TABLE_NAME=streamline-dev
+DYNAMO_TABLE=streamline
 DYNAMODB_ENDPOINT=http://localhost:8000   # local uniquement
+S3_BUCKET=...                         # ← à remplir (upload de livrables, pnpm s3:setup)
 RESEND_API_KEY=re_...                 # optionnel en dev
-FRONTEND_URL=http://localhost:3000
+WEB_URL=http://localhost:3000
 JWT_SECRET=...                        # ← à remplir
 ```
 

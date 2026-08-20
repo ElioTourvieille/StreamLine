@@ -5,11 +5,11 @@ import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   CheckCircle2, Circle, RotateCcw, Compass, MessageSquare,
-  ExternalLink, Loader2, Check, AlertTriangle,
+  ExternalLink, Loader2, Check, AlertTriangle, Download,
 } from 'lucide-react'
 import { api, type Deliverable, type PortalContext } from '@/lib/api'
 import { useApiData } from '@/lib/hooks'
-import { formatDate } from '@/lib/format'
+import { formatDate, formatFileSize } from '@/lib/format'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -51,6 +51,19 @@ function DeliverableCard({
   const [loading, setLoading]           = useState<string | null>(null)
   const [done, setDone]                 = useState(d.status !== 'PENDING')
   const [currentStatus, setCurrentStatus] = useState(d.status)
+  const [downloading, setDownloading]   = useState(false)
+
+  async function handleDownload() {
+    setDownloading(true)
+    try {
+      const { url } = await api.portal.getFileUrl(token, d.id)
+      window.open(url, '_blank', 'noopener,noreferrer')
+    } catch {
+      // silent — button just stops spinning, user can retry
+    } finally {
+      setDownloading(false)
+    }
+  }
 
   async function handle(action: 'APPROVED' | 'CHANGES_REQUESTED') {
     if (action === 'CHANGES_REQUESTED' && !comment.trim()) return
@@ -105,11 +118,29 @@ function DeliverableCard({
             </div>
           )}
 
-          {d.previewUrl ? (
-            <a href={d.previewUrl} target="_blank" rel="noopener noreferrer"
-              className="flex items-center gap-2 text-sm text-violet-glow hover:underline">
-              <ExternalLink className="w-4 h-4" />Ouvrir l’aperçu
-            </a>
+          {d.fileKey || d.previewUrl ? (
+            <div className="space-y-2">
+              {d.fileKey && (
+                <button onClick={() => { void handleDownload() }} disabled={downloading}
+                  className="flex items-center gap-3 w-full bg-surface-high border border-line rounded-lg p-3 hover:border-violet/40 transition-colors text-left disabled:opacity-60">
+                  <div className="w-9 h-9 rounded-lg bg-violet/10 border border-violet/20 flex items-center justify-center shrink-0">
+                    {downloading
+                      ? <Loader2 className="w-4 h-4 text-violet animate-spin" />
+                      : <Download className="w-4 h-4 text-violet" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-ink truncate">{d.fileName ?? 'Fichier joint'}</p>
+                    <p className="text-xs text-ink-faint">{formatFileSize(d.fileSize)}</p>
+                  </div>
+                </button>
+              )}
+              {d.previewUrl && (
+                <a href={d.previewUrl} target="_blank" rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm text-violet-glow hover:underline">
+                  <ExternalLink className="w-4 h-4" />Ouvrir l’aperçu
+                </a>
+              )}
+            </div>
           ) : (
             <div className="h-32 bg-surface-high border border-dashed border-line rounded-lg flex items-center justify-center">
               <p className="text-sm text-ink-faint">Aucun aperçu joint</p>
