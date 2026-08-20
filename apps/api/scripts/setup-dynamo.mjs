@@ -44,7 +44,7 @@ try {
 // ── Config ───────────────────────────────────────────────────────────────────
 
 const TABLE = process.env.DYNAMO_TABLE ?? 'streamline'
-const REGION = process.env.AWS_REGION ?? 'eu-west-3'
+const REGION = process.env.AWS_REGION ?? 'eu-central-2'
 const ENDPOINT = process.env.DYNAMODB_ENDPOINT // undefined → AWS
 
 const client = new DynamoDBClient({

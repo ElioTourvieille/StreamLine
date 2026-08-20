@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, Inject } from '@nestjs/common'
+import { Injectable, NotFoundException, ForbiddenException, Inject } from '@nestjs/common'
 import {
   DynamoDBDocumentClient, GetCommand, QueryCommand,
 } from '@aws-sdk/lib-dynamodb'
@@ -83,6 +83,34 @@ export class PortalService {
     return this.deliverablesSvc.validate(deliverableId, dto, {
       name: tokenItem.name,
       email: tokenItem.email,
+    })
+  }
+
+  async getDeliverableFileUrl(token: string, deliverableId: string) {
+    const tokenItem = await this.resolveToken(token)
+    const deliverable = await this.deliverablesSvc.findById(deliverableId)
+
+    // The deliverable must belong to a project owned by *this* token's
+    // client — findById alone doesn't scope by client, so a valid-but-
+    // unrelated deliverable ID must not leak another client's file.
+    const projectResult = await this.db.send(
+      new QueryCommand({
+        TableName: TABLE,
+        IndexName: 'GSI2',
+        KeyConditionExpression: 'GSI2PK = :pk',
+        ExpressionAttributeValues: { ':pk': `PROJECT#${String(deliverable.projectId)}` },
+        Limit: 1,
+      }),
+    )
+    const project = projectResult.Items?.[0]
+    if (!project || project.clientId !== tokenItem.clientId) {
+      throw new ForbiddenException()
+    }
+
+    return this.deliverablesSvc.getFileUrl(deliverableId, {
+      sub: tokenItem.clientId,
+      email: tokenItem.email,
+      role: Role.CLIENT,
     })
   }
 }

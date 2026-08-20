@@ -16,3 +16,16 @@ export function formatDateLong(input?: string | number | Date | null): string {
   if (Number.isNaN(d.getTime())) return '—'
   return d.toLocaleDateString('fr-CH', { year: 'numeric', month: 'long', day: 'numeric' })
 }
+
+/** "2.4 Mo" — file size, French-labelled binary units. */
+export function formatFileSize(bytes?: number): string {
+  if (!bytes || bytes <= 0) return '—'
+  const units = ['o', 'Ko', 'Mo', 'Go']
+  let value = bytes
+  let i = 0
+  while (value >= 1024 && i < units.length - 1) {
+    value /= 1024
+    i++
+  }
+  return `${value < 10 && i > 0 ? value.toFixed(1) : Math.round(value)} ${units[i]}`
+}

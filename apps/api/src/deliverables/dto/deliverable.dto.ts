@@ -1,10 +1,11 @@
-import { IsString, IsNotEmpty, IsOptional, IsEnum, IsUUID, IsDateString } from 'class-validator'
+import { IsString, IsNotEmpty, IsOptional, IsEnum, IsUUID, IsDateString, IsInt, Min, MaxLength } from 'class-validator'
 
 export enum DeliverableType {
   DESIGN_APPROVAL = 'DESIGN_APPROVAL',
   DOCUMENT = 'DOCUMENT',
   ASSET = 'ASSET',
   PROTOTYPE = 'PROTOTYPE',
+  VIDEO = 'VIDEO',
   OTHER = 'OTHER',
 }
 
@@ -22,9 +23,23 @@ export class CreateDeliverableDto {
   @IsString() @IsOptional() description?: string
   @IsString() @IsOptional() previewUrl?: string
   @IsDateString() @IsOptional() deadline?: string
+
+  // Set together after a successful presigned upload (see StorageService).
+  // A deliverable can carry a file, a previewUrl link, both, or neither.
+  @IsString() @IsOptional() fileKey?: string
+  @IsString() @IsOptional() @MaxLength(255) fileName?: string
+  @IsInt() @Min(0) @IsOptional() fileSize?: number
+  @IsString() @IsOptional() mimeType?: string
 }
 
 export class ValidateDeliverableDto {
   @IsEnum(DeliverableStatus) action!: DeliverableStatus.APPROVED | DeliverableStatus.CHANGES_REQUESTED
   @IsString() @IsOptional() comment?: string
+}
+
+export class RequestUploadUrlDto {
+  @IsUUID() projectId!: string
+  @IsString() @IsNotEmpty() @MaxLength(255) fileName!: string
+  @IsString() @IsNotEmpty() contentType!: string
+  @IsInt() @Min(0) @IsOptional() fileSize?: number
 }

@@ -6,11 +6,14 @@ import { useParams } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   ArrowLeft, CheckCircle2, Circle, AlertCircle, FileText,
-  MessageSquare, Loader2, Plus, X, Users, Play, Check,
+  MessageSquare, Loader2, Plus, X, Users, Play, Check, Paperclip, Download,
 } from 'lucide-react'
-import { api, type Deliverable, type Milestone } from '@/lib/api'
+import { api, uploadFileToS3, type Deliverable, type Milestone } from '@/lib/api'
 import { useApiData } from '@/lib/hooks'
-import { formatDate } from '@/lib/format'
+import { formatDate, formatFileSize } from '@/lib/format'
+
+const UPLOAD_ACCEPT = '.pdf,.zip,.doc,.docx,.ppt,.pptx,.xls,.xlsx,image/png,image/jpeg,image/webp,image/gif,video/mp4,video/quicktime,video/webm'
+const MAX_UPLOAD_MB = 200
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -65,14 +68,43 @@ function NewDeliverableModal({
   onSave: (d: Deliverable) => void
 }) {
   const [form, setForm] = useState({ title: '', type: 'DESIGN_APPROVAL', description: '', previewUrl: '', deadline: '' })
+  const [file, setFile] = useState<File | null>(null)
+  const [fileError, setFileError] = useState('')
   const [loading, setLoading] = useState(false)
+  const [uploadStep, setUploadStep] = useState<'idle' | 'uploading' | 'saving'>('idle')
   const [error, setError] = useState('')
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const picked = e.target.files?.[0] ?? null
+    setFileError('')
+    if (picked && picked.size > MAX_UPLOAD_MB * 1024 * 1024) {
+      setFileError(`Le fichier dépasse la limite de ${MAX_UPLOAD_MB} Mo.`)
+      setFile(null)
+      return
+    }
+    setFile(picked)
+  }
 
   async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault()
     setLoading(true)
     setError('')
     try {
+      let fileFields: { fileKey?: string; fileName?: string; fileSize?: number; mimeType?: string } = {}
+
+      if (file) {
+        setUploadStep('uploading')
+        const { uploadUrl, fileKey } = await api.deliverables.requestUploadUrl({
+          projectId,
+          fileName: file.name,
+          contentType: file.type || 'application/octet-stream',
+          fileSize: file.size,
+        })
+        await uploadFileToS3(uploadUrl, file)
+        fileFields = { fileKey, fileName: file.name, fileSize: file.size, mimeType: file.type }
+      }
+
+      setUploadStep('saving')
       const d = await api.deliverables.create({
         projectId,
         title: form.title,
@@ -80,12 +112,14 @@ function NewDeliverableModal({
         description: form.description || undefined,
         previewUrl: form.previewUrl || undefined,
         deadline: form.deadline || undefined,
+        ...fileFields,
       })
       onSave(d)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors de la création du livrable')
     } finally {
       setLoading(false)
+      setUploadStep('idle')
     }
   }
 
@@ -124,10 +158,31 @@ function NewDeliverableModal({
               className="w-full bg-bg border border-line rounded-lg px-3 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-violet transition-colors resize-none" />
           </div>
           <div>
+            <label className="block text-xs font-medium text-ink-dim mb-1.5 uppercase tracking-wide">Fichier</label>
+            {file ? (
+              <div className="flex items-center gap-2 bg-bg border border-line rounded-lg px-3 py-2.5">
+                <Paperclip className="w-3.5 h-3.5 text-ink-faint shrink-0" />
+                <span className="text-sm text-ink flex-1 truncate">{file.name}</span>
+                <span className="text-xs text-ink-faint shrink-0">{formatFileSize(file.size)}</span>
+                <button type="button" onClick={() => setFile(null)} className="text-ink-faint hover:text-danger transition-colors shrink-0">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ) : (
+              <label className="flex items-center gap-2 bg-bg border border-dashed border-line rounded-lg px-3 py-2.5 text-sm text-ink-faint cursor-pointer hover:border-violet/40 transition-colors">
+                <Paperclip className="w-3.5 h-3.5 shrink-0" />
+                Joindre un fichier (PDF, image, vidéo, zip…)
+                <input type="file" accept={UPLOAD_ACCEPT} onChange={handleFileChange} className="hidden" />
+              </label>
+            )}
+            {fileError && <p className="text-danger text-xs mt-1.5">{fileError}</p>}
+          </div>
+          <div>
             <label className="block text-xs font-medium text-ink-dim mb-1.5 uppercase tracking-wide">URL de l’aperçu</label>
             <input type="url" placeholder="https://figma.com/..." value={form.previewUrl}
               onChange={e => setForm(f => ({ ...f, previewUrl: e.target.value }))}
               className="w-full bg-bg border border-line rounded-lg px-3 py-2.5 text-sm text-ink placeholder:text-ink-faint focus:outline-none focus:border-violet transition-colors" />
+            <p className="text-[11px] text-ink-faint mt-1.5">Optionnel — utile en complément du fichier, ou pour lier un Figma/prototype externe.</p>
           </div>
           <div>
             <label className="block text-xs font-medium text-ink-dim mb-1.5 uppercase tracking-wide">Échéance</label>
@@ -141,7 +196,8 @@ function NewDeliverableModal({
               className="flex-1 bg-surface-high border border-line text-ink-dim text-sm font-medium py-2.5 rounded-lg transition-colors">Annuler</button>
             <button type="submit" disabled={loading}
               className="flex-1 bg-violet hover:bg-violet-hover text-white text-sm font-semibold py-2.5 rounded-lg flex items-center justify-center gap-2 active:scale-[0.98] disabled:opacity-60">
-              {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}Envoyer la demande
+              {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              {uploadStep === 'uploading' ? 'Envoi du fichier…' : uploadStep === 'saving' ? 'Enregistrement…' : 'Envoyer la demande'}
             </button>
           </div>
         </form>
@@ -173,6 +229,15 @@ export default function ProjectDetailPage() {
   const milestones = localMilestones ?? project?.milestones ?? []
   const doneCount  = milestones.filter(m => m.status === 'COMPLETED').length
   const progress   = milestones.length > 0 ? Math.round(doneCount / milestones.length * 100) : 0
+
+  async function handleDownload(deliverableId: string) {
+    try {
+      const { url } = await api.deliverables.getFileUrl(deliverableId)
+      window.open(url, '_blank', 'noopener,noreferrer')
+    } catch {
+      // silent — the download button simply won't do anything on failure
+    }
+  }
 
   // Advance a milestone to its next state: PENDING → IN_PROGRESS → COMPLETED
   async function advanceMilestone(m: Milestone) {
@@ -366,6 +431,14 @@ export default function ProjectDetailPage() {
                       </td>
                       <td className="px-5 sm:px-6 text-sm text-ink-muted text-right hidden sm:table-cell">
                         {formatDate(d.deadline)}
+                      </td>
+                      <td className="px-5 sm:px-6 text-right">
+                        {d.fileKey && (
+                          <button onClick={() => handleDownload(d.id)} title={d.fileName ?? 'Télécharger le fichier'}
+                            className="text-ink-faint hover:text-violet transition-colors p-1">
+                            <Download className="w-3.5 h-3.5" />
+                          </button>
+                        )}
                       </td>
                     </motion.tr>
                   ))}

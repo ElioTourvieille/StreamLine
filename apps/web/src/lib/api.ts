@@ -22,6 +22,22 @@ export async function apiFetch<T = unknown>(path: string, opts?: RequestInit): P
   return res.json() as Promise<T>
 }
 
+/**
+ * PUTs a file straight to S3 via a presigned URL — bypasses our own API
+ * (no auth header, no JSON envelope, no apiFetch) so the file bytes never
+ * pass through our server.
+ */
+export async function uploadFileToS3(uploadUrl: string, file: File): Promise<void> {
+  const res = await fetch(uploadUrl, {
+    method: 'PUT',
+    headers: { 'Content-Type': file.type },
+    body: file,
+  })
+  if (!res.ok) {
+    throw new Error(`Échec de l'envoi du fichier (${res.status})`)
+  }
+}
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type AuthUser = { id: string; name: string; email: string; role: string }
@@ -73,6 +89,7 @@ export type ActivityEvent = {
 export type Deliverable = {
   id: string; projectId: string; title: string
   type: string; description?: string; previewUrl?: string
+  fileKey?: string; fileName?: string; fileSize?: number; mimeType?: string
   deadline?: string; status: string
   comments: Array<{ id: string; name: string; text: string; createdAt: string }>
 }
@@ -148,14 +165,26 @@ export const api = {
     list: (projectId: string) =>
       apiFetch<Deliverable[]>(`/deliverables?projectId=${projectId}`),
     get: (id: string) => apiFetch<Deliverable>(`/deliverables/${id}`),
-    create: (data: { title: string; projectId: string; type?: string; description?: string; previewUrl?: string; deadline?: string }) =>
+    create: (data: {
+      title: string; projectId: string; type?: string; description?: string
+      previewUrl?: string; deadline?: string
+      fileKey?: string; fileName?: string; fileSize?: number; mimeType?: string
+    }) =>
       apiFetch<Deliverable>('/deliverables', { method: 'POST', body: JSON.stringify(data) }),
+    requestUploadUrl: (data: { projectId: string; fileName: string; contentType: string; fileSize?: number }) =>
+      apiFetch<{ uploadUrl: string; fileKey: string }>('/deliverables/upload-url', {
+        method: 'POST',
+        body: JSON.stringify(data),
+      }),
+    getFileUrl: (id: string) => apiFetch<{ url: string }>(`/deliverables/${id}/file-url`),
   },
 
   portal: {
     get: (token: string) => apiFetch<PortalContext>(`/portal/${token}`),
     validate: (token: string, id: string, data: { action: string; comment?: string }) =>
       apiFetch(`/portal/${token}/deliverables/${id}/validate`, { method: 'POST', body: JSON.stringify(data) }),
+    getFileUrl: (token: string, id: string) =>
+      apiFetch<{ url: string }>(`/portal/${token}/deliverables/${id}/file-url`),
   },
 
   users: {

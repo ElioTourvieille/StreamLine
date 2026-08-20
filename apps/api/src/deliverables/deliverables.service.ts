@@ -8,8 +8,9 @@ import {
 import { v4 as uuidv4 } from 'uuid'
 import { DYNAMO_CLIENT } from '../database/database.module'
 import { NotificationsService } from '../notifications/notifications.service'
+import { StorageService } from '../storage/storage.service'
 import {
-  CreateDeliverableDto, ValidateDeliverableDto,
+  CreateDeliverableDto, ValidateDeliverableDto, RequestUploadUrlDto,
   DeliverableStatus, DeliverableType,
 } from './dto/deliverable.dto'
 import { JwtPayload, Role } from '../auth/dto/auth.dto'
@@ -21,6 +22,7 @@ export class DeliverablesService {
   constructor(
     @Inject(DYNAMO_CLIENT) private readonly db: DynamoDBDocumentClient,
     private readonly notify: NotificationsService,
+    private readonly storage: StorageService,
   ) {}
 
   async create(dto: CreateDeliverableDto, user: JwtPayload) {
@@ -40,6 +42,10 @@ export class DeliverablesService {
       type: dto.type ?? DeliverableType.OTHER,
       description: dto.description,
       previewUrl: dto.previewUrl,
+      fileKey: dto.fileKey,
+      fileName: dto.fileName,
+      fileSize: dto.fileSize,
+      mimeType: dto.mimeType,
       deadline: dto.deadline,
       status: DeliverableStatus.PENDING,
       comments: [],
@@ -54,6 +60,32 @@ export class DeliverablesService {
     this.notifyClientDeliverableReady(dto.projectId, dto.title).catch(() => {})
 
     return item
+  }
+
+  async requestUploadUrl(dto: RequestUploadUrlDto, user: JwtPayload) {
+    if (!user.organizationId) throw new BadRequestException('No organization')
+    return this.storage.getUploadUrl({
+      organizationId: user.organizationId,
+      projectId: dto.projectId,
+      fileName: dto.fileName,
+      contentType: dto.contentType,
+      fileSize: dto.fileSize,
+    })
+  }
+
+  async getFileUrl(id: string, user: JwtPayload) {
+    const deliverable = await this.findById(id)
+    if (!deliverable.fileKey) throw new NotFoundException('This deliverable has no file attached')
+
+    if (user.role === Role.STUDIO && deliverable.organizationId !== user.organizationId) {
+      throw new ForbiddenException()
+    }
+
+    const url = await this.storage.getDownloadUrl(
+      String(deliverable.fileKey),
+      deliverable.fileName ? String(deliverable.fileName) : undefined,
+    )
+    return { url }
   }
 
   async findByProject(projectId: string, user: JwtPayload) {

@@ -1,6 +1,6 @@
 import { Controller, Post, Get, Body, Param, Query, UseGuards } from '@nestjs/common'
 import { DeliverablesService } from './deliverables.service'
-import { CreateDeliverableDto } from './dto/deliverable.dto'
+import { CreateDeliverableDto, RequestUploadUrlDto } from './dto/deliverable.dto'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { RolesGuard } from '../auth/guards/roles.guard'
 import { Roles } from '../auth/decorators/roles.decorator'
@@ -18,6 +18,12 @@ export class DeliverablesController {
     return this.svc.create(dto, user)
   }
 
+  @Post('upload-url')
+  @Roles(Role.STUDIO)
+  requestUploadUrl(@Body() dto: RequestUploadUrlDto, @CurrentUser() user: JwtPayload) {
+    return this.svc.requestUploadUrl(dto, user)
+  }
+
   @Get()
   @Roles(Role.STUDIO, Role.CLIENT)
   findByProject(@Query('projectId') projectId: string, @CurrentUser() user: JwtPayload) {
@@ -28,5 +34,11 @@ export class DeliverablesController {
   @Roles(Role.STUDIO, Role.CLIENT)
   findOne(@Param('id') id: string) {
     return this.svc.findById(id)
+  }
+
+  @Get(':id/file-url')
+  @Roles(Role.STUDIO, Role.CLIENT)
+  getFileUrl(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.svc.getFileUrl(id, user)
   }
 }
