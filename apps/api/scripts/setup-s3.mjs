@@ -18,7 +18,6 @@
 import {
   S3Client,
   CreateBucketCommand,
-  HeadBucketCommand,
   PutPublicAccessBlockCommand,
   PutBucketCorsCommand,
   PutBucketEncryptionCommand,
@@ -68,27 +67,33 @@ console.log(`   CORS   : ${WEB_ORIGIN}\n`)
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-async function bucketExists() {
+/**
+ * Goes straight to CreateBucket instead of a separate HeadBucket pre-check.
+ * HeadBucket needs its own read permission and, on a bucket that doesn't
+ * exist yet, can come back as an ambiguous 403 in some regions/SDK versions
+ * (S3 deliberately doesn't distinguish "doesn't exist" from "no permission
+ * to know" for a caller without list rights) — CreateBucket's own
+ * BucketAlreadyOwnedByYou error is a much cleaner "already exists" signal.
+ */
+async function createBucket() {
+  console.log('🔨 Creating bucket (or confirming you already own it)...')
   try {
-    await client.send(new HeadBucketCommand({ Bucket: BUCKET }))
-    return true
+    await client.send(
+      new CreateBucketCommand({
+        Bucket: BUCKET,
+        ...(REGION !== 'us-east-1'
+          ? { CreateBucketConfiguration: { LocationConstraint: REGION } }
+          : {}),
+      }),
+    )
+    console.log('✅ Bucket created')
   } catch (err) {
-    if (err.name === 'NotFound' || err.$metadata?.httpStatusCode === 404) return false
+    if (err.name === 'BucketAlreadyOwnedByYou') {
+      console.log(`ℹ  Bucket "${BUCKET}" already exists and you own it — updating its config only`)
+      return
+    }
     throw err
   }
-}
-
-async function createBucket() {
-  console.log('🔨 Creating bucket...')
-  await client.send(
-    new CreateBucketCommand({
-      Bucket: BUCKET,
-      ...(REGION !== 'us-east-1'
-        ? { CreateBucketConfiguration: { LocationConstraint: REGION } }
-        : {}),
-    }),
-  )
-  console.log('✅ Bucket created')
 }
 
 async function blockPublicAccess() {
@@ -144,13 +149,7 @@ async function configureCors() {
 // ── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
-  const exists = await bucketExists()
-
-  if (exists) {
-    console.log(`ℹ  Bucket "${BUCKET}" already exists — updating its config only`)
-  } else {
-    await createBucket()
-  }
+  await createBucket()
 
   await blockPublicAccess()
   await enableEncryption()
@@ -165,5 +164,23 @@ async function main() {
 
 main().catch(err => {
   console.error('\n❌ Setup failed:', err.message ?? err)
+  console.error('   name           :', err.name)
+  console.error('   httpStatusCode :', err.$metadata?.httpStatusCode)
+  console.error('   requestId      :', err.$metadata?.requestId)
+  if (err.name === 'UnknownError' || err.name === 'Unknown') {
+    console.error(
+      '\n   An unrecognized error usually means the region is not enabled on this AWS\n' +
+      '   account. eu-central-2 (Zurich) is an "opt-in" region — enable it at:\n' +
+      '   https://console.aws.amazon.com/billing/home#/account (Account → AWS Regions)\n' +
+      '   then re-run this script. It can take a few minutes to activate.',
+    )
+  } else if (err.name === 'AccessDenied') {
+    console.error(
+      '\n   The IAM identity in AWS_ACCESS_KEY_ID lacks S3 permissions. Attach a policy\n' +
+      '   granting at least: s3:CreateBucket, s3:PutBucketPublicAccessBlock,\n' +
+      '   s3:PutEncryptionConfiguration, s3:PutBucketCors, s3:GetObject, s3:PutObject\n' +
+      '   on this bucket, then re-run this script.',
+    )
+  }
   process.exit(1)
 })
