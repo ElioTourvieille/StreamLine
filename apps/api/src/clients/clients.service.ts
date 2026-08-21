@@ -8,6 +8,7 @@ import {
 import {
   DynamoDBDocumentClient,
   PutCommand,
+  GetCommand,
   UpdateCommand,
   QueryCommand,
   DeleteCommand,
@@ -15,7 +16,7 @@ import {
 
 import { v4 as uuidv4 } from 'uuid'
 import { DYNAMO_CLIENT } from '../database/database.module'
-import { CreateClientDto, UpdateClientDto, InviteClientDto, ClientStatus } from './dto/client.dto'
+import { CreateClientDto, UpdateClientDto, InviteClientDto, CreateClientNoteDto, ClientStatus } from './dto/client.dto'
 import { JwtPayload, Role } from '../auth/dto/auth.dto'
 
 const TABLE = process.env.DYNAMO_TABLE ?? 'streamline'
@@ -175,6 +176,49 @@ export class ClientsService {
     const portalUrl = `${process.env.WEB_URL ?? 'http://localhost:3000'}/portal/${inviteToken}`
 
     return { inviteToken, portalUrl, email: dto.email }
+  }
+
+  // ─── Internal notes (studio-only, never visible to the client) ───────────
+
+  async addNote(id: string, dto: CreateClientNoteDto, user: JwtPayload) {
+    const client = await this.getClientById(id)
+    this.assertAccess(client, user)
+
+    const noteId = uuidv4()
+    const now = new Date().toISOString()
+    const author = await this.db.send(
+      new GetCommand({ TableName: TABLE, Key: { PK: `USER#${user.sub}`, SK: `USER#${user.sub}` } }),
+    )
+
+    const note = {
+      PK: `CLIENT#${id}`,
+      SK: `NOTE#${now}#${noteId}`,
+      id: noteId,
+      clientId: id,
+      organizationId: client.organizationId,
+      authorId: user.sub,
+      authorName: author.Item?.name ? String(author.Item.name) : user.email,
+      text: dto.text,
+      createdAt: now,
+    }
+
+    await this.db.send(new PutCommand({ TableName: TABLE, Item: note }))
+    return note
+  }
+
+  async listNotes(id: string, user: JwtPayload) {
+    const client = await this.getClientById(id)
+    this.assertAccess(client, user)
+
+    const result = await this.db.send(
+      new QueryCommand({
+        TableName: TABLE,
+        KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
+        ExpressionAttributeValues: { ':pk': `CLIENT#${id}`, ':sk': 'NOTE#' },
+        ScanIndexForward: false,
+      }),
+    )
+    return result.Items ?? []
   }
 
   async getClientById(id: string) {

@@ -11,7 +11,7 @@ import {
   HttpStatus,
 } from '@nestjs/common'
 import { ClientsService } from './clients.service'
-import { CreateClientDto, UpdateClientDto, InviteClientDto } from './dto/client.dto'
+import { CreateClientDto, UpdateClientDto, InviteClientDto, CreateClientNoteDto } from './dto/client.dto'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { RolesGuard } from '../auth/guards/roles.guard'
 import { Roles } from '../auth/decorators/roles.decorator'
@@ -66,5 +66,21 @@ export class ClientsController {
     @CurrentUser() user: JwtPayload,
   ) {
     return this.clientsService.invite(id, dto, user)
+  }
+
+  @Get(':id/notes')
+  @Roles(Role.STUDIO)
+  listNotes(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
+    return this.clientsService.listNotes(id, user)
+  }
+
+  @Post(':id/notes')
+  @Roles(Role.STUDIO)
+  addNote(
+    @Param('id') id: string,
+    @Body() dto: CreateClientNoteDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.clientsService.addNote(id, dto, user)
   }
 }
