@@ -1,7 +1,6 @@
 # CLAUDE.md — StreamLine
 
-> Fichier de contexte pour Claude Code. À placer à la racine du monorepo.  
-> Mis à jour : juin 2026
+> Fichier de contexte pour Claude Code. À placer à la racine du monorepo.
 
 ---
 
@@ -15,8 +14,9 @@ Il contient l'entrée de la dernière session : ce qui a été fait, ce qui bloq
 
 ## 🎯 Projet
 
-**StreamLine** est une plateforme B2B SaaS de suivi de projets pour studios web et agences digitales.  
-Soumis au hackathon **H0 (AWS + Vercel)** — deadline : **29 juin 2026, 17h00 PDT**.
+**StreamLine** est l'outil interne d'Origin Studio pour suivre ses projets clients — studios web et agences digitales en général, mais un seul studio (mono-tenant) pour l'instant : Origin Studio lui-même et ses vrais clients.
+
+Né comme soumission au hackathon H0 (AWS + Vercel, juin 2026), c'est maintenant un produit utilisé en interne — pas une démo. Priorité à la fiabilité et à la sécurité des données clients réelles, plus qu'au rythme de livraison de features.
 
 **Studio propriétaire :** Origin Studio (Genève, CH) — https://www.origin-studio.ch/
 
@@ -41,6 +41,7 @@ streamline/
 │   │       ├── users/          Profil utilisateur
 │   │       ├── notifications/  Resend email (lazy-loaded)
 │   │       ├── portal/         Routes publiques (no JWT)
+│   │       ├── storage/        S3 — URLs pré-signées upload/download
 │   │       └── database/       DynamoDB module
 │   └── web/                    Next.js 15 App Router — port 3000
 │       └── src/
@@ -62,13 +63,14 @@ streamline/
 
 | Couche | Techno | Notes |
 |--------|--------|-------|
-| Frontend | Next.js 15 (App Router) | Tailwind v4, dark theme |
+| Frontend | Next.js 15 (App Router) | Tailwind v4, thème clair, 100% français |
 | Backend | NestJS 10 | API REST, guards JWT |
-| Base de données | DynamoDB (AWS) | Single-table design, GSI1/GSI2, TTL 90j |
+| Base de données | DynamoDB (AWS, eu-central-2 Zurich) | Single-table design, GSI1/GSI2, TTL 90j |
+| Stockage fichiers | S3 (AWS, eu-central-2 Zurich) | Bucket privé, URLs pré-signées |
 | Auth | JWT maison | register + login + me |
 | AI | Claude Opus 4.8 via Anthropic API | Streaming temps réel |
 | Email | Resend | Magic links, notifications (lazy-loaded) |
-| Déploiement | Vercel (web) + AWS (api) | Requis H0 |
+| Déploiement | Vercel (web) + AWS Elastic Beanstalk (api) | — |
 
 ---
 
@@ -101,24 +103,17 @@ INVITE#{token}       | METADATA + TTL 90j              → Token portal client
 ### ✅ Terminé et fonctionnel
 
 - Auth JWT (register + login + me) avec création automatique d'organisation
-- Clients : CRUD complet + invitation portal (génère token DynamoDB)
+- Clients : CRUD complet + invitation portal (génère token DynamoDB, TTL 90j appliqué aussi côté lecture, pas juste au sweep DynamoDB)
 - Projets : CRUD + milestones + membres
-- Livrables : create + list + workflow (approve / request changes) + upload de fichiers réels (S3, URLs pré-signées, bucket privé)
-- Portail client public `/portal/[token]` : accès par token, validations, animations Framer Motion, error states
-- AI Proposal Generator `/ai-generator` : Claude Opus 4.8, streaming temps réel, rendu markdown, download `.md`
+- Livrables : create + list + workflow (approve / request changes) + upload de fichiers réels (S3, URLs pré-signées, bucket privé, jamais public)
+- Dashboard `/dashboard` : stats et activité réelles via `api.organizations.stats()`/`.activity()` — plus de données hardcodées
+- Sidebar : nom/organisation chargés dynamiquement via `api.auth.me()`
+- Pages `/documents`, `/messages`, `/settings` : construites (messages = threads par projet avec polling, settings = profil studio + compte)
+- Portail client public `/portal/[token]` : accès par token, validations, animations Framer Motion, error states, téléchargement de fichiers
+- AI Proposal Generator `/ai-generator` : Claude Opus 4.8, streaming temps réel, rendu markdown, download `.md`, envoi par e-mail au client
 - Email via Resend (lazy-loaded — fonctionne sans la clé en dev)
-- Design system : Tailwind v4, thème dark, responsive mobile, sidebar avec état actif
-
-### ⚠️ Partiellement fait (à wirer)
-
-- **Dashboard** `/dashboard` : UI + animations ✅ — stats hardcodées, pas de fetch réel
-- **Sidebar user info** : "Elio Rossi / Origin Studio" hardcodé — doit venir de `api.auth.me()`
-
-### ❌ Pages inexistantes (liens morts dans la sidebar)
-
-- `/documents` — page non créée
-- `/messages` — page non créée
-- `/settings` — page non créée
+- Design system : Tailwind v4, **thème clair** (voir `apps/web/DESIGN.md`), 100% français, responsive mobile
+- Sécurité : `JWT_SECRET` sans fallback (l'API refuse de démarrer si absent), rate limiting sur les routes publiques du portail
 
 ### ❌ Non configuré (bloquant en prod)
 
@@ -126,6 +121,7 @@ INVITE#{token}       | METADATA + TTL 90j              → Token portal client
 - DynamoDB table à provisionner : `pnpm db:setup`
 - Bucket S3 à provisionner : `pnpm s3:setup` (sinon l'upload de fichiers échoue proprement avec une erreur 503, l'app démarre quand même)
 - Credentials AWS dans `apps/api/.env`
+- Le déploiement Elastic Beanstalk réel tourne encore à Paris (`eu-west-3`) — le code par défaut sur `eu-central-2` (Zurich), mais migrer l'infra déployée est une action manuelle distincte (voir `docs/architecture.md`)
 
 ---
 
@@ -181,9 +177,10 @@ pnpm lint
 
 ### apps/web/.env.local
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXT_PUBLIC_API_URL=http://localhost:3001/api
 ANTHROPIC_API_KEY=sk-ant-...          # ← à remplir
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+RESEND_API_KEY=re_...                 # optionnel en dev — e-mail "Envoyer au client" de l'AI Generator
+EMAIL_DOMAIN=origin-studio.ch
 ```
 
 ### apps/api/.env
@@ -203,20 +200,9 @@ JWT_SECRET=...                        # ← à remplir
 
 ## 🎨 Design System
 
-Dark theme inspiré de Linear.app / Vercel dashboard.
+Thème clair inspiré de Linear.app / Vercel dashboard — "The Studio Desk" (a remplacé le thème sombre "Studio Monitor" du hackathon).
 
-```
-bg-primary    : #0F0F13
-bg-surface    : #1A1A24
-accent-purple : #7C3AED
-accent-blue   : #3B82F6
-warning       : #F59E0B
-danger        : #EF4444
-success       : #22C55E
-text-primary  : #F1F5F9
-text-muted    : #64748B
-border        : #2D2D3D
-```
+**La palette et les règles complètes vivent dans `apps/web/DESIGN.md`** (tokens vérifiés WCAG AA, composants, do's/don'ts) — ne pas dupliquer les couleurs ici, ce fichier part vite en drift. En résumé : violet `#7c3aed` comme seul accent, surfaces claires à 4 niveaux (page/sidebar/carte/hover), pas d'ombres.
 
 **Police :** Inter — **Radius :** 8px cards, 6px inputs, full badges  
 **Composants :** shadcn/ui — **Animations :** Framer Motion
@@ -249,14 +235,15 @@ border        : #2D2D3D
 
 1. **DynamoDB single-table** — penser PK/SK, pas de JOINs
 2. **Two-audience** — studio vs portail client public (no auth)
-3. **Hackathon** — fonctionnel > parfait. Les pages stubs avec empty state valent mieux que des liens morts
+3. **Mono-tenant pour l'instant** — pas de facturation multi-org, priorité à la robustesse plutôt qu'à l'isolation stricte entre studios (voir décision produit dans `PROGRESS.md`)
 4. **Magic links** — les clients accèdent via token, pas de JWT classique
-5. **Le flux démo ne doit jamais être cassé** :
+5. **Le flux principal ne doit jamais être cassé** — de vrais clients l'utilisent :
    ```
    register → dashboard → créer client → inviter → créer projet
    → créer livrable → portail client → approuver → retour dashboard
    ```
-6. **L'AI generator est le différenciateur** — il doit toujours streamer correctement
+6. **L'AI generator est le différenciateur** — il doit toujours streamer correctement, et générer en français
+7. **Sécurité avant vitesse** — ce projet gère de vraies données clients ; ne jamais réintroduire un fallback de secret par défaut, toujours vérifier le scoping par organisation sur les nouvelles routes
 
 ---
 
@@ -290,27 +277,18 @@ Le fichier `PROGRESS.md` à la racine du projet suit ce format :
 
 ---
 
-## 📋 Sessions restantes (voir SESSIONS.md)
+## 📋 Prochaines priorités
 
-Ordre de priorité pour tenir le 29 juin :
+La liste vivante des chantiers en cours vit dans `PROGRESS.md` (entrée la plus récente en haut). À date, les grands axes identifiés pour la transition hackathon → produit réel :
 
-| # | Session | Priorité |
-|---|---------|----------|
-| 1 | Env vars + DB setup + smoke test | 🔴 Critique |
-| 2 | Dashboard wiring (stats réelles + activité) | 🔴 Critique |
-| 3 | Sidebar user info via api.auth.me() | 🟠 Rapide |
-| 4 | Page /settings (org settings) | 🟠 Important |
-| 5 | Page /documents (stub + empty state) | 🟡 Hackathon |
-| 6 | Page /messages (stub + empty state) | 🟡 Hackathon |
-| 7 | Notifications center | 🟡 Hackathon |
-| 8 | Polish — empty states + animations manquantes | 🟢 UX |
-| 9 | Mobile responsive check + README + archi diagram | 🟢 Soumission |
-| 10 | Vidéo démo prep + soumission Devpost | 🔴 Deadline |
+- Multi-utilisateur par studio (inviter des collègues dans la même organisation)
+- Monitoring d'erreurs en prod (Sentry ou équivalent)
+- Plafond de coût sur l'usage de l'AI Generator
+- Domaine custom + migration de l'infra déployée vers `eu-central-2` (Zurich)
 
 ---
 
 ## 🔗 Ressources
 
-- Hackathon : https://h01.devpost.com — deadline **29 juin 17h00 PDT**
 - DynamoDB docs : https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/
 - Studio : https://www.origin-studio.ch/

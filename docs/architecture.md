@@ -125,7 +125,7 @@ sequenceDiagram
 
 ## AWS Setup Required
 
-> **For H0 submission:** Two screenshots from the AWS Console (eu-west-3).
+> Reference screenshots from the AWS Console — useful to sanity-check your own table after `pnpm db:setup`.
 
 ### Table overview (Paramètres tab)
 ![DynamoDB table — streamline, Active, Pay per request](./dynamo-screenshot.png)

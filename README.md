@@ -4,8 +4,7 @@
 
 StreamLine gives studios a single workspace to manage clients, projects, and deliverables — while giving clients a frictionless portal (no account required) to review progress and approve work.
 
-Built for the [H0 Hackathon](https://h01.devpost.com) · Deadline 29 June 2026  
-By **Origin Studio** · Geneva, CH · [origin-studio.ch](https://www.origin-studio.ch/)
+Built and run by **Origin Studio** · Geneva, CH · [origin-studio.ch](https://www.origin-studio.ch/)
 
 ---
 
@@ -59,9 +58,10 @@ RESEND_API_KEY=re_...   # optional in dev
 
 **`apps/web/.env.local`**
 ```env
-NEXT_PUBLIC_API_URL=http://localhost:3001
+NEXT_PUBLIC_API_URL=http://localhost:3001/api
 ANTHROPIC_API_KEY=sk-ant-...
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+RESEND_API_KEY=re_...   # used by the AI Generator's "Send to Client" email
+EMAIL_DOMAIN=origin-studio.ch
 ```
 
 ---
@@ -110,8 +110,7 @@ streamline/
 ├── scripts/
 │   └── setup-dynamo.mjs
 ├── docs/
-│   ├── architecture.md
-│   └── devpost-description.md
+│   └── architecture.md
 └── pnpm-workspace.yaml
 ```
 
