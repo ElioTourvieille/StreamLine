@@ -8,18 +8,27 @@ import {
 import {
   DynamoDBDocumentClient,
   GetCommand,
+  PutCommand,
   UpdateCommand,
+  DeleteCommand,
   QueryCommand,
 } from '@aws-sdk/lib-dynamodb'
+import { v4 as uuidv4 } from 'uuid'
 import { DYNAMO_CLIENT } from '../database/database.module'
-import { UpdateProfileDto, AddMemberDto, ProjectMemberRole } from './dto/user.dto'
+import { UpdateProfileDto, AddMemberDto, InviteTeamMemberDto, ProjectMemberRole } from './dto/user.dto'
+import { NotificationsService } from '../notifications/notifications.service'
 import { JwtPayload, Role } from '../auth/dto/auth.dto'
+
+const TEAM_INVITE_TTL_SECONDS = 7 * 24 * 60 * 60 // 7 days — shorter than the client portal's 90d, teammates act fast or get re-invited
 
 const TABLE = process.env.DYNAMO_TABLE ?? 'streamline'
 
 @Injectable()
 export class UsersService {
-  constructor(@Inject(DYNAMO_CLIENT) private readonly db: DynamoDBDocumentClient) {}
+  constructor(
+    @Inject(DYNAMO_CLIENT) private readonly db: DynamoDBDocumentClient,
+    private readonly notify: NotificationsService,
+  ) {}
 
   // ─── Profile ─────────────────────────────────────────────────────────────
 
@@ -79,10 +88,95 @@ export class UsersService {
       }),
     )
 
-    // Hydrate each member ref with full profile
+    // Hydrate each member ref with its full profile, keeping the org-level
+    // role (OWNER/MEMBER) that lives on the MEMBER# ref, not on the user.
     const refs = result.Items ?? []
-    const profiles = await Promise.all(refs.map((r) => this.getProfile(r.userId as string).catch(() => null)))
+    const profiles = await Promise.all(
+      refs.map(async (r) => {
+        const profile = await this.getProfile(r.userId as string).catch(() => null)
+        return profile ? { ...profile, orgRole: r.role ?? 'MEMBER', joinedAt: r.joinedAt ?? r.addedAt } : null
+      }),
+    )
     return profiles.filter(Boolean)
+  }
+
+  // ─── Team invites ───────────────────────────────────────────────────────
+
+  async inviteMember(organizationId: string, dto: InviteTeamMemberDto, user: JwtPayload) {
+    if (user.organizationId !== organizationId) throw new ForbiddenException()
+
+    const existingUser = await this.findUserByEmail(dto.email)
+    if (existingUser?.organizationId === organizationId) {
+      throw new ConflictException('This person is already a member of your studio')
+    }
+
+    const org = await this.db.send(
+      new GetCommand({ TableName: TABLE, Key: { PK: `ORG#${organizationId}`, SK: `ORG#${organizationId}` } }),
+    )
+    if (!org.Item) throw new NotFoundException('Organization not found')
+
+    const inviter = await this.getProfile(user.sub).catch(() => null)
+
+    const token = uuidv4()
+    const now = new Date().toISOString()
+    const ttl = Math.floor(Date.now() / 1000) + TEAM_INVITE_TTL_SECONDS
+
+    await this.db.send(new PutCommand({
+      TableName: TABLE,
+      Item: {
+        PK: `TEAM_INVITE#${token}`,
+        SK: `TEAM_INVITE#${token}`,
+        organizationId,
+        email: dto.email,
+        name: dto.name,
+        invitedBy: user.sub,
+        createdAt: now,
+        ttl,
+      },
+    }))
+
+    const inviteUrl = `${process.env.WEB_URL ?? 'http://localhost:3000'}/register?invite=${token}`
+
+    await this.notify.sendTeamInvite({
+      to: dto.email,
+      inviterName: inviter?.name ? String(inviter.name) : 'Un membre de l’équipe',
+      studioName: String(org.Item.name ?? 'Origin Studio'),
+      inviteUrl,
+    }).catch(() => { /* non-blocking — the invite still works via the returned link */ })
+
+    return { inviteToken: token, inviteUrl, email: dto.email }
+  }
+
+  async removeOrgMember(organizationId: string, targetUserId: string, user: JwtPayload) {
+    if (user.organizationId !== organizationId) throw new ForbiddenException()
+
+    const org = await this.db.send(
+      new GetCommand({ TableName: TABLE, Key: { PK: `ORG#${organizationId}`, SK: `ORG#${organizationId}` } }),
+    )
+    if (!org.Item) throw new NotFoundException('Organization not found')
+    if (org.Item.ownerId !== user.sub) {
+      throw new ForbiddenException('Only the studio owner can remove members')
+    }
+    if (targetUserId === org.Item.ownerId) {
+      throw new ForbiddenException('The studio owner cannot be removed')
+    }
+
+    await this.db.send(
+      new DeleteCommand({ TableName: TABLE, Key: { PK: `ORG#${organizationId}`, SK: `MEMBER#${targetUserId}` } }),
+    )
+
+    // Clear the user's org link so future logins/permission checks are
+    // correct. Note: this doesn't revoke an already-issued JWT — that stays
+    // valid for up to 7 days (its own expiry) even after removal here.
+    await this.db.send(
+      new UpdateCommand({
+        TableName: TABLE,
+        Key: { PK: `USER#${targetUserId}`, SK: `USER#${targetUserId}` },
+        UpdateExpression: 'REMOVE organizationId SET updatedAt = :now',
+        ExpressionAttributeValues: { ':now': new Date().toISOString() },
+        ConditionExpression: 'attribute_exists(PK)',
+      }),
+    )
   }
 
   // ─── Project membership ───────────────────────────────────────────────────
@@ -163,6 +257,19 @@ export class UsersService {
   }
 
   // ─── Helpers ──────────────────────────────────────────────────────────────
+
+  private async findUserByEmail(email: string) {
+    const result = await this.db.send(
+      new QueryCommand({
+        TableName: TABLE,
+        IndexName: 'GSI1',
+        KeyConditionExpression: 'GSI1PK = :pk',
+        ExpressionAttributeValues: { ':pk': `EMAIL#${email}` },
+        Limit: 1,
+      }),
+    )
+    return result.Items?.[0] ?? null
+  }
 
   private async getProjectById(id: string) {
     const result = await this.db.send(

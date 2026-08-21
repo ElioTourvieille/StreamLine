@@ -1,4 +1,5 @@
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api'
+const HTTP_NO_CONTENT = 204
 
 function getToken() {
   if (typeof window === 'undefined') return null
@@ -19,6 +20,9 @@ export async function apiFetch<T = unknown>(path: string, opts?: RequestInit): P
     const text = await res.text()
     throw new Error(text || res.statusText)
   }
+  // 204 No Content (DELETE endpoints) has no body — res.json() would throw
+  // trying to parse an empty string.
+  if (res.status === HTTP_NO_CONTENT) return undefined as T
   return res.json() as Promise<T>
 }
 
@@ -47,6 +51,11 @@ export type UserProfile = {
   id: string; name: string; email: string; role: string
   organizationId?: string; avatarUrl?: string; jobTitle?: string
 }
+
+export type OrgMember = UserProfile & { orgRole: 'OWNER' | 'MEMBER'; joinedAt?: string }
+
+export type InviteMemberResponse = { inviteToken: string; inviteUrl: string; email: string }
+export type InvitePreview = { email: string; organizationName: string }
 
 export type Organization = {
   id: string; name: string; slug: string; primaryColor?: string; logoUrl?: string; website?: string
@@ -124,8 +133,9 @@ export type ProjectThread = {
 
 export const api = {
   auth: {
-    register: (data: { email: string; password: string; name: string; organizationName?: string }) =>
+    register: (data: { email: string; password: string; name: string; organizationName?: string; inviteToken?: string }) =>
       apiFetch<AuthResponse>('/auth/register', { method: 'POST', body: JSON.stringify(data) }),
+    previewInvite: (token: string) => apiFetch<InvitePreview>(`/auth/invite/${token}`),
     login: (email: string, password: string) =>
       apiFetch<AuthResponse>('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) }),
     me: () => apiFetch('/auth/me'),
@@ -200,6 +210,11 @@ export const api = {
     stats: (id: string) => apiFetch<OrgStats>(`/organizations/${id}/stats`),
     activity: (id: string) => apiFetch<ActivityEvent[]>(`/organizations/${id}/activity`),
     messages: (id: string) => apiFetch<ProjectThread[]>(`/organizations/${id}/messages`),
+    listMembers: (id: string) => apiFetch<OrgMember[]>(`/organizations/${id}/members`),
+    inviteMember: (id: string, data: { email: string; name?: string }) =>
+      apiFetch<InviteMemberResponse>(`/organizations/${id}/invite`, { method: 'POST', body: JSON.stringify(data) }),
+    removeMember: (id: string, userId: string) =>
+      apiFetch<void>(`/organizations/${id}/members/${userId}`, { method: 'DELETE' }),
   },
 
   messages: {

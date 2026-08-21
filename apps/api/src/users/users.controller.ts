@@ -1,9 +1,9 @@
 import {
   Controller, Get, Patch, Post, Delete,
-  Body, Param, UseGuards, HttpCode, HttpStatus,
+  Body, Param, UseGuards, HttpCode, HttpStatus, ForbiddenException,
 } from '@nestjs/common'
 import { UsersService } from './users.service'
-import { UpdateProfileDto, AddMemberDto } from './dto/user.dto'
+import { UpdateProfileDto, AddMemberDto, InviteTeamMemberDto } from './dto/user.dto'
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard'
 import { RolesGuard } from '../auth/guards/roles.guard'
 import { Roles } from '../auth/decorators/roles.decorator'
@@ -36,8 +36,29 @@ export class UsersController {
   @Get('organizations/:orgId/members')
   @Roles(Role.STUDIO)
   listOrgMembers(@Param('orgId') orgId: string, @CurrentUser() user: JwtPayload) {
-    if (user.organizationId !== orgId) throw new Error('Forbidden')
+    if (user.organizationId !== orgId) throw new ForbiddenException()
     return this.usersService.listOrgMembers(orgId)
+  }
+
+  @Post('organizations/:orgId/invite')
+  @Roles(Role.STUDIO)
+  inviteMember(
+    @Param('orgId') orgId: string,
+    @Body() dto: InviteTeamMemberDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.usersService.inviteMember(orgId, dto, user)
+  }
+
+  @Delete('organizations/:orgId/members/:userId')
+  @Roles(Role.STUDIO)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  removeOrgMember(
+    @Param('orgId') orgId: string,
+    @Param('userId') userId: string,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.usersService.removeOrgMember(orgId, userId, user)
   }
 
   // ─── Project membership ────────────────────────────────────────────────

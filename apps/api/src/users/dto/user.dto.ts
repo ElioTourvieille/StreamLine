@@ -1,4 +1,4 @@
-import { IsString, IsOptional, IsUUID, IsEnum } from 'class-validator'
+import { IsString, IsOptional, IsUUID, IsEnum, IsEmail } from 'class-validator'
 
 export enum ProjectMemberRole {
   LEAD = 'LEAD',
@@ -15,4 +15,9 @@ export class UpdateProfileDto {
 export class AddMemberDto {
   @IsUUID() userId!: string
   @IsEnum(ProjectMemberRole) @IsOptional() role?: ProjectMemberRole
+}
+
+export class InviteTeamMemberDto {
+  @IsEmail() email!: string
+  @IsString() @IsOptional() name?: string
 }
