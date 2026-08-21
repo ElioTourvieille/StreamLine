@@ -29,3 +29,7 @@ export class InviteClientDto {
   @IsEmail() email!: string
   @IsString() @IsNotEmpty() name!: string
 }
+
+export class CreateClientNoteDto {
+  @IsString() @IsNotEmpty() text!: string
+}

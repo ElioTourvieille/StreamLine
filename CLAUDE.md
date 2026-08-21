@@ -103,7 +103,8 @@ INVITE#{token}       | METADATA + TTL 90j              → Token portal client
 ### ✅ Terminé et fonctionnel
 
 - Auth JWT (register + login + me) avec création automatique d'organisation
-- Clients : CRUD complet + invitation portal (génère token DynamoDB, TTL 90j appliqué aussi côté lecture, pas juste au sweep DynamoDB)
+- Clients : CRUD complet + invitation portal (génère token DynamoDB, TTL 90j appliqué aussi côté lecture, pas juste au sweep DynamoDB) + fiche client `/clients/:id` (projets, notes internes horodatées, coordonnées) — la liste clique désormais vers la fiche
+- Équipe : inviter des collègues dans le même studio (`/settings` → Équipe), rôle OWNER/MEMBER, retrait de membre par le propriétaire
 - Projets : CRUD + milestones + membres
 - Livrables : create + list + workflow (approve / request changes) + upload de fichiers réels (S3, URLs pré-signées, bucket privé, jamais public)
 - Dashboard `/dashboard` : stats et activité réelles via `api.organizations.stats()`/`.activity()` — plus de données hardcodées
@@ -136,6 +137,10 @@ INVITE#{token}       | METADATA + TTL 90j              → Token portal client
 | POST/GET/PATCH | `/api/organizations/:id` | ✅ | STUDIO |
 | POST/GET/PATCH/DELETE | `/api/clients` | ✅ | STUDIO |
 | POST | `/api/clients/:id/invite` | ✅ | STUDIO |
+| POST/GET | `/api/clients/:id/notes` | ✅ | STUDIO |
+| POST | `/api/organizations/:orgId/invite` | ✅ | STUDIO |
+| DELETE | `/api/organizations/:orgId/members/:userId` | ✅ | STUDIO |
+| GET | `/api/auth/invite/:token` | ❌ | public |
 | POST/GET/PATCH/DELETE | `/api/projects` | ✅ | STUDIO |
 | POST/PATCH | `/api/projects/:id/milestones` | ✅ | STUDIO |
 | POST/GET | `/api/deliverables` | ✅ | STUDIO/CLIENT |

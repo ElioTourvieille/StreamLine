@@ -69,6 +69,11 @@ export type Client = {
   inviteToken?: string; organizationId?: string
 }
 
+export type ClientNote = {
+  id: string; clientId: string; authorId: string; authorName: string
+  text: string; createdAt: string
+}
+
 export type Milestone = {
   id: string; title: string; dueDate?: string
   status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED'
@@ -150,6 +155,11 @@ export const api = {
       apiFetch<Client>(`/clients/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
     invite: (id: string, data: { email: string; name: string }) =>
       apiFetch<InviteResponse>(`/clients/${id}/invite`, { method: 'POST', body: JSON.stringify(data) }),
+    notes: {
+      list: (id: string) => apiFetch<ClientNote[]>(`/clients/${id}/notes`),
+      add: (id: string, text: string) =>
+        apiFetch<ClientNote>(`/clients/${id}/notes`, { method: 'POST', body: JSON.stringify({ text }) }),
+    },
   },
 
   projects: {
