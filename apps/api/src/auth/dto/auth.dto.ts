@@ -11,6 +11,10 @@ export class RegisterDto {
   @IsString() @MinLength(2) name!: string
   @IsEnum(Role) @IsOptional() role?: Role
   @IsString() @IsOptional() organizationName?: string
+  // Set when registering via a teammate invite link — joins that
+  // organization instead of creating a new one. Mutually exclusive
+  // with organizationName.
+  @IsString() @IsOptional() inviteToken?: string
 }
 
 export class LoginDto {

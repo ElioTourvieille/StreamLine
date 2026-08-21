@@ -118,7 +118,7 @@ export class NotificationsService {
     await client.emails.send({
       from: `StreamLine <noreply@${process.env.EMAIL_DOMAIN ?? 'streamline.studio'}>`,
       to: opts.to,
-      subject: `Action required: "${opts.deliverableTitle}" awaits your approval`,
+      subject: `Action requise : "${opts.deliverableTitle}" attend votre validation`,
       html: this.deliverableReadyHtml(opts),
     })
   }
@@ -134,7 +134,7 @@ export class NotificationsService {
     dashboardUrl: string
   }) {
     const client = this.getClient()
-    const label = opts.action === 'APPROVED' ? '✅ Approved' : '🔄 Changes requested'
+    const label = opts.action === 'APPROVED' ? '✅ Approuvé' : '🔄 Modifications demandées'
     if (!client) {
       this.log.debug(`[DEV] Email to ${opts.to}: ${label} — ${opts.deliverableTitle}`)
       return
@@ -142,38 +142,67 @@ export class NotificationsService {
     await client.emails.send({
       from: `StreamLine <noreply@${process.env.EMAIL_DOMAIN ?? 'streamline.studio'}>`,
       to: opts.to,
-      subject: `${label}: "${opts.deliverableTitle}" by ${opts.clientName}`,
+      subject: `${label} : "${opts.deliverableTitle}" par ${opts.clientName}`,
       html: this.validationActionHtml(opts),
     })
   }
 
+  async sendTeamInvite(opts: {
+    to: string
+    inviterName: string
+    studioName: string
+    inviteUrl: string
+  }) {
+    const client = this.getClient()
+    if (!client) {
+      this.log.debug(`[DEV] Email to ${opts.to}: invited to join ${opts.studioName}`)
+      return
+    }
+    await client.emails.send({
+      from: `StreamLine <noreply@${process.env.EMAIL_DOMAIN ?? 'streamline.studio'}>`,
+      to: opts.to,
+      subject: `${opts.inviterName} vous invite à rejoindre ${opts.studioName} sur StreamLine`,
+      html: this.teamInviteHtml(opts),
+    })
+  }
+
   private deliverableReadyHtml(opts: { clientName: string; projectName: string; deliverableTitle: string; portalUrl: string }) {
-    return `<!DOCTYPE html><html><body style="font-family:Inter,sans-serif;background:#131317;color:#F1F5F9;padding:40px">
-<div style="max-width:520px;margin:auto;background:#1A1A24;border:1px solid #2D2D3D;border-radius:12px;padding:32px">
-  <h1 style="font-size:20px;font-weight:600;margin:0 0 8px">New deliverable ready for review</h1>
-  <p style="color:#64748B;margin:0 0 24px">Hi ${opts.clientName}, a new item is waiting for your approval on <strong style="color:#F1F5F9">${opts.projectName}</strong>.</p>
-  <div style="background:#131317;border:1px solid #2D2D3D;border-radius:8px;padding:16px;margin-bottom:24px">
+    return `<!DOCTYPE html><html><body style="font-family:Inter,sans-serif;background:#F7F7FB;color:#14141C;padding:40px">
+<div style="max-width:520px;margin:auto;background:#FFFFFF;border:1px solid #E4E4EA;border-radius:12px;padding:32px">
+  <h1 style="font-size:20px;font-weight:600;margin:0 0 8px">Nouveau livrable à valider</h1>
+  <p style="color:#6B6C80;margin:0 0 24px">Bonjour ${opts.clientName}, un nouvel élément attend votre validation sur <strong style="color:#14141C">${opts.projectName}</strong>.</p>
+  <div style="background:#F7F7FB;border:1px solid #E4E4EA;border-radius:8px;padding:16px;margin-bottom:24px">
     <p style="margin:0;font-weight:600">${opts.deliverableTitle}</p>
   </div>
-  <a href="${opts.portalUrl}" style="display:inline-block;background:#7c3aed;color:#fff;font-weight:600;padding:12px 24px;border-radius:8px;text-decoration:none">Review &amp; Approve →</a>
-  <p style="color:#64748B;font-size:12px;margin-top:24px">StreamLine — The studio project hub</p>
+  <a href="${opts.portalUrl}" style="display:inline-block;background:#7c3aed;color:#fff;font-weight:600;padding:12px 24px;border-radius:8px;text-decoration:none">Consulter et valider →</a>
+  <p style="color:#6B6C80;font-size:12px;margin-top:24px">StreamLine — le hub de projet du studio</p>
 </div></body></html>`
   }
 
   private validationActionHtml(opts: { studioName: string; clientName: string; projectName: string; deliverableTitle: string; action: string; comment?: string; dashboardUrl: string }) {
     const isApproved = opts.action === 'APPROVED'
-    const color = isApproved ? '#22C55E' : '#F59E0B'
-    const label = isApproved ? 'Approved ✅' : 'Changes Requested 🔄'
-    return `<!DOCTYPE html><html><body style="font-family:Inter,sans-serif;background:#131317;color:#F1F5F9;padding:40px">
-<div style="max-width:520px;margin:auto;background:#1A1A24;border:1px solid #2D2D3D;border-radius:12px;padding:32px">
-  <h1 style="font-size:20px;font-weight:600;margin:0 0 8px">Client validation update</h1>
-  <p style="color:#64748B;margin:0 0 24px"><strong style="color:#F1F5F9">${opts.clientName}</strong> has responded to a deliverable on <strong style="color:#F1F5F9">${opts.projectName}</strong>.</p>
-  <div style="background:#131317;border:1px solid #2D2D3D;border-radius:8px;padding:16px;margin-bottom:16px">
+    const color = isApproved ? '#0F6B32' : '#A34B08'
+    const label = isApproved ? 'Approuvé ✅' : 'Modifications demandées 🔄'
+    return `<!DOCTYPE html><html><body style="font-family:Inter,sans-serif;background:#F7F7FB;color:#14141C;padding:40px">
+<div style="max-width:520px;margin:auto;background:#FFFFFF;border:1px solid #E4E4EA;border-radius:12px;padding:32px">
+  <h1 style="font-size:20px;font-weight:600;margin:0 0 8px">Mise à jour côté client</h1>
+  <p style="color:#6B6C80;margin:0 0 24px"><strong style="color:#14141C">${opts.clientName}</strong> a répondu à un livrable sur <strong style="color:#14141C">${opts.projectName}</strong>.</p>
+  <div style="background:#F7F7FB;border:1px solid #E4E4EA;border-radius:8px;padding:16px;margin-bottom:16px">
     <p style="margin:0 0 8px;font-weight:600">${opts.deliverableTitle}</p>
-    <span style="background:${color}26;color:${color};font-size:12px;font-weight:600;padding:4px 10px;border-radius:9999px">${label}</span>
+    <span style="background:${color}1a;color:${color};font-size:12px;font-weight:600;padding:4px 10px;border-radius:9999px">${label}</span>
   </div>
-  ${opts.comment ? `<div style="background:#131317;border-left:3px solid ${color};padding:12px 16px;margin-bottom:24px;border-radius:0 8px 8px 0"><p style="margin:0;color:#ccc3d8;font-size:14px">"${opts.comment}"</p></div>` : ''}
-  <a href="${opts.dashboardUrl}" style="display:inline-block;background:#7c3aed;color:#fff;font-weight:600;padding:12px 24px;border-radius:8px;text-decoration:none">View in Dashboard →</a>
+  ${opts.comment ? `<div style="background:#F7F7FB;border-left:3px solid ${color};padding:12px 16px;margin-bottom:24px;border-radius:0 8px 8px 0"><p style="margin:0;color:#45465A;font-size:14px">« ${opts.comment} »</p></div>` : ''}
+  <a href="${opts.dashboardUrl}" style="display:inline-block;background:#7c3aed;color:#fff;font-weight:600;padding:12px 24px;border-radius:8px;text-decoration:none">Voir dans le tableau de bord →</a>
+</div></body></html>`
+  }
+
+  private teamInviteHtml(opts: { inviterName: string; studioName: string; inviteUrl: string }) {
+    return `<!DOCTYPE html><html><body style="font-family:Inter,sans-serif;background:#F7F7FB;color:#14141C;padding:40px">
+<div style="max-width:520px;margin:auto;background:#FFFFFF;border:1px solid #E4E4EA;border-radius:12px;padding:32px">
+  <h1 style="font-size:20px;font-weight:600;margin:0 0 8px">Vous êtes invité·e chez ${opts.studioName}</h1>
+  <p style="color:#6B6C80;margin:0 0 24px"><strong style="color:#14141C">${opts.inviterName}</strong> vous invite à rejoindre <strong style="color:#14141C">${opts.studioName}</strong> sur StreamLine.</p>
+  <a href="${opts.inviteUrl}" style="display:inline-block;background:#7c3aed;color:#fff;font-weight:600;padding:12px 24px;border-radius:8px;text-decoration:none">Rejoindre l’équipe →</a>
+  <p style="color:#6B6C80;font-size:12px;margin-top:24px">Ce lien expire dans 7 jours. Si vous ne vous attendiez pas à cette invitation, ignorez simplement cet e-mail.</p>
 </div></body></html>`
   }
 }

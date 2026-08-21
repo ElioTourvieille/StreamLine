@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Get, UseGuards } from '@nestjs/common'
+import { Controller, Post, Body, Get, Param, UseGuards } from '@nestjs/common'
 import { AuthService } from './auth.service'
 import { RegisterDto, LoginDto } from './dto/auth.dto'
 import { JwtAuthGuard } from './guards/jwt-auth.guard'
@@ -12,6 +12,13 @@ export class AuthController {
   @Post('register')
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto)
+  }
+
+  // Public preview so the register page can show "You've been invited to
+  // join {studio}" before the visitor commits to creating an account.
+  @Get('invite/:token')
+  previewInvite(@Param('token') token: string) {
+    return this.authService.resolveTeamInvitePreview(token)
   }
 
   @Post('login')
