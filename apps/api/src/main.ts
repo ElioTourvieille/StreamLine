@@ -1,3 +1,5 @@
+// Sentry must init before any other import — see instrument.ts.
+import './instrument'
 import 'dotenv/config'
 import { NestFactory } from '@nestjs/core'
 import { ValidationPipe } from '@nestjs/common'

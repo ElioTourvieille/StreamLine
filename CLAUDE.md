@@ -70,6 +70,7 @@ streamline/
 | Auth | JWT maison | register + login + me |
 | AI | Claude Opus 4.8 via Anthropic API | Streaming temps réel |
 | Email | Resend | Magic links, notifications (lazy-loaded) |
+| Monitoring | Sentry | Erreurs + traces, web + api — no-op si `SENTRY_DSN` absent |
 | Déploiement | Vercel (web) + AWS Elastic Beanstalk (api) | — |
 
 ---
@@ -115,10 +116,11 @@ INVITE#{token}       | METADATA + TTL 90j              → Token portal client
 - Email via Resend (lazy-loaded — fonctionne sans la clé en dev)
 - Design system : Tailwind v4, **thème clair** (voir `apps/web/DESIGN.md`), 100% français, responsive mobile
 - Sécurité : `JWT_SECRET` sans fallback (l'API refuse de démarrer si absent), rate limiting sur les routes publiques du portail
+- Monitoring d'erreurs : Sentry câblé sur web (client + server + edge + `global-error.tsx`) et api (`SentryModule` + `SentryGlobalFilter`, initialisé dans `instrument.ts` avant tout le reste) — lazy comme Resend, désactivé tant que `SENTRY_DSN`/`NEXT_PUBLIC_SENTRY_DSN` n'est pas renseigné
 
 ### ❌ Non configuré (bloquant en prod)
 
-- `ANTHROPIC_API_KEY` dans `apps/web/.env.local` (placeholder)
+- `SENTRY_DSN` (api) et `NEXT_PUBLIC_SENTRY_DSN` (web) — tant que ce n'est pas rempli, aucune erreur prod n'est remontée
 - DynamoDB table à provisionner : `pnpm db:setup`
 - Bucket S3 à provisionner : `pnpm s3:setup` (sinon l'upload de fichiers échoue proprement avec une erreur 503, l'app démarre quand même)
 - Credentials AWS dans `apps/api/.env`
@@ -183,9 +185,13 @@ pnpm lint
 ### apps/web/.env.local
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:3001/api
-ANTHROPIC_API_KEY=sk-ant-...          # ← à remplir
+ANTHROPIC_API_KEY=sk-ant-...          # rempli
 RESEND_API_KEY=re_...                 # optionnel en dev — e-mail "Envoyer au client" de l'AI Generator
 EMAIL_DOMAIN=origin-studio.ch
+NEXT_PUBLIC_SENTRY_DSN=               # optionnel en dev — monitoring désactivé si vide
+SENTRY_ORG=                           # optionnel — upload des source maps au build (CI/prod)
+SENTRY_PROJECT=
+SENTRY_AUTH_TOKEN=
 ```
 
 ### apps/api/.env
@@ -199,6 +205,7 @@ S3_BUCKET=...                         # ← à remplir (upload de livrables, pnp
 RESEND_API_KEY=re_...                 # optionnel en dev
 WEB_URL=http://localhost:3000
 JWT_SECRET=...                        # ← à remplir
+SENTRY_DSN=                           # optionnel en dev — monitoring désactivé si vide
 ```
 
 ---
@@ -286,10 +293,10 @@ Le fichier `PROGRESS.md` à la racine du projet suit ce format :
 
 La liste vivante des chantiers en cours vit dans `PROGRESS.md` (entrée la plus récente en haut). À date, les grands axes identifiés pour la transition hackathon → produit réel :
 
-- Multi-utilisateur par studio (inviter des collègues dans la même organisation)
-- Monitoring d'erreurs en prod (Sentry ou équivalent)
 - Plafond de coût sur l'usage de l'AI Generator
 - Domaine custom + migration de l'infra déployée vers `eu-central-2` (Zurich)
+- Scoping CLIENT sur `deliverables.findById` (un client authentifié peut aujourd'hui consulter un livrable d'un autre client en devinant l'ID)
+- Suite de tests automatisés (aucune aujourd'hui — seulement des vérifications e2e manuelles par session)
 
 ---
 
